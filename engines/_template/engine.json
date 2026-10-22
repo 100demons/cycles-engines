@@ -1,0 +1,24 @@
+{
+  "card_version": 1,
+  "id": "REPLACE-WITH-THE-FOLDER-NAME",
+  "name": "ENGINE NAME",
+  "version": "0.1.0",
+  "status": "experimental",
+  "author": "100demons",
+  "license": "MIT",
+  "summary": "One sentence a musician understands.",
+  "base_os": "model-cycles_OS1.13",
+  "knobs": [
+    { "slot": "COLOR", "does": "" },
+    { "slot": "SHAPE", "does": "" },
+    { "slot": "SWEEP", "does": "" },
+    { "slot": "CONTOUR", "does": "" }
+  ],
+  "cpu_note": "Measured cost per voice, or: not measured yet",
+  "requires": [],
+  "conflicts": [],
+  "tested_on_hardware": null,
+  "emulator_proof": null,
+  "credits": [],
+  "files": ["README.md", "CHANGELOG.md"]
+}

@@ -1,0 +1,57 @@
+{
+  "card_version": 1,
+  "id": "lixr",
+  "name": "LiXR",
+  "version": "3.0.0",
+  "status": "tested",
+  "author": "100demons",
+  "license": "MIT",
+  "summary": "A fixed-point drum voice with feedback FM, a pitch envelope and a sample-rate decimator where the filter would be.",
+  "base_os": "model-cycles_OS1.13",
+  "knobs": [
+    {
+      "slot": "COLOR",
+      "does": "waveform: sine on the left, triangle in the centre, saw then rectangle on the right. Past 0.65 it adds noise, and past 0.85 a clap-like burst; SHAPE reduces the noise"
+    },
+    {
+      "slot": "SHAPE",
+      "does": "feedback FM, from none to a quarter cycle of modulation, on a square law; the top of the range is the wild part"
+    },
+    {
+      "slot": "SWEEP",
+      "does": "pitch envelope: depth (0 to 48 semitones) and decay time together"
+    },
+    {
+      "slot": "CONTOUR",
+      "does": "labelled **Rate**: the decimator's sample rate, clean at 0 to a coarse, aliased buzz at 127"
+    }
+  ],
+  "cpu_note": "6,335 to 6,499 instructions per block and per voice in the OS's own voice loop, against 6,572 for TONE (measured in emulation; not measured on the machine). It has no load governor of its own, so several LiXR tracks at once can starve the processor.",
+  "requires": [],
+  "conflicts": [],
+  "tested_on_hardware": "2026-10-22",
+  "emulator_proof": "model27 tools/emu/test_lixr.py in the real OS voice loop (Unicorn): sound through the stock amp chain, no unmapped access, stock KICK unchanged",
+  "credits": [
+    {
+      "who": "100demons and Claude",
+      "what": "the engine code, tables and design",
+      "license": "MIT"
+    },
+    {
+      "who": "Sonic Potions (LXR) and Brendan Clarke (LXR02Open)",
+      "what": "the LXR drum voice as a specification and a listening reference; no code, table or sample copied",
+      "license": "LXR source is non-commercial, not used"
+    }
+  ],
+  "files": [
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "manifest.json",
+    "src/lixr.c",
+    "src/lixr_dsp.h",
+    "src/lixr_tables.h",
+    "addon/lixr.o",
+    "addon/36-lixr.json"
+  ]
+}

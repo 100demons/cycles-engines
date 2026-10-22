@@ -1,0 +1,22 @@
+# Elektron firmware must never be committed (the safety check also enforces this)
+*.syx
+firmware/
+build/
+
+# Built zips are made on demand and attached to GitHub Releases instead
+dist/
+
+# Secrets and local settings
+.env
+auth.json
+*.pem
+*.key
+
+# Python / editor / OS noise
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

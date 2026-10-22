@@ -1,0 +1,49 @@
+{
+  "index_version": 1,
+  "generated_by": "scripts/build_index.py",
+  "engines": [
+    {
+      "id": "lixr",
+      "name": "LiXR",
+      "version": "3.0.0",
+      "status": "tested",
+      "summary": "A fixed-point drum voice with feedback FM, a pitch envelope and a sample-rate decimator where the filter would be.",
+      "author": "100demons",
+      "license": "MIT",
+      "base_os": "model-cycles_OS1.13",
+      "path": "engines/lixr",
+      "files": [
+        "engines/lixr/README.md",
+        "engines/lixr/CHANGELOG.md",
+        "engines/lixr/LICENSE",
+        "engines/lixr/manifest.json",
+        "engines/lixr/src/lixr.c",
+        "engines/lixr/src/lixr_dsp.h",
+        "engines/lixr/src/lixr_tables.h",
+        "engines/lixr/addon/lixr.o",
+        "engines/lixr/addon/36-lixr.json"
+      ],
+      "knobs": [
+        {
+          "slot": "COLOR",
+          "does": "waveform: sine on the left, triangle in the centre, saw then rectangle on the right. Past 0.65 it adds noise, and past 0.85 a clap-like burst; SHAPE reduces the noise"
+        },
+        {
+          "slot": "SHAPE",
+          "does": "feedback FM, from none to a quarter cycle of modulation, on a square law; the top of the range is the wild part"
+        },
+        {
+          "slot": "SWEEP",
+          "does": "pitch envelope: depth (0 to 48 semitones) and decay time together"
+        },
+        {
+          "slot": "CONTOUR",
+          "does": "labelled **Rate**: the decimator's sample rate, clean at 0 to a coarse, aliased buzz at 127"
+        }
+      ],
+      "requires": [],
+      "conflicts": [],
+      "tested_on_hardware": "2026-10-22"
+    }
+  ]
+}

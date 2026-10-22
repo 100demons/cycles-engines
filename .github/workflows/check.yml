@@ -1,0 +1,18 @@
+name: checks
+
+# Runs by itself on GitHub every time something is pushed or a pull request is opened.
+# A red X on a commit means the safety check or the engine cards found a problem.
+on: [push, pull_request]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: No firmware, no secrets, no huge files
+        run: python3 scripts/check_safety.py --all
+      - name: Engine cards valid and index up to date
+        run: python3 scripts/build_index.py --check
