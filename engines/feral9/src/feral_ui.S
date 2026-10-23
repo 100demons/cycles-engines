@@ -7,6 +7,8 @@
 
 	.globl	feral_state_init
 feral_state_init:
+	tst.l	feral_state_ready
+	bne.s	2f
 	lea	0x40a71754+5200, %a1
 	lea	feral_state, %a0
 	moveq	#24, %d1
@@ -18,6 +20,9 @@ feral_state_init:
 	move.l	%d1, 0x20(%a0)
 	move.l	#feral_draw, %d1
 	move.l	%d1, 0x30(%a0)
+	moveq	#1, %d1
+	move.l	%d1, feral_state_ready
+2:	lea	feral_state, %a0
 	move.l	%a0, %d0
 	rts
 
@@ -94,3 +99,4 @@ feral_n8:	.asciz	"KOS"
 	.bss
 	.balign	4
 feral_state:	.space	100
+feral_state_ready:	.space	4
