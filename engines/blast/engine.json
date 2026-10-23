@@ -1,0 +1,35 @@
+{
+  "card_version": 1,
+  "id": "blast",
+  "name": "BLAST",
+  "version": "3.0.0",
+  "status": "experimental",
+  "author": "100demons",
+  "license": "MIT",
+  "summary": "Fourteen tonal OPL2 two-operator FM models, with a stepped modulator ratio on SWEEP.",
+  "base_os": "model-cycles_OS1.13",
+  "knobs": [
+    { "slot": "COLOR", "does": "Index: the FM modulation index / modulator level, the mallet hardness or the feedback" },
+    { "slot": "SHAPE", "does": "Model: SIN, HLF, ABS, PLS, BAS, PIA, MAR, GLK, BRS, ACC, STR, STL, TMP, ZAP" },
+    { "slot": "SWEEP", "does": "Ratio: the modulator ratio in three-character steps (1:2 … 15X); FUNC leaves the steps" },
+    { "slot": "CONTOUR", "does": "Env: how the sound moves (brightness decay, swell, feedback, detune, mallet click)" }
+  ],
+  "cpu_note": "About 60 to 84 % of a stock TONE voice per block (source-tree measurement); a silent voice costs almost nothing.",
+  "requires": [],
+  "conflicts": ["lixr", "feral9", "blam"],
+  "tested_on_hardware": null,
+  "emulator_proof": "source-tree proofs: all 14 models, GATE on/off, silence, cost, memory, stack; OS proof with boot, descriptors, names and ratios",
+  "credits": [
+    { "who": "100demons and Claude", "what": "the engine code, tables and design", "license": "MIT" }
+  ],
+  "files": [
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "src/blast.c",
+    "src/blast_dsp.h",
+    "src/blast_tables.h",
+    "src/blast_icons.h",
+    "addon/66-blast.json"
+  ]
+}

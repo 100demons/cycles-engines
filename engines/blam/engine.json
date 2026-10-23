@@ -1,0 +1,38 @@
+{
+  "card_version": 1,
+  "id": "blam",
+  "name": "BLAM",
+  "version": "1.0.0",
+  "status": "experimental",
+  "author": "100demons",
+  "license": "MIT",
+  "summary": "Twelve OPL2 FM percussion models and two SAM speech banks on one extra machine.",
+  "base_os": "model-cycles_OS1.13",
+  "knobs": [
+    { "slot": "COLOR", "does": "the FM model's colour; on SAM1/SAM2, the word" },
+    { "slot": "SHAPE", "does": "Model: KIK, TOM, BNG, CNG, TAI, TIM, MAR, DJB, BLK, GNG, BUB, ZAP, SAM1, SAM2" },
+    { "slot": "SWEEP", "does": "the stepped Ratio on FM models; the scrub position on SAM1/SAM2" },
+    { "slot": "CONTOUR", "does": "the envelope contour; the speaking speed on SAM1/SAM2" }
+  ],
+  "cpu_note": "A playing voice costs 2,700 to 4,400 instructions per block, against 5,291 for TONE (source-tree measurement).",
+  "requires": [],
+  "conflicts": ["lixr", "feral9", "blast"],
+  "tested_on_hardware": null,
+  "emulator_proof": "source-tree proofs: the FM models and SAM banks, silence, cost, memory, stack; OS proof with boot, names, ratios, voice loop",
+  "credits": [
+    { "who": "100demons and Claude", "what": "the engine code, tables, SAM words and design", "license": "MIT" }
+  ],
+  "files": [
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "src/blam.c",
+    "src/blam_dsp.h",
+    "src/blam_sam.h",
+    "src/blam_sam_tables.h",
+    "src/blam_sam_words.h",
+    "src/blam_tables.h",
+    "src/blam_icons.h",
+    "addon/67-blam.json"
+  ]
+}

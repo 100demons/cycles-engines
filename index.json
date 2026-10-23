@@ -3,6 +3,101 @@
   "generated_by": "scripts/build_index.py",
   "engines": [
     {
+      "id": "blam",
+      "name": "BLAM",
+      "version": "1.0.0",
+      "status": "experimental",
+      "summary": "Twelve OPL2 FM percussion models and two SAM speech banks on one extra machine.",
+      "author": "100demons",
+      "license": "MIT",
+      "base_os": "model-cycles_OS1.13",
+      "path": "engines/blam",
+      "files": [
+        "engines/blam/README.md",
+        "engines/blam/CHANGELOG.md",
+        "engines/blam/LICENSE",
+        "engines/blam/src/blam.c",
+        "engines/blam/src/blam_dsp.h",
+        "engines/blam/src/blam_sam.h",
+        "engines/blam/src/blam_sam_tables.h",
+        "engines/blam/src/blam_sam_words.h",
+        "engines/blam/src/blam_tables.h",
+        "engines/blam/src/blam_icons.h",
+        "engines/blam/addon/67-blam.json"
+      ],
+      "knobs": [
+        {
+          "slot": "COLOR",
+          "does": "the FM model's colour; on SAM1/SAM2, the word"
+        },
+        {
+          "slot": "SHAPE",
+          "does": "Model: KIK, TOM, BNG, CNG, TAI, TIM, MAR, DJB, BLK, GNG, BUB, ZAP, SAM1, SAM2"
+        },
+        {
+          "slot": "SWEEP",
+          "does": "the stepped Ratio on FM models; the scrub position on SAM1/SAM2"
+        },
+        {
+          "slot": "CONTOUR",
+          "does": "the envelope contour; the speaking speed on SAM1/SAM2"
+        }
+      ],
+      "requires": [],
+      "conflicts": [
+        "lixr",
+        "feral9",
+        "blast"
+      ],
+      "tested_on_hardware": null
+    },
+    {
+      "id": "blast",
+      "name": "BLAST",
+      "version": "3.0.0",
+      "status": "experimental",
+      "summary": "Fourteen tonal OPL2 two-operator FM models, with a stepped modulator ratio on SWEEP.",
+      "author": "100demons",
+      "license": "MIT",
+      "base_os": "model-cycles_OS1.13",
+      "path": "engines/blast",
+      "files": [
+        "engines/blast/README.md",
+        "engines/blast/CHANGELOG.md",
+        "engines/blast/LICENSE",
+        "engines/blast/src/blast.c",
+        "engines/blast/src/blast_dsp.h",
+        "engines/blast/src/blast_tables.h",
+        "engines/blast/src/blast_icons.h",
+        "engines/blast/addon/66-blast.json"
+      ],
+      "knobs": [
+        {
+          "slot": "COLOR",
+          "does": "Index: the FM modulation index / modulator level, the mallet hardness or the feedback"
+        },
+        {
+          "slot": "SHAPE",
+          "does": "Model: SIN, HLF, ABS, PLS, BAS, PIA, MAR, GLK, BRS, ACC, STR, STL, TMP, ZAP"
+        },
+        {
+          "slot": "SWEEP",
+          "does": "Ratio: the modulator ratio in three-character steps (1:2 … 15X); FUNC leaves the steps"
+        },
+        {
+          "slot": "CONTOUR",
+          "does": "Env: how the sound moves (brightness decay, swell, feedback, detune, mallet click)"
+        }
+      ],
+      "requires": [],
+      "conflicts": [
+        "lixr",
+        "feral9",
+        "blam"
+      ],
+      "tested_on_hardware": null
+    },
+    {
       "id": "feral9",
       "name": "Feral",
       "version": "9.0.0",
