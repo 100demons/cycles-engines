@@ -41,25 +41,26 @@ CPU cost per voice: the worst model is **4,801 instructions per 32-sample block*
 5,290 for TONE (one playing voice, measured in the source tree). All nine models stay below
 the stock TONE voice. There is no load governor of its own.
 
-Works together with: nothing else that adds a machine. This is a standalone tweak, not a
-composer package.
+Works together with: LiXR and other model27 machine packages through the composer. This folder
+is a model27 package (manifest, sources and the committed object).
 
-Does not work with: LiXR, SAMPLE, MACRO, ACID, the Syntakt engines or Model-TG; they take
-the same machine slot or the same payload window.
+Does not work with: the old prebuilt single-machine tweaks (MACRO, ACID, the Syntakt engines,
+Model-TG) unless they are composed as packages.
 
 ## Testing
 
-- Emulator proof: **not run in model27**. The source tree measured the CPU cost and reported
-  the model set; the sound has not been checked against a reference here.
-- Real Model:Cycles: **2026-10-22**, standalone.
+- Emulator proof: **2026-10-22**, model27 `tools/emu/test_feral9.py`: sound through the stock amp
+  chain, no unmapped access, stock KICK unchanged. **ALL OK**.
+- Real Model:Cycles: **2026-10-22**, standalone; the composed build with LiXR is new.
 
 ## Install
 
 Easiest: tick **Feral** in the [model27 flasher](https://100demons.github.io/cycles-flasher/flasher/)
-and bring your own official `model-cycles_OS1.13.syx`.
+and bring your own official `model-cycles_OS1.13.syx`. Tick LiXR too and the page composes both.
 
-`addon/63-feral9.json` is the ready-made tweak. It is a standalone added-machine tweak, not a
-model27 package: apply it with `tools/build.py -t feral9` or a flasher that accepts a tweak.
+This folder **is** a model27 package: `manifest.json` points at `src/` and `addon/`; `addon/64-feral9.json`
+is the composed single-machine build, `addon/feral9.o` the committed object. SHAPE currently shows the
+model number (0–8) and the MACHINES picture is TONE's; those custom parts are not ported yet.
 
 This folder contains no Elektron firmware. Every write in the tweak is checked against the
 bytes of *your own* official OS file when it is applied.

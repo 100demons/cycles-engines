@@ -59,7 +59,14 @@ FERAL_BITMAP(feral_bm_c, 25, 22, FERAL_IMG_C, FERAL_MSK_C);
 /* Table des descripteurs recopiee au build a 0x43034000 (gs.DESCN) : 76 COLOR, 77 SHAPE, 78 SWEEP,
  * 79 CONTOUR, 80 Amp Decay. Le nom long est en +0x2c, le nom court en +0x34. Feral reecrit les trois noms longs
  * quand le modele d'une piste change : la fenetre de valeur montre alors le vrai reglage du modele. */
-#ifndef FERAL_DESC_COLOR
+#ifdef CM_SYMBOLS
+/* package: the composer gives this machine its first descriptor index (76, 81, ...). */
+extern char cm_descriptor_base[];
+#define FERAL_DESC(k)  (0x43034000 + ((int)(long)cm_descriptor_base + (k)) * 0x38 + 0x2c)
+#define FERAL_DESC_COLOR   FERAL_DESC(0)
+#define FERAL_DESC_SWEEP   FERAL_DESC(2)
+#define FERAL_DESC_CONTOUR FERAL_DESC(3)
+#elif !defined(FERAL_DESC_COLOR)
 #define FERAL_DESC_COLOR  (0x43034000 + 76 * 0x38 + 0x2c)
 #define FERAL_DESC_SWEEP  (0x43034000 + 78 * 0x38 + 0x2c)
 #define FERAL_DESC_CONTOUR (0x43034000 + 79 * 0x38 + 0x2c)

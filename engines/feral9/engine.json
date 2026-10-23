@@ -28,11 +28,9 @@
   ],
   "cpu_note": "Worst model 4,801 instructions per 32-sample block, against 5,290 for TONE (one playing voice, measured in the source tree).",
   "requires": [],
-  "conflicts": [
-    "lixr"
-  ],
+  "conflicts": [],
   "tested_on_hardware": "2026-10-22",
-  "emulator_proof": null,
+  "emulator_proof": "model27 tools/emu/test_feral9.py: sound through the stock amp chain, no unmapped access, stock KICK unchanged (2026-10-22)",
   "credits": [
     {
       "who": "100demons and Claude",
@@ -44,6 +42,7 @@
     "README.md",
     "CHANGELOG.md",
     "LICENSE",
+    "manifest.json",
     "src/tiny2.c",
     "src/tiny2_dsp.h",
     "src/tiny2_eng_a.h",
@@ -52,6 +51,8 @@
     "src/tiny2_eng_d.h",
     "src/tiny2_eng_e.h",
     "src/tiny2_tables.h",
-    "addon/63-feral9.json"
+    "src/feral_icons.h",
+    "addon/feral9.o",
+    "addon/64-feral9.json"
   ]
 }

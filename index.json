@@ -16,6 +16,7 @@
         "engines/feral9/README.md",
         "engines/feral9/CHANGELOG.md",
         "engines/feral9/LICENSE",
+        "engines/feral9/manifest.json",
         "engines/feral9/src/tiny2.c",
         "engines/feral9/src/tiny2_dsp.h",
         "engines/feral9/src/tiny2_eng_a.h",
@@ -24,7 +25,9 @@
         "engines/feral9/src/tiny2_eng_d.h",
         "engines/feral9/src/tiny2_eng_e.h",
         "engines/feral9/src/tiny2_tables.h",
-        "engines/feral9/addon/63-feral9.json"
+        "engines/feral9/src/feral_icons.h",
+        "engines/feral9/addon/feral9.o",
+        "engines/feral9/addon/64-feral9.json"
       ],
       "knobs": [
         {
@@ -45,9 +48,7 @@
         }
       ],
       "requires": [],
-      "conflicts": [
-        "lixr"
-      ],
+      "conflicts": [],
       "tested_on_hardware": "2026-10-22"
     },
     {
