@@ -6,5 +6,5 @@
 - COLOR and SWEEP are the model's two macros; CONTOUR is the tone envelope (a third control
   on BNJ and RNG); PUNCH is FREE.
 - WGL, CRK and CEL are not in this version.
-- The source tree measured every model below the stock TONE voice; not yet tested on a real
-  Model:Cycles.
+- The source tree measured every model below the stock TONE voice; tested on a real Model:Cycles
+  (2026-10-22), standalone.

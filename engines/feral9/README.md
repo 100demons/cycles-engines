@@ -2,7 +2,7 @@
 
 **Nine noisy, unpredictable synthesis models on one extra machine, light on the processor.**
 
-Status: `experimental` · Version: `9.0.0` · For: Model:Cycles OS 1.13 · License: MIT
+Status: `tested` · Version: `9.0.0` · For: Model:Cycles OS 1.13 · License: MIT
 
 ## What it sounds like
 
@@ -51,7 +51,7 @@ the same machine slot or the same payload window.
 
 - Emulator proof: **not run in model27**. The source tree measured the CPU cost and reported
   the model set; the sound has not been checked against a reference here.
-- Real Model:Cycles: **not yet**.
+- Real Model:Cycles: **2026-10-22**, standalone.
 
 ## Install
 

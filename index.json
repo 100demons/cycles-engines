@@ -6,7 +6,7 @@
       "id": "feral9",
       "name": "Feral",
       "version": "9.0.0",
-      "status": "experimental",
+      "status": "tested",
       "summary": "Nine noisy, unpredictable synthesis models on one extra machine, light on the processor.",
       "author": "100demons",
       "license": "MIT",
@@ -48,7 +48,7 @@
       "conflicts": [
         "lixr"
       ],
-      "tested_on_hardware": null
+      "tested_on_hardware": "2026-10-22"
     },
     {
       "id": "lixr",
