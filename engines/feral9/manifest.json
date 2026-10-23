@@ -9,16 +9,17 @@
   "kind": "own",
   "who": "100demons and Claude"
  },
- "source": "this engine folder (src/), first published in cycles-mods",
+ "source": "tools/machines/feral9, package port of the feral9 source drop",
  "device": "Model:Cycles",
  "os": "1.13",
  "order": 64,
  "build": {
   "sources": [
-   "src/tiny2.c"
+   "tiny2.c",
+   "feral_ui.S"
   ],
   "include": [
-   "src"
+   "."
   ],
   "cflags": [
    "-mcpu=54418",
@@ -43,13 +44,15 @@
    "CM_SYMBOLS": "1"
   },
   "objects": [
-   "addon/feral9.o"
+   "feral9.o"
   ],
   "symbols": {
    "update": "tiny2_update",
    "render": "tiny2_render"
   },
-  "keep": [],
+  "keep": [
+   "feral_state_init"
+  ],
   "patch_points": [
    {
     "symbol": "cm_descriptor_base",
@@ -93,6 +96,12 @@
      "max": 127
     }
    ]
+  },
+  {
+   "point": "descriptor.state",
+   "descriptor": 1,
+   "init": "feral_state_init",
+   "why": "SHAPE shows the model names instead of 0..8"
   }
  ],
  "claims": {
@@ -136,14 +145,14 @@
  },
  "tests": {
   "emulation": {
-   "tool": "model27 tools/emu/test_feral9.py",
-   "date": "2026-10-22",
-   "build": "the composed alone build"
+   "tool": "none in model27; the source tree measured the CPU",
+   "date": null,
+   "build": null
   },
   "hardware": {
    "date": "2026-10-22",
    "by": "owner (100demons)",
-   "build": "the standalone feral9 build; the composed package is new"
+   "build": "the standalone feral9 build; this packaged build is new"
   },
   "status": "tested"
  }

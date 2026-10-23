@@ -30,7 +30,7 @@
   "requires": [],
   "conflicts": [],
   "tested_on_hardware": "2026-10-22",
-  "emulator_proof": "model27 tools/emu/test_feral9.py: sound through the stock amp chain, no unmapped access, stock KICK unchanged (2026-10-22)",
+  "emulator_proof": "model27 tools/emu/test_feral9.py and test_feral9_ui.py: sound, custom SHAPE state_at, stock KICK (2026-10-22)",
   "credits": [
     {
       "who": "100demons and Claude",
@@ -52,6 +52,7 @@
     "src/tiny2_eng_e.h",
     "src/tiny2_tables.h",
     "src/feral_icons.h",
+    "src/feral_ui.S",
     "addon/feral9.o",
     "addon/64-feral9.json"
   ]

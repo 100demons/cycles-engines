@@ -49,8 +49,8 @@ Model-TG) unless they are composed as packages.
 
 ## Testing
 
-- Emulator proof: **2026-10-22**, model27 `tools/emu/test_feral9.py`: sound through the stock amp
-  chain, no unmapped access, stock KICK unchanged. **ALL OK**.
+- Emulator proof: **2026-10-22**, model27 `tools/emu/test_feral9.py` (sound) and `test_feral9_ui.py`
+  (the SHAPE state override and the generic descriptor path). **ALL OK**.
 - Real Model:Cycles: **2026-10-22**, standalone; the composed build with LiXR is new.
 
 ## Install

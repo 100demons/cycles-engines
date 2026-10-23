@@ -26,6 +26,7 @@
         "engines/feral9/src/tiny2_eng_e.h",
         "engines/feral9/src/tiny2_tables.h",
         "engines/feral9/src/feral_icons.h",
+        "engines/feral9/src/feral_ui.S",
         "engines/feral9/addon/feral9.o",
         "engines/feral9/addon/64-feral9.json"
       ],

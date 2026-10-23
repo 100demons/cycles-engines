@@ -8,5 +8,6 @@
 - WGL, CRK and CEL are not in this version.
 - The source tree measured every model below the stock TONE voice; tested on a real Model:Cycles
   (2026-10-22), standalone.
-- 2026-10-22: ported to a model27 package, so it composes with LiXR; emulator proof ALL OK.
-  SHAPE shows the model number and the MACHINES picture is TONE's until the custom UI is ported.
+- 2026-10-22: ported to a model27 package, so it composes with LiXR; the SHAPE model names come from the
+  registrar runtime's per-descriptor state override. Emulator proof ALL OK. The MACHINES-page picture is
+  still TONE's.
