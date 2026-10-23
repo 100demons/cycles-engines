@@ -3,6 +3,54 @@
   "generated_by": "scripts/build_index.py",
   "engines": [
     {
+      "id": "feral9",
+      "name": "Feral",
+      "version": "9.0.0",
+      "status": "experimental",
+      "summary": "Nine noisy, unpredictable synthesis models on one extra machine, light on the processor.",
+      "author": "100demons",
+      "license": "MIT",
+      "base_os": "model-cycles_OS1.13",
+      "path": "engines/feral9",
+      "files": [
+        "engines/feral9/README.md",
+        "engines/feral9/CHANGELOG.md",
+        "engines/feral9/LICENSE",
+        "engines/feral9/src/tiny2.c",
+        "engines/feral9/src/tiny2_dsp.h",
+        "engines/feral9/src/tiny2_eng_a.h",
+        "engines/feral9/src/tiny2_eng_b.h",
+        "engines/feral9/src/tiny2_eng_c.h",
+        "engines/feral9/src/tiny2_eng_d.h",
+        "engines/feral9/src/tiny2_eng_e.h",
+        "engines/feral9/src/tiny2_tables.h",
+        "engines/feral9/addon/63-feral9.json"
+      ],
+      "knobs": [
+        {
+          "slot": "COLOR",
+          "does": "the model's first macro; its on-screen name changes with the model"
+        },
+        {
+          "slot": "SHAPE",
+          "does": "Model: 0 NYB, 1 GND, 2 BNJ, 3 RYT, 4 FRS, 5 RNG, 6 PLS, 7 SCN, 8 KOS"
+        },
+        {
+          "slot": "SWEEP",
+          "does": "the model's second macro"
+        },
+        {
+          "slot": "CONTOUR",
+          "does": "the tone envelope; a third control on BNJ and RNG"
+        }
+      ],
+      "requires": [],
+      "conflicts": [
+        "lixr"
+      ],
+      "tested_on_hardware": null
+    },
+    {
       "id": "lixr",
       "name": "LiXR",
       "version": "3.0.0",

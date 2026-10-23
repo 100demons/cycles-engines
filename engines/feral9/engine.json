@@ -1,0 +1,39 @@
+{
+  "card_version": 1,
+  "id": "feral9",
+  "name": "Feral",
+  "version": "9.0.0",
+  "status": "experimental",
+  "author": "100demons",
+  "license": "MIT",
+  "summary": "Nine noisy, unpredictable synthesis models on one extra machine, light on the processor.",
+  "base_os": "model-cycles_OS1.13",
+  "knobs": [
+    { "slot": "COLOR", "does": "the model's first macro; its on-screen name changes with the model" },
+    { "slot": "SHAPE", "does": "Model: 0 NYB, 1 GND, 2 BNJ, 3 RYT, 4 FRS, 5 RNG, 6 PLS, 7 SCN, 8 KOS" },
+    { "slot": "SWEEP", "does": "the model's second macro" },
+    { "slot": "CONTOUR", "does": "the tone envelope; a third control on BNJ and RNG" }
+  ],
+  "cpu_note": "Worst model 4,801 instructions per 32-sample block, against 5,290 for TONE (one playing voice, measured in the source tree).",
+  "requires": [],
+  "conflicts": ["lixr"],
+  "tested_on_hardware": null,
+  "emulator_proof": null,
+  "credits": [
+    { "who": "100demons and Claude", "what": "the engine code, tables and design", "license": "MIT" }
+  ],
+  "files": [
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "src/tiny2.c",
+    "src/tiny2_dsp.h",
+    "src/tiny2_eng_a.h",
+    "src/tiny2_eng_b.h",
+    "src/tiny2_eng_c.h",
+    "src/tiny2_eng_d.h",
+    "src/tiny2_eng_e.h",
+    "src/tiny2_tables.h",
+    "addon/63-feral9.json"
+  ]
+}
