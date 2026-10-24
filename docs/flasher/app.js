@@ -51,7 +51,7 @@ function renderCards() {
     head.appendChild(el("strong", "card-label", en.card.label));
     var status = el("span", "card-status " + (en.card.status || "experimental"), en.card.status || "experimental");
     head.appendChild(status);
-    var slot = el("span", "card-slot", "");
+    var slot = el("span", "card-slot", "slot " + (E.slots[en.id] || "?"));
     head.appendChild(slot);
     label.appendChild(head);
     label.appendChild(el("p", "card-desc", en.card.description));
@@ -70,16 +70,22 @@ function renderCards() {
 function refreshSlots() {
   var note = $("slot-note");
   if (!ticked.length) { note.hidden = true; return; }
-  var lines = ticked.map(function (id, i) { return (7 + i) + " = " + id; });
+  var slots = Object.assign({}, E.slots);
+  ticked.forEach(function (id) { if (!(id in slots)) slots[id] = null; });
+  var ordered = Object.keys(slots).sort(function (a, b) { return slots[a] - slots[b]; });
+  var highest = Math.max.apply(null, ordered.filter(function (id) { return ticked.indexOf(id) >= 0; })
+    .map(function (id) { return slots[id]; }).concat([6]));
+  var parts = [];
+  for (var s = 7; s <= highest; s++) {
+    var id = null;
+    Object.keys(slots).forEach(function (k) { if (slots[k] === s) id = k; });
+    if (id && ticked.indexOf(id) >= 0) parts.push(s + " = " + id);
+    else if (id) parts.push(s + " = ---- (placeholder)");
+    else parts.push(s + " = ---- (placeholder)");
+  }
   note.hidden = false;
-  note.textContent = "Slots: " + lines.join(", ") +
+  note.textContent = "Slots: " + parts.join(", ") +
     "  (a sound saved on a slot finds the same engine in any later build that includes it).";
-  var labels = $("features").querySelectorAll("label.card");
-  labels.forEach(function (lab) {
-    var id = lab.querySelector("input").value;
-    var i = ticked.indexOf(id);
-    lab._slot.textContent = i < 0 ? "" : ("slot " + (7 + i));
-  });
 }
 
 function refreshSummary() {
@@ -87,12 +93,12 @@ function refreshSummary() {
   if (!state.raw || !ticked.length) { s.hidden = true; return; }
   try {
     var pkg = ticked.map(function (id) { return E.packages[id]; });
-    var r = C.compose(state.mainOs, E.registrar, pkg, []);
+    var r = C.compose(state.mainOs, E.registrar, pkg, [], E.slots, E.placeholder);
     var budget = E.registrar.layout.end_limit - E.registrar.layout.image_end;
     s.hidden = false;
-    s.textContent = "Engines: " + ticked.join(", ") + "  ·  slots " + (7) + "–" + (6 + ticked.length) +
-      "  ·  " + r.info.image + " bytes added to the image (" + Math.round(100 * r.info.image / budget) +
-      "% of the " + Math.round(budget / 1024) + " KB budget)";
+    s.textContent = "Engines: " + ticked.join(", ") + "  ·  " + r.info.packages.length +
+      " packages in the build  ·  " + r.info.image + " bytes added to the image (" +
+      Math.round(100 * r.info.image / budget) + "% of the " + Math.round(budget / 1024) + " KB budget)";
   } catch (e) {
     s.hidden = false;
     s.textContent = "This build can't be made: " + e.message;
@@ -211,7 +217,7 @@ $("ack").addEventListener("change", updateFlash);
 
 function composeTweak() {
   var pkg = ticked.map(function (id) { return E.packages[id]; });
-  return C.compose(state.mainOs, E.registrar, pkg, []).tweak;
+  return C.compose(state.mainOs, E.registrar, pkg, [], E.slots, E.placeholder).tweak;
 }
 
 function buildSyx() {

@@ -6635,6 +6635,129 @@ window.MC_ENGINES = {
     },
     "bss": 3900
    }
+  },
+  "placeholder": {
+   "id": "placeholder",
+   "name": "---- (silent placeholder)",
+   "order": 0,
+   "version": "1",
+   "symbols": {
+    "update": "ph_update",
+    "render": "ph_render"
+   },
+   "keep": [],
+   "patch_points": [],
+   "uses": [
+    {
+     "point": "machine",
+     "name": "----",
+     "image": 4,
+     "decay_default": 64,
+     "knobs": [
+      {
+       "long": "----",
+       "short": "----",
+       "default": 64
+      },
+      {
+       "long": "----",
+       "short": "----",
+       "default": 64
+      },
+      {
+       "long": "----",
+       "short": "----",
+       "default": 64
+      },
+      {
+       "long": "----",
+       "short": "----",
+       "default": 64
+      }
+     ]
+    }
+   ],
+   "conflicts_declared": [],
+   "bundle": {
+    "code": "4e75206f000420080680000000804298b08866fa4e75",
+    "relocs": [],
+    "symbols": {
+     "ph_update": [
+      "code",
+      0
+     ],
+     "ph_render": [
+      "code",
+      2
+     ]
+    },
+    "bss": 0
+   }
+  }
+ },
+ "slots": {
+  "feral9": 7,
+  "lixr": 8,
+  "punch": 9,
+  "blast": 10,
+  "sam": 11
+ },
+ "placeholder": {
+  "id": "placeholder",
+  "name": "---- (silent placeholder)",
+  "order": 0,
+  "version": "1",
+  "symbols": {
+   "update": "ph_update",
+   "render": "ph_render"
+  },
+  "keep": [],
+  "patch_points": [],
+  "uses": [
+   {
+    "point": "machine",
+    "name": "----",
+    "image": 4,
+    "decay_default": 64,
+    "knobs": [
+     {
+      "long": "----",
+      "short": "----",
+      "default": 64
+     },
+     {
+      "long": "----",
+      "short": "----",
+      "default": 64
+     },
+     {
+      "long": "----",
+      "short": "----",
+      "default": 64
+     },
+     {
+      "long": "----",
+      "short": "----",
+      "default": 64
+     }
+    ]
+   }
+  ],
+  "conflicts_declared": [],
+  "bundle": {
+   "code": "4e75206f000420080680000000804298b08866fa4e75",
+   "relocs": [],
+   "symbols": {
+    "ph_update": [
+     "code",
+     0
+    ],
+    "ph_render": [
+     "code",
+     2
+    ]
+   },
+   "bss": 0
   }
  }
 };

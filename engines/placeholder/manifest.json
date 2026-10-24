@@ -1,0 +1,39 @@
+{
+ "schema": "cycles-mod/0.1",
+ "id": "placeholder",
+ "version": "1",
+ "name": "---- (silent placeholder)",
+ "description": "The shared silent placeholder machine that fills the gaps between the ticked engines' slots, so a saved sound finds its engine whatever else the build holds. Never offered as a card; its code is placed once however many gaps.",
+ "license": "MIT",
+ "credit": {"kind": "own", "who": "100demons and Claude"},
+ "source": "option A of the Cycles Mod Standard (durchgemacht/cycles-mod-standard §5.1); measured in the old repo's notes/62",
+ "device": "Model:Cycles",
+ "os": "1.13",
+ "order": 0,
+ "build": {
+  "sources": ["placeholder.c"],
+  "include": ["."],
+  "cflags": ["-mcpu=54418", "-O2", "-ffreestanding", "-fno-builtin", "-fno-tree-loop-distribute-patterns",
+             "-nostdlib", "-fno-pic", "-fno-common", "-ffunction-sections", "-fdata-sections",
+             "-fomit-frame-pointer", "-Wall", "-Wextra", "-Werror"],
+  "defines": {},
+  "objects": ["placeholder.o"],
+  "patch_points": [],
+  "symbols": {"update": "ph_update", "render": "ph_render"},
+  "keep": []
+ },
+ "uses": [
+  {"point": "machine", "name": "----", "image": 4, "decay_default": 64,
+   "knobs": [
+    {"long": "----", "short": "----", "default": 64},
+    {"long": "----", "short": "----", "default": 64},
+    {"long": "----", "short": "----", "default": 64},
+    {"long": "----", "short": "----", "default": 64}]}
+ ],
+ "claims": {"sound_slots": [], "record_slots": [], "ram": [], "formatters": [], "gestures": [], "views": []},
+ "cost": {"emulation": {"status": "not measured"}, "device": {"status": "not measured"}},
+ "stock_behaviour": {"changes": [], "fixes": [], "unchanged": ["the six stock machines"]},
+ "compat": {"built_against": ["cycles-mod-standard"], "requires": [], "conflicts_declared": []},
+ "tests": {"emulation": {"tool": "tests/emu/test_slots.py", "date": null, "build": null},
+           "hardware": {"date": null, "by": null, "build": null}, "status": "experimental"}
+}

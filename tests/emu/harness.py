@@ -116,6 +116,15 @@ def built(stock, ids):
     return tweak, info, bytes(patched) + packed, runtime
 
 
+def built_pairs(stock, pairs):
+    """As built(), for an explicit sorted list of (slot, id) pairs (the capacity test's 16 copies)."""
+    tweak, info = compose.compose_pairs(stock, pairs)
+    patched, _ = mcb.apply_writes(stock, [tweak])
+    runtime = mcb.payload_runtime(tweak, stock, None)
+    packed = mcb.payload_image(tweak, runtime)
+    return tweak, info, bytes(patched) + packed, runtime
+
+
 def engine(img, runtime, tweak):
     return E.Engine(img, payload=(E.PAYLOAD_DST, runtime), payload_code=code_ranges(tweak))
 

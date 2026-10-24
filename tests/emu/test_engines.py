@@ -154,24 +154,23 @@ def main():
         key = "+".join(sel)
         tweak, info, img, runtime = built(stock, sel)
         builds[key] = (tweak, img, runtime, sel)
-        added = []
-        for m in sel:
-            man = compose.load_manifest(m)
-            added.append((m, man["_machine"]["name"], man["_machine"]["decay_default"],
-                          [k["default"] for k in man["_machine"]["knobs"]]))
-        print(f"\n{key}: " + ", ".join(f"{name} = machine {6 + i}" for i, (_id, name, _d, _k) in enumerate(added))
+        added = [p for p in info["packages"] if p["id"] != "placeholder"]
+        print(f"\n{key}: " + ", ".join(f"{p['id']} = machine {p['index']}" for p in added)
               + f"; payload {len(runtime)} bytes, {len(img) - E.IMAGE_LEN} in the image")
         check(bootstrap_depack_ok(args.cycles, stock, tweak), f"{key}: bootstrap depack")
         check(boot_hook_ok(img, runtime), f"{key}: boot hook")
         e = engine(img, runtime, tweak)
         check(not e.unmapped, f"{key}: voice loop starts, no unmapped access")
-        for i, (_id, name, decay, knobs) in enumerate(added):
-            e.set(0, machine=6 + i, note=36, pitch=64, finetune=64, color=knobs[0], shape=knobs[1], sweep=knobs[2],
-                  contour=knobs[3], punch=0, gate=0, decay=decay)
+        for p in added:
+            man = compose.load_manifest(p["id"])
+            mc = man["_machine"]
+            knobs = [k["default"] for k in mc["knobs"]]
+            e.set(0, machine=p["index"], note=36, pitch=64, finetune=64, color=knobs[0], shape=knobs[1],
+                  sweep=knobs[2], contour=knobs[3], punch=0, gate=0, decay=mc["decay_default"])
             x = np.stack([e.block(1 if b in (1, 120) else 0) for b in range(160)])[:, 0]
             peak = int(np.abs(x).max())
-            check(peak > 1_000_000 and not e.unmapped, f"{key}: {name} (machine {6 + i}) makes sound (peak {peak})")
-            check(peak < 0x7ffffff0, f"{key}: {name} (machine {6 + i}) no hard clipping (peak {peak})")
+            check(peak > 1_000_000 and not e.unmapped, f"{key}: {mc['name']} (machine {p['index']}) makes sound (peak {peak})")
+            check(peak < 0x7ffffff0, f"{key}: {mc['name']} (machine {p['index']}) no hard clipping (peak {peak})")
 
     # the six stock machines are unchanged, sample for sample
     print("\nstock machines unchanged")

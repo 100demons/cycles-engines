@@ -27,3 +27,16 @@ refmachine copies are not offered on the page, they just prove the 16-engine roo
 - [ ] Feral and LiXR make sound as before.
 - [ ] The eight REF copies each play a pitch one semitone higher than the last (their slot number).
 - [ ] The six stock machines still work as before.
+
+---
+
+## phase-3.syx (Feral + LiXR at their stable slots)
+
+Built from `core/compose.py --machines feral9,lixr`. Feral is slot 7 (machine 6), LiXR is slot 8 (machine 7). The
+point of this phase is that LiXR is always slot 8 — a sound saved with it finds it again in any later build.
+
+- [ ] Flash LiXR alone (slot 8, slot 7 is a silent `----` placeholder). The MACHINES page shows `----` at 7 and
+      LiXR at 8. `----` is silent; LiXR makes sound.
+- [ ] Save a sound that uses LiXR, and a pattern with a machine lock on LiXR.
+- [ ] Flash Feral + LiXR. The saved sound and the machine lock still play LiXR (not Feral, not `----`).
+- [ ] The six stock machines still work as before.

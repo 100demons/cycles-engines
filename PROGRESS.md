@@ -5,9 +5,9 @@ every step: phase, step, what passed, what failed, what's next.
 
 ## Status
 
-- **Current phase**: 2 (Capacity — 16 engines) — done, committing/merging.
-- **Last result**: Phase 2 capacity test passes (1, 6, 7, 8, 12, 16 copies: boot, dispatch, distinct pitch, stock
-  unchanged; real engines next to refmachine copies). Equivalence (incl. 16 copies) and size/CPU report pass.
+- **Current phase**: 3 (Stable slots) — done, committing/merging.
+- **Last result**: Phase 3 stable slots + placeholder pass: equivalence, the stable-slot test (placeholder silent, LiXR
+  stable at machine 7), and the re-run of test_engines + test_capacity all pass.
 
 ## Environment (verified)
 
@@ -58,8 +58,21 @@ every step: phase, step, what passed, what failed, what's next.
 
 ## What's next
 
-1. Commit Phase 2, tag `phase-2`, merge to main.
-2. Phase 3 — Stable slots (branch `phase-3-slots`).
+1. Commit Phase 3, tag `phase-3`, merge to main.
+2. Phase 4 — Slot-relative pictures and knob displays (branch `phase-4-ui`).
+
+## Phase 3 — Stable slots
+
+- Added `engines/slots.json` (feral9=7, lixr=8, punch=9, blast=10, sam=11; punch/blast/sam reserved, ported in
+  phase 5) and the shared silent `----` placeholder package (22 bytes of code: ph_update rts, ph_render 32 zeros).
+- The composer sorts the ticked engines by slot, builds slots 7 .. the highest ticked, and fills every unticked slot
+  with the placeholder, whose code is placed once however many gaps. compose.py and docs/flasher/composer.js changed
+  together; an id without a slot is a development package numbered after the registered slots (compose_pairs places
+  explicit (slot, id) pairs for the capacity test).
+- The page shows each card's slot and the slot note (with `----` for gaps).
+- Equivalence test (incl. gap builds) PASSES; the stable-slot emulator test PASSES (placeholder silent, LiXR at
+  machine 7 alone and with Feral, the name table holds `----`).
+- Checkpoint `build/checkpoints/phase-3.syx` (Feral + LiXR) saved; checklist appended.
 
 ## Phase 2 — Capacity: 16 engines
 
