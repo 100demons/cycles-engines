@@ -358,10 +358,41 @@ function credits() {
   $("build-stamp").textContent = window.MC_BUILD;
 }
 
+// --- step 1 tabs (Mods / Official firmware / Samples OS) and the machine selector -------------------------
+function selectTab(id) {
+  var tabs = ["mods", "restore", "samples"];
+  tabs.forEach(function (t) {
+    var btn = $("tab-" + t), panel = $("panel-" + t);
+    if (!btn || !panel) return;
+    var on = t === id;
+    btn.setAttribute("aria-selected", on ? "true" : "false");
+    panel.hidden = !on;
+  });
+}
+
+function selectMachine(id) {
+  ["cyc", "smp", "cos"].forEach(function (m) {
+    var b = $("mach-" + m);
+    if (b) b.setAttribute("aria-checked", m === id ? "true" : "false");
+  });
+}
+
+function bindTabs() {
+  ["mods", "restore", "samples"].forEach(function (t) {
+    var btn = $("tab-" + t);
+    if (btn) btn.addEventListener("click", function () { selectTab(t); });
+  });
+  ["cyc", "smp", "cos"].forEach(function (m) {
+    var b = $("mach-" + m);
+    if (b) b.addEventListener("click", function () { selectMachine(m); });
+  });
+}
+
 function init() {
   renderCards();
   bindFile();
   bindMidi();
+  bindTabs();
   selectMethod(true);
   credits();
 }

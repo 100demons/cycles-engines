@@ -11,14 +11,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Tiny5&display=swap">
-<link rel="stylesheet" href="../assets/site.css?v=2026-10-24-03">
-<link rel="stylesheet" href="style.css?v=2026-10-24-03">
+<link rel="stylesheet" href="../assets/site.css?v=2026-10-24-04">
+<link rel="stylesheet" href="style.css?v=2026-10-24-04">
 <script>try{var l=localStorage.getItem("mc-lang"),t=localStorage.getItem("mc-theme")}catch(e){}document.documentElement.lang=l||(/^fr\b/i.test(navigator.language||"")?"fr":"en");if(t)document.documentElement.setAttribute("data-theme",t)</script>
 </head>
 <body data-page="flasher">
 <script>
   // Version stamp: an old date means the browser serves a cached copy -> hard reload.
-  window.MC_BUILD = "2026-10-24-03";
+  window.MC_BUILD = "2026-10-24-04";
   window.addEventListener("error", function (e) {
     var b = document.getElementById("errbar");
     if (!b) return;
@@ -53,11 +53,32 @@
   <section class="step" id="step-choose" aria-labelledby="h1s">
     <header><span class="num">1</span><h2 id="h1s">What do you want to install?</h2></header>
     <div class="step-body">
-      <p class="hint">Tick any combination. Each engine is a package: nothing in an engine knows its slot, so any
-        two can live together. Engines are added after the six stock machines, in the order you tick them.</p>
-      <div id="features"></div>
-      <p class="vh" id="mod-live" aria-live="polite"></p>
-      <p class="note" id="slot-note" hidden></p>
+      <div class="seg" role="tablist" aria-label="Mode">
+        <button type="button" role="tab" id="tab-mods" aria-selected="true" aria-controls="panel-mods">Mods</button>
+        <button type="button" role="tab" id="tab-restore" aria-selected="false" aria-controls="panel-restore">Official firmware</button>
+        <button type="button" role="tab" id="tab-samples" aria-selected="false" aria-controls="panel-samples">Samples OS</button>
+      </div>
+      <div id="panel-mods" role="tabpanel" aria-labelledby="tab-mods">
+        <p class="mach-q" id="mach-q">Your machine</p>
+        <div class="seg sub" role="radiogroup" aria-labelledby="mach-q">
+          <button type="button" role="radio" id="mach-cyc" aria-checked="true">Model:Cycles</button>
+          <button type="button" role="radio" id="mach-smp" aria-checked="false">Model:Samples, on its own OS</button>
+          <button type="button" role="radio" id="mach-cos" aria-checked="false">Model:Samples, already on the Cycles OS</button>
+        </div>
+        <p class="hint">Tick any combination. Each engine is a package: nothing in an engine knows its slot, so any
+          two can live together. Engines are added after the six stock machines, in the order you tick them.</p>
+        <div id="features"></div>
+        <p class="vh" id="mod-live" aria-live="polite"></p>
+        <p class="note" id="slot-note" hidden></p>
+      </div>
+      <div id="panel-restore" role="tabpanel" aria-labelledby="tab-restore" hidden>
+        <p class="panel-text">To put the official firmware back, load your <b>model-cycles_OS1.13.syx</b> in step 2 and
+          flash it with no engines ticked: the page sends it unchanged.</p>
+      </div>
+      <div id="panel-samples" role="tabpanel" aria-labelledby="tab-samples" hidden>
+        <p class="panel-text">This flasher is for the Model:Cycles only — the Model:Samples OS and the
+          Cycles&nbsp;↔&nbsp;Samples cross-flash aren't included here.</p>
+      </div>
     </div>
   </section>
 
@@ -189,11 +210,11 @@
 </footer>
 
 <!-- ?v= : same version stamp as MC_BUILD, so a browser never mixes a new page with cached old scripts -->
-<script src="../assets/site.js?v=2026-10-24-03"></script>
-<script src="builder.js?v=2026-10-24-03"></script>
-<script src="composer.js?v=2026-10-24-03"></script>
-<script src="engines.js?v=2026-10-24-03"></script>
-<script src="flasher.js?v=2026-10-24-03"></script>
-<script src="app.js?v=2026-10-24-03"></script>
+<script src="../assets/site.js?v=2026-10-24-04"></script>
+<script src="builder.js?v=2026-10-24-04"></script>
+<script src="composer.js?v=2026-10-24-04"></script>
+<script src="engines.js?v=2026-10-24-04"></script>
+<script src="flasher.js?v=2026-10-24-04"></script>
+<script src="app.js?v=2026-10-24-04"></script>
 </body>
 </html>
