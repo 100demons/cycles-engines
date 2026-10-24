@@ -92,7 +92,7 @@ code{font-size:.82em}
 .grp-sel .inc::before{background:none;box-shadow:inset 0 0 0 1.5px var(--red)}
 
 /* a mod = one row: key, name, one sentence; status and author on the right; Details opens the drawer */
-.mod{position:relative;border-bottom:1px solid var(--line)}
+.mod{position:relative}
 .mod-row{display:grid;grid-template-columns:24px minmax(0,max-content) minmax(0,1fr);
   grid-template-areas:"key ttl by" "key short short";column-gap:14px;row-gap:1px;align-items:baseline;padding:12px 0 13px;cursor:pointer}
 .mod-row>input{grid-area:key;align-self:start;margin-top:2px}

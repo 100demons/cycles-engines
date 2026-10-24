@@ -56,14 +56,6 @@ function renderCards() {
     ttl.appendChild(el("span", "nm", en.card.label));
     row.appendChild(ttl);
 
-    var by = el("span", "by");
-    var bits = [];
-    if (en.id in E.slots) bits.push("slot " + E.slots[en.id]);
-    if (en.card.credit && en.card.credit.who) bits.push("by " + en.card.credit.who);
-    if (en.version) bits.push("v" + en.version);
-    by.appendChild(el("span", null, bits.join(" · ")));
-    row.appendChild(by);
-
     d.appendChild(row);
 
     var ext = document.createElement("div");
