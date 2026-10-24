@@ -1,0 +1,16 @@
+{
+ "schema": "cycles-engines-slots/0.1",
+ "description": [
+  "One permanent slot per engine, from 7 upward (slot 7 is the first added engine; the OS numbers it machine 6).",
+  "Entries are appended, never reordered, never reused: a removed engine keeps its slot as a placeholder forever,",
+  "so a saved sound or pattern finds the same engine in any later build that includes it (ARCHITECTURE.md §4).",
+  "punch, blast and sam are reserved now and ported in phase 5. The reference machine never gets a slot on the page."
+ ],
+ "slots": {
+  "feral9": 7,
+  "lixr": 8,
+  "punch": 9,
+  "blast": 10,
+  "sam": 11
+ }
+}

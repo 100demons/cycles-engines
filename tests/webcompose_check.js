@@ -36,7 +36,7 @@ if (process.argv[3]) {
   for (const c of ref2.cases) {
     const label = c.ids.join("+");
     try {
-      const { tweak } = C.compose(mainOs, ref2.frames, c.ids.map((id) => ref2.packages[id]), []);
+      const { tweak } = C.compose(mainOs, ref2.frames, c.ids.map((id) => ref2.packages[id]), [], ref2.slots, ref2.placeholder);
       const differ = Object.keys(c.tweak).filter((k) => canon(tweak[k]) !== canon(c.tweak[k]));
       const built = B.build(raw, ref2.device, [tweak]);
       if (built.mainOsSha !== c.main_os) differ.push("MAIN OS");

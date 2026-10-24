@@ -48,11 +48,15 @@ def render():
     registrar = json.loads(FRAME.read_text(encoding="utf-8"))
     engines = engine_cards()
     packages = {e["id"]: compose.web_package(e["id"]) for e in engines}
+    packages["placeholder"] = compose.web_package("placeholder")
+    slots = json.loads((ENGINES / "slots.json").read_text(encoding="utf-8"))
     payload = {
         "device": {k: device[k] for k in ("device", "os", "section_sha256", "stock_syx_sha256") if k in device},
         "registrar": registrar,
         "engines": engines,
         "packages": packages,
+        "slots": slots["slots"],
+        "placeholder": packages["placeholder"],
     }
     body = json.dumps(payload, ensure_ascii=False, indent=1)
     text = (

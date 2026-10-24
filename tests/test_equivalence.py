@@ -35,12 +35,14 @@ COMPARED = ("id", "order", "name", "version", "conflicts", "writes", "append", "
 
 
 def packages():
-    """(id, manifest, object bytes) of every engine package with exactly one committed object."""
+    """(id, manifest, object bytes) of every engine package with exactly one committed object (not the placeholder)."""
     for d in sorted(p for p in ENGINES.iterdir() if p.is_dir()):
         mf = d / "manifest.json"
         if not mf.is_file():
             continue
         m = json.loads(mf.read_text(encoding="utf-8"))
+        if m["id"] == "placeholder":
+            continue
         objs = m.get("build", {}).get("objects", [])
         if len(objs) == 1 and (d / objs[0]).is_file():
             yield m["id"], m, (d / objs[0]).read_bytes()
@@ -102,14 +104,6 @@ def part2(out, cycles):
             pkgs.setdefault(i, compose.web_package(i))
         cases.append({"ids": sel, "tweak": {k: tweak[k] for k in COMPARED}, "main_os": compose.sha(patched)})
         print(f"{'+'.join(sel)}: {len(tweak['writes'])} writes, {info['image']} bytes added, MAIN OS {compose.sha(patched)[:12]}")
-    # the capacity case: 16 copies of the reference machine (one id, named 16 times)
-    sel = ["refmachine"] * 16
-    tweak, info = compose.compose(img, sel)
-    with contextlib.redirect_stdout(io.StringIO()):
-        _syx, patched = compose.build_syx(raw, [tweak])
-    pkgs.setdefault("refmachine", compose.web_package("refmachine"))
-    cases.append({"ids": sel, "tweak": {k: tweak[k] for k in COMPARED}, "main_os": compose.sha(patched)})
-    print(f"refmachine x16: {len(tweak['writes'])} writes, {info['image']} bytes added, MAIN OS {compose.sha(patched)[:12]}")
     # fill() for 1 to max_machines synthetic machines
     rnd, lay, fills = random.Random(62), frs["layout"], []
     for n in range(1, frs["runtime"]["max_machines"] + 1):
@@ -132,8 +126,11 @@ def part2(out, cycles):
                       "writes": writes, "append": append})
     print(f"fill: {len(fills)} synthetic builds of 1 to {len(fills)} machines")
     device = json.loads((ROOT / "core" / "os113_dev.json").read_text(encoding="utf-8"))
+    slots = compose.load_slots()
+    placeholder = compose.web_package("placeholder")
     (out / "composed.json").write_text(json.dumps({
-        "device": device, "frames": frs, "packages": pkgs, "cases": cases, "fills": fills}), encoding="utf-8")
+        "device": device, "frames": frs, "packages": pkgs, "cases": cases, "fills": fills,
+        "slots": slots, "placeholder": placeholder}), encoding="utf-8")
 
 
 def main():

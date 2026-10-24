@@ -279,17 +279,36 @@ function computedConflicts(writes, ram, declared, tweaks) {
 }
 
 // compose.compose() without the toolchain: mainOs = the user's MAIN OS (MCBuilder.mainOsOf), frames = frame.json,
-// packages = compose.web_package() of each machine, in order (machines 6, 7, ...), tweaks = what the conflicts are
-// computed against. Returns { tweak, info }.
-function compose(mainOs, frames, packages, tweaks = []) {
+// packages = compose.web_package() of each machine, in any order (each with a slot, or numbered after the
+// registered slots), tweaks = what the conflicts are computed against. slots = the permanent slot per id
+// (engines/slots.json); placeholder = the shared silent `----` package (web_package of engines/placeholder/), placed
+// once however many gaps. Returns { tweak, info }.
+function compose(mainOs, frames, packages, tweaks = [], slots = {}, placeholder = null) {
   if (!packages.length) throw new Error("name at least one machine");
-  const ids = packages.map((p) => p.id);
   const lay = frames.layout, pay = lay.pay, first = lay.first;
-  const machines = [], blobs = [], symsOf = {}, info = [];
+  const slotOf = Object.assign({}, slots);
+  let nextFree = (Object.keys(slotOf).length ? Math.max(...Object.values(slotOf)) : 6) + 1;
+  const assigned = packages.map((p) => {
+    let s = slotOf[p.id];
+    if (s === undefined) { s = nextFree++; slotOf[p.id] = s; }
+    return [s, p];
+  }).sort((a, b) => a[0] - b[0]);
+  const highest = assigned[assigned.length - 1][0];
+  const bySlot = Object.fromEntries(assigned);
+  const seq = [];
+  for (let s = 7; s <= highest; s++) seq.push(bySlot[s] || placeholder);
+
+  const machines = [], blobs = [], symsOf = {}, info = [], placed = {}, uniq = [];
   let codeCursor = pay, bssCursor = pay + lay.bss_off;
-  packages.forEach((p, i) => {
+  for (let s = 7; s <= highest; s++) {
+    const p = seq[s - 7];
+    if (p.id === "placeholder" && placed.placeholder) {
+      machines.push(Object.assign({}, placed.placeholder));
+      continue;
+    }
+    uniq.push(p);
     const codeAt = align4(codeCursor), bssAt = align4(bssCursor);
-    const values = patchValues(p, { machine_index: first + i, descriptor_base: 76 + 5 * i });
+    const values = patchValues(p, { machine_index: s - 1, descriptor_base: 76 + 5 * (s - 7) });
     const { blob, symbols: syms, bssEnd } = place(p.bundle, codeAt, bssAt, values);
     if (codeAt + blob.length > lay.stubs)
       throw new Error(`${p.id}: code and tables end at ${hx(codeAt + blob.length)}, past ${hx(lay.stubs)}`);
@@ -297,42 +316,45 @@ function compose(mainOs, frames, packages, tweaks = []) {
     if (!mc) throw new Error(`${p.id}: no 'machine' entry in uses: not an added machine`);
     const state = p.uses.find((u) => u.point === "descriptor.state");
     if (state && state.descriptor !== 1) throw new Error(`${p.id}: only the SHAPE descriptor (1) can have a state override for now`);
-    machines.push({ name: mc.name, image: mc.image, decay: mc.decay_default,
+    const entry = { name: mc.name, image: mc.image, decay: mc.decay_default,
                     knobs: mc.knobs.map((k) => [k.long, k.short, k.default].concat("min" in k ? [k.min, k.max] : [])),
                     update: syms[p.symbols.update], render: syms[p.symbols.render],
-                    state_init: state ? syms[state.init] : 0 });
+                    state_init: state ? syms[state.init] : 0 };
     blobs.push([codeAt, blob]);
     symsOf[p.id] = syms;
-    info.push({ id: p.id, index: first + i, desc: 76 + 5 * i, code_at: codeAt, code: blob.length, bss_at: bssAt,
+    info.push({ id: p.id, index: s - 1, desc: 76 + 5 * (s - 7), code_at: codeAt, code: blob.length, bss_at: bssAt,
                 bss: bssEnd - bssAt });
     codeCursor = codeAt + blob.length;
     bssCursor = bssEnd;
-  });
-  for (const p of packages)                       // a package's RAM claim must lie outside the payload
+    if (p.id === "placeholder") placed.placeholder = entry;
+    machines.push(entry);
+  }
+  for (const p of uniq)                        // a package's RAM claim must lie outside the payload
     for (const [lo, hi] of ramClaims(p))
       if (lo < bssCursor && pay < hi)
         throw new Error(`${p.id}: the payload (${hx(pay)}..${hx(bssCursor)}) runs into its RAM claim ${hx(lo)}..${hx(hi)}`);
-  const { writes, append } = fill(frameOf(frames, packages.length), mainOs, machines, blobs, bssCursor);
-  for (const p of packages) writes.push(...packageWrites(p, mainOs, symsOf[p.id]));
+  const { writes, append } = fill(frameOf(frames, machines.length), mainOs, machines, blobs, bssCursor);
+  for (const p of uniq) writes.push(...packageWrites(p, mainOs, symsOf[p.id]));
   writes.sort((a, b) => a.off - b.off);
   checkOverlaps(writes);
-  const ram = [[pay, bssCursor]].concat(...packages.map(ramClaims));
-  const tid = ids.join("+");
-  const declared = packages.flatMap((p) => p.conflicts_declared || []);
+  const ram = [[pay, bssCursor]].concat(...uniq.map(ramClaims));
+  const tid = assigned.filter(([, p]) => p.id !== "placeholder").map(([, p]) => p.id).join("+");
+  const declared = uniq.flatMap((p) => p.conflicts_declared || []);
   const conflicts = [...computedConflicts(writes, ram, declared, tweaks)].filter((x) => x !== tid).sort();
   const symbols = {};
-  for (const p of packages)
+  for (const p of uniq)
     for (const k of [p.symbols.update, p.symbols.render, ...(p.keep || [])]) symbols[k] = hx(symsOf[p.id][k]);
+  const real = uniq.filter((p) => p.id !== "placeholder");
   const tweak = {
     id: tid,
-    order: Math.min(...packages.map((p) => p.order)),
-    name: packages.length > 1 ? packages.map((p) => p.name).join(" + ") : packages[0].name,
+    order: Math.min(...real.map((p) => p.order)),
+    name: real.map((p) => p.name).join(" + "),
     description: [`Composed in the browser by composer.js (notes/61): ${info.map((x) => `${x.id} as machine ${x.index}`)
       .join(", ")}, registered together through the registrar runtime, as tools/compose.py composes them.`],
     device: "Model:Cycles",
     os: "1.13",
     section: 3,
-    version: packages.map((p) => p.version).join("+"),
+    version: real.map((p) => p.version).join("+"),
     conflicts,
     writes,
     append,

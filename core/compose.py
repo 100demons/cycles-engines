@@ -51,6 +51,7 @@ BASE = mcb.BASE
 MACHINES = ROOT / "engines"
 BUILD = ROOT / "build"
 REGISTRAR = HERE / "registrar" / "registrar.json"
+SLOTS = MACHINES / "slots.json"
 
 
 def sha(b):
@@ -434,24 +435,64 @@ def computed_conflicts(writes, ram, declared):
     return set(declared)
 
 
-def compose(img, ids):
-    """Builds the tweak for the engines named in ids, in that order. Returns (tweak, info).
+def load_slots():
+    """{engine id: slot} from engines/slots.json: the permanent slot per engine (ARCHITECTURE.md §4)."""
+    if not SLOTS.is_file():
+        sys.exit(f"!! {SLOTS} is missing")
+    d = json.loads(SLOTS.read_text(encoding="utf-8"))
+    if d.get("schema") != "cycles-engines-slots/0.1":
+        sys.exit(f"!! {SLOTS}: schema {d.get('schema')!r}")
+    return {k: int(v) for k, v in d["slots"].items()}
 
-    The same id may be named more than once: each name is one copy placed at the next slot, with its own
-    machine_index (this is how the capacity test places 16 copies of the reference machine)."""
+
+def compose(img, ids, slots=None):
+    """Builds the tweak for the engines named in ids. Returns (tweak, info).
+
+    Each engine gets its permanent slot (engines/slots.json); an id without a slot is a development package and is
+    numbered after the registered slots, in the order given. The build holds slots 7 .. the highest ticked, every
+    unticked slot below filled with the shared silent `----` placeholder (its code placed once, however many gaps).
+    slots: an optional {id: slot} override (for tests)."""
     if not ids:
         sys.exit("!! name at least one engine")
-    mans = [load_manifest(i) for i in ids]
+    slot_of = load_slots()
+    if slots:
+        slot_of = {**slot_of, **slots}
+    next_free = max(slot_of.values(), default=7 - 1) + 1
+    assigned = []
+    for i in ids:
+        s = slot_of.get(i)
+        if s is None:
+            s = next_free
+            next_free += 1
+            slot_of[i] = s
+        assigned.append((s, i))
+    assigned.sort()                       # by slot, so card order stops mattering
+    return compose_pairs(img, assigned)
+
+
+def compose_pairs(img, assigned):
+    """The placement for an explicit sorted list of (slot, id) pairs: the capacity test places 16 copies of the
+    reference machine at slots 7..22 this way, which a dict override cannot express."""
+    highest = assigned[-1][0]
+    by_slot = dict(assigned)
+    seq = [by_slot.get(s, "placeholder") for s in range(7, highest + 1)]
+
     pay = os113.PAY_ALONE
     os113.set_base(pay)
     first = os113.FIRST
-    machines, blobs, syms_of, info_pkgs = [], [], {}, []
+    machines, blobs, syms_of, info_pkgs, mans = [], [], {}, [], []
     with tempfile.TemporaryDirectory() as d:
         tmp = pathlib.Path(d)
         code_cursor, bss_cursor = pay, pay + os113.BSS_OFF
-        for i, m in enumerate(mans):
+        shared = {}                       # id -> machine entry, for the placeholder placed once
+        for s, pid in zip(range(7, highest + 1), seq):
+            if pid == "placeholder" and "placeholder" in shared:
+                machines.append(dict(shared["placeholder"]))
+                continue
+            m = load_manifest(pid)
+            mans.append(m)
             code_at, bss_at = align4(code_cursor), align4(bss_cursor)
-            values = {"machine_index": first + i, "descriptor_base": 76 + 5 * i}
+            values = {"machine_index": s - 1, "descriptor_base": 76 + 5 * (s - 7)}
             blob, syms, bss_end = place_package(m, code_at, bss_at, os113.STUBS, values)
             mc = m["_machine"]
             knobs = tuple((k["long"], k["short"], k["default"]) + ((k["min"], k["max"]) if "min" in k else ())
@@ -459,15 +500,18 @@ def compose(img, ids):
             state = next((u for u in m["uses"] if u["point"] == "descriptor.state"), None)
             if state and state.get("descriptor") != 1:
                 sys.exit(f"!! {m['id']}: only the SHAPE descriptor (1) can have a state override for now")
-            machines.append(dict(name=mc["name"], image=mc["image"], decay=mc["decay_default"], knobs=knobs,
-                                 update=syms[m["build"]["symbols"]["update"]],
-                                 render=syms[m["build"]["symbols"]["render"]],
-                                 state_init=syms[state["init"]] if state else 0))
+            entry = dict(name=mc["name"], image=mc["image"], decay=mc["decay_default"], knobs=knobs,
+                         update=syms[m["build"]["symbols"]["update"]],
+                         render=syms[m["build"]["symbols"]["render"]],
+                         state_init=syms[state["init"]] if state else 0)
             blobs.append((code_at, blob))
-            syms_of[m["id"]] = syms
-            info_pkgs.append(dict(id=m["id"], index=first + i, desc=76 + 5 * i, code_at=code_at, code=len(blob),
+            syms_of[pid] = syms
+            info_pkgs.append(dict(id=pid, index=s - 1, desc=76 + 5 * (s - 7), code_at=code_at, code=len(blob),
                                   bss_at=bss_at, bss=bss_end - bss_at))
             code_cursor, bss_cursor = code_at + len(blob), bss_end
+            if pid == "placeholder":
+                shared["placeholder"] = entry
+            machines.append(entry)
         for m in mans:                       # a package's RAM claim must lie outside the payload
             for lo, hi in ram_claims(m):
                 if lo < bss_cursor and pay < hi:
@@ -482,12 +526,13 @@ def compose(img, ids):
             sys.exit(f"!! writes overlap at {BASE + b_['off']:#x}")
     ram = [(pay, bss_cursor)] + [r for m in mans for r in ram_claims(m)]
     declared = {c["with"] for m in mans for c in m.get("compat", {}).get("conflicts_declared", [])}
-    tid = "+".join(ids)
+    tid = "+".join(i for _s, i in assigned if i != "placeholder")
     conflicts = computed_conflicts(writes, ram, declared) - {tid}
     tweak = {
         "id": tid,
-        "order": min(m["order"] for m in mans),
-        "name": " + ".join(m["name"] for m in mans) if len(mans) > 1 else mans[0]["name"],
+        "order": min(m["order"] for m in mans if m["id"] != "placeholder"),
+        "name": " + ".join(m["name"] for m in mans if m["id"] != "placeholder") if len(mans) > 1
+                else next(m["name"] for m in mans if m["id"] != "placeholder"),
         "description": [
             f"Composed by core/compose.py: {', '.join(f'{p['id']} as machine {p['index']}' for p in info_pkgs)},",
             "registered together through the registrar runtime (registrar.S, a parameter block per build); each",
@@ -496,7 +541,7 @@ def compose(img, ids):
         "device": "Model:Cycles",
         "os": "1.13",
         "section": 3,
-        "version": "+".join(m["version"] for m in mans),
+        "version": "+".join(m["version"] for m in mans if m["id"] != "placeholder"),
         "conflicts": sorted(conflicts),
         "writes": writes,
         "append": append,
