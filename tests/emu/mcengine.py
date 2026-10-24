@@ -101,7 +101,8 @@ class Engine:
         self.img = bytes(main_os)
         uc = self.uc = Uc(UC_ARCH_M68K, UC_MODE_BIG_ENDIAN)
         uc.ctl_set_cpu_model(mk.UC_CPU_M68K_ANY)
-        uc.mem_map(0x40000000, 0x00800000)     # image + BSS/globales
+        uc.mem_map(0x40000000, 0x00800000)     # image + BSS/globales (0x40000000..0x40800000)
+        uc.mem_map(0x40800000, 0x01800000)     # BSS/globales: velocity (0x40fe4cdc), UI state objects, ... (0x40800000..0x42000000)
         uc.mem_map(0x42000000, 0x00400000)     # SDRAM (états des voix)
         uc.mem_map(0x80000000, 0x00020000)     # SRAM interne (buffers, tables)
         uc.mem_map(0x90000000, 0x00020000)     # pile
