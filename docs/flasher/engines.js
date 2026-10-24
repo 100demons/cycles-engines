@@ -4898,7 +4898,7 @@ window.MC_ENGINES = {
    "id": "blast",
    "card": {
     "label": "💥 Blast (0.8 beta)",
-    "description": "Fourteen melodic FM models on one machine, a '90s PC Soundblaster engine in higher fidelity. Featuring: sine, half-sine, absolute sine, pulse, bass, piano, marimba, glockenspiel, brass, accordion, strings, steel drum, timpani and zap.",
+    "description": "Fourteen melodic FM models on one machine, a '90s PC Soundblaster engine in higher fidelity, built on the Yamaha OPL2. Featuring: sine, half-sine, absolute sine, pulse, bass, piano, marimba, glockenspiel, brass, accordion, strings, steel drum, timpani and zap.",
     "status": "experimental",
     "credit": {
      "kind": "own",
@@ -4922,7 +4922,7 @@ window.MC_ENGINES = {
    "id": "punch",
    "card": {
     "label": "👊 Punch (0.5 beta)",
-    "description": "Twelve percussion FM engines on one machine, raw, heavy and digital. Featuring: kick, tom, bongo, conga, taiko, timbale, marimba, djembé, woodblock, gong, bubble and zap.",
+    "description": "Twelve percussion FM engines on one machine, raw, heavy and digital, built on the Yamaha OPL2 with extended fixed FM ratios for modern sounds and alien harmonics. Featuring: kick, tom, bongo, conga, taiko, timbale, marimba, djembé, woodblock, gong, bubble and zap.",
     "status": "experimental",
     "credit": {
      "kind": "own",
