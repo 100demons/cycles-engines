@@ -46,8 +46,8 @@ map_state:
 9:	rts
 
 /* A package may put a descriptor-state initializer in the last long of its machine entry
- * (REGS+16+16i+12): called with no argument, it returns the state object for its SHAPE descriptor
- * (first_desc + 1). Zero means the generic SNARE object. */
+ * (REGS+16+16i+12): called with d0 = the knob (0..3, COLOR..CONTOUR), it returns the state object for that
+ * descriptor, or 0 to keep the generic SNARE object. */
 	.globl	state_at
 state_at:
 	move.l	%d2, -(%sp)
@@ -58,30 +58,38 @@ state_at:
 sat_loop:
 	cmpa.l	REGS+12, %a0
 	beq.s	sat_generic
-	mvz.b	2(%a0), %d3
-	addq.l	#1, %d3
+	mvz.b	2(%a0), %d3		/* first_desc */
 	cmp.l	%d3, %d0
-	beq.s	sat_found
-	lea	16(%a0), %a0
-	bra.s	sat_loop
-sat_found:
-	move.l	12(%a0), %a1
+	bcs.s	sat_next
+	addq.l	#4, %d3			/* first_desc + 4: the four knobs */
+	cmp.l	%d3, %d0
+	bhi.s	sat_next
+	move.l	12(%a0), %a1		/* state_init */
 	tst.l	%a1
 	beq.s	sat_generic
+	mvz.b	2(%a0), %d3
+	sub.l	%d3, %d0		/* d0 = the knob (0..3) */
 	move.l	(%sp)+, %a0
 	move.l	(%sp)+, %d3
 	move.l	(%sp)+, %d2
 	jsr	(%a1)
-	rts
+	tst.l	%d0
+	bne.s	sat_ret
+	bra.s	sat_generic2
+sat_next:
+	lea	16(%a0), %a0
+	bra.s	sat_loop
 sat_generic:
 	move.l	(%sp)+, %a0
 	move.l	(%sp)+, %d3
 	move.l	(%sp)+, %d2
+sat_generic2:
 	move.l	4(%sp), %d0
 	bsr.w	map_state
 	moveq	#100, %d1
 	muls.l	%d1, %d0
 	add.l	#0x40a71754, %d0
+sat_ret:
 	rts
 
 	.globl	state_connect
@@ -94,26 +102,35 @@ state_connect:
 sc_loop:
 	cmpa.l	REGS+12, %a0
 	beq.s	sc_generic
-	mvz.b	2(%a0), %d3
-	addq.l	#1, %d3
+	mvz.b	2(%a0), %d3		/* first_desc */
 	cmp.l	%d3, %d0
-	beq.s	sc_found
-	lea	16(%a0), %a0
-	bra.s	sc_loop
-sc_found:
-	move.l	12(%a0), %a1
+	bcs.s	sc_next
+	addq.l	#4, %d3			/* first_desc + 4: the four knobs */
+	cmp.l	%d3, %d0
+	bhi.s	sc_next
+	move.l	12(%a0), %a1		/* state_init */
 	tst.l	%a1
 	beq.s	sc_generic
+	mvz.b	2(%a0), %d3
+	sub.l	%d3, %d0		/* d0 = the knob (0..3) */
 	move.l	(%sp)+, %a0
 	move.l	(%sp)+, %d3
 	move.l	(%sp)+, %d2
 	jsr	(%a1)
+	tst.l	%d0
+	bne.s	sc_found
+	bra.s	sc_generic2
+sc_next:
+	lea	16(%a0), %a0
+	bra.s	sc_loop
+sc_found:
 	add.l	#0x14, %d0
 	bra.s	sc_common
 sc_generic:
 	move.l	(%sp)+, %a0
 	move.l	(%sp)+, %d3
 	move.l	(%sp)+, %d2
+sc_generic2:
 	move.l	4(%sp), %d0
 	bsr.w	map_state
 	moveq	#100, %d1
