@@ -333,10 +333,14 @@ marks:
 3:	jsr	(%a2)
 4:	lea	24(%sp), %sp
 	addq.l	#1, %d5
+	moveq	#MARKS_ROW, %d0
+	add.l	%d0, %d0		/* 2 x MARKS_ROW: the two rows that fit (a third would leave the marks area) */
+	cmp.l	%d5, %d0
+	bls.s	9f			/* marks past 14 machines are not drawn, and never outside their area */
 	mvz.b	REGS+3, %d0		/* nm */
 	cmp.l	%d5, %d0
 	bne.s	1b
-	jmp	0x400a26f2
+9:	jmp	0x400a26f2
 
 /* --- knob -> descriptor (0x4001e8da, jsr + nop; back at 0x4001e8e2): d0 = machine (36(sp) behind our return
  * address), a1 = the OS's table machine -> record; a0 holds the OS's record_at pointer and must stay. An added

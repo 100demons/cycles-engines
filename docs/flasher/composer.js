@@ -284,7 +284,6 @@ function computedConflicts(writes, ram, declared, tweaks) {
 function compose(mainOs, frames, packages, tweaks = []) {
   if (!packages.length) throw new Error("name at least one machine");
   const ids = packages.map((p) => p.id);
-  if (new Set(ids).size !== ids.length) throw new Error("a machine is named twice");
   const lay = frames.layout, pay = lay.pay, first = lay.first;
   const machines = [], blobs = [], symsOf = {}, info = [];
   let codeCursor = pay, bssCursor = pay + lay.bss_off;

@@ -5,3 +5,5 @@ this README is committed and records which engines each checkpoint contains.
 
 - `phase-1.syx` — Feral + LiXR (two added engines, slots 7 and 8). Byte-for-byte identical to the old repo's
   `compose.py --machines feral9,lixr` output (sha256 `e7ba5ecad6a7c33a21a2ccbe822ea5d07c9bba2a0895b04c3f418c361448e56c`).
+- `phase-2.syx` — Feral + LiXR + 8 refmachine copies (10 added engines, the capacity test build). MAIN OS sha256
+  `d025403873079579108a884528648bf272091c33044500c439cbebc7dfe4b8cf`.

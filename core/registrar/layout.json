@@ -1,0 +1,22 @@
+{
+  "schema": "cycles-engines-layout/0.1",
+  "description": [
+    "The capacity and the reserved table region of the composed builds, computed once for MAX_ENGINES added engines",
+    "(ARCHITECTURE.md §3). MAX_ENGINES lives here: no other file hard-codes a machine count. The offsets are from the",
+    "payload base (pay = 0x43000000); the tables sit between the registrar runtime (stubs) and the variables window",
+    "(bss_off). Descriptors (76 + 5 x MAX_ENGINES), parameter and CC rows (32 bytes x (6 + MAX_ENGINES)), records",
+    "(0x60 x MAX_ENGINES) all fit before bss_off. The MACHINES screen marks cover two rows of 7 = 14 machines; marks",
+    "past 14 are not drawn (a third row does not fit between the screen edge and the picture)."
+  ],
+  "MAX_ENGINES": 16,
+  "first": 6,
+  "pay": "0x43000000",
+  "stubs": "0x33000",
+  "data": "0x33800",
+  "descn": "0x34000",
+  "rowsn": "0x36300",
+  "ccrowsn": "0x36600",
+  "recs": "0x36900",
+  "rec_atk": "0x37000",
+  "bss_off": "0x37000"
+}

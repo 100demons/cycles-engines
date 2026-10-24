@@ -25,6 +25,12 @@ typedef int32_t s32;
 typedef uint32_t u32;
 typedef int16_t s16;
 
+/* The machine index (slot - 1), filled by the composer: the symbol's ADDRESS is the value (as cm_descriptor_base
+ * in feral9), so the same source placed at different slots plays a different pitch, which is how the emulator
+ * test proves every copy dispatches to its own update/render. */
+extern char cm_machine_index[];
+#define MACHINE_INDEX ((int)(long)cm_machine_index)
+
 #define CYC_VOICE0  0x42308828u
 #define CYC_VSTRIDE 0x31c
 #define MARK_OFF    0x2c
@@ -116,6 +122,7 @@ void ref_update(s32 pmod, char *v, const char *p)
 	tune = ((s32)P16(0x14) << 8) + (((s32)P16(0x22) - 0x4000) << 3) - (64 << 16)
 	       + (((s32)P16(0x1a) - 0x4000) << 2);
 	note += tune;
+	note += (MACHINE_INDEX - 6) << 16;             /* each copy: one semitone higher than the last */
 	note = note < 0 ? 0 : (note > (127 << 16) ? 127 << 16 : note);
 	tr->inc = phase_inc(note);
 	tr->tone = knob(P16(0x16));

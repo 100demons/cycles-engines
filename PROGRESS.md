@@ -5,9 +5,9 @@ every step: phase, step, what passed, what failed, what's next.
 
 ## Status
 
-- **Current phase**: 1 (Foundation — new repo, same look, proven pieces) — nearly done, awaiting final commit/merge.
-- **Last result**: byte-for-byte carry-over proof PASSES; equivalence test PASSES; emulator tests PASS for the
-  refmachine smoke run and are passing for the full run; size/CPU report OK.
+- **Current phase**: 2 (Capacity — 16 engines) — done, committing/merging.
+- **Last result**: Phase 2 capacity test passes (1, 6, 7, 8, 12, 16 copies: boot, dispatch, distinct pitch, stock
+  unchanged; real engines next to refmachine copies). Equivalence (incl. 16 copies) and size/CPU report pass.
 
 ## Environment (verified)
 
@@ -58,7 +58,23 @@ every step: phase, step, what passed, what failed, what's next.
 
 ## What's next
 
-1. Phase 2 — Capacity: 16 engines (branch `phase-2-capacity`).
+1. Commit Phase 2, tag `phase-2`, merge to main.
+2. Phase 3 — Stable slots (branch `phase-3-slots`).
+
+## Phase 2 — Capacity: 16 engines
+
+- Added `core/registrar/layout.json`: MAX_ENGINES = 16 and the reserved table region (stubs 0x33000, data 0x33800,
+  descn 0x34000, rowsn 0x36300, ccrowsn 0x36600, recs 0x36900, bss_off 0x37000). os113.py reads it: MAX_ENGINES and
+  the layout live in one place; no other file hard-codes a machine count.
+- Registrar runtime regenerated for 16 machines (parameter block at 0x33400, 272 bytes; max_machines 16).
+- MACHINES screen marks: a third row does not fit between the screen edge and the picture, so the marks routine now
+  stops at 2 x MARKS_ROW = 14 machines; marks past 14 are not drawn (the engines still work).
+- refmachine got a `machine_index` patch point so each copy plays one semitone higher than the last.
+- The composer (and docs/flasher/composer.js) now place the same id more than once (each name = one copy at the next
+  slot): how the capacity test places 16 copies.
+- Equivalence test (incl. the 16-copy case) PASSES; fill() 16/16.
+- Capacity emulator test PASSES (1, 6, 7, 8, 12, 16 copies + real engines + stock unchanged).
+- Checkpoint `build/checkpoints/phase-2.syx` (Feral + LiXR + 8 refmachine) saved; checklist appended.
 
 ## Drops / notes
 
