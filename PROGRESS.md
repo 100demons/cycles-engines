@@ -59,8 +59,14 @@ every step: phase, step, what passed, what failed, what's next.
 
 ## What's next
 
-1. Commit Phase 4 (descriptor.state), tag `phase-4`, merge to main.
-2. Phase 5 — Port PUNCH, BLAST and SAM (branch `phase-5-engines`).
+1. Phase 5 — Port the three remaining engines (branch `phase-5-engines`). **Blocked on a naming question**: PROMPTS.md
+   says "PUNCH, BLAST and SAM" with files `66-blast.json, 67-punch.json, 38-sam.json`, but the old repo has **blast,
+   duet, sam** (no punch): `67-blast.json` (blast), `66-duet.json` (duet), `38-sam.json` (sam). The engine the plan
+   calls "punch" appears to be "duet" (14 OPL2 FM models) in the old repo. The owner needs to confirm which engines to
+   port and the slot order before Phase 5 proceeds.
+2. Phase 4's pictures part and the full UI harness (test_sdvintage_7th.py / test_syntakt_machines.py) remain to carry
+   over.
+3. Phase 6 — New-engine kit and launch.
 
 ## Phase 4 — Slot-relative pictures and knob displays (partial)
 
