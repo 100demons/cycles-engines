@@ -15,6 +15,7 @@ Sources in the old repo:
 Only the names and values compose.py actually reads are kept; the generators' own DSP/Syntakt analysis code is
 not needed by the composer and is not carried over.
 """
+import json
 import pathlib
 
 from mtlib import aplib, container          # noqa: F401  (cycles_main)
@@ -69,27 +70,19 @@ JUMPS8 = (
     (0x4005a340, "7005b085643e", "builder_row"),
 )
 
-# --- payload layout (gen_syntakt_engines.py) ------------------------------------------------------------------
-PAY_ALONE = 0x43000000
-BSS_OFF = 0x36000                            # the variables window, above the moved tables (gen_macro.py)
+# --- capacity and payload layout (ARCHITECTURE.md §3; the single source is core/registrar/layout.json) ----------
 END_LIMIT = 0x40200000                        # the grown image must end below the bootstrap's work area
-LAYOUT = dict(
-    DST_SRAM=0x20000,        # replica of the Syntakt SRAM (unused by the composer)
-    ST_BSS_AT=0x30000,
-    DST_BRIDGE=0x31000,
-    DST_END=0x33000,
-    STUBS=0x33000,           # the registrar runtime (registrar.S)
-    DATA=0x33800,            # names, update/render, VEC, machine -> engine map, strings
-    DESCN=0x34000,           # 76 + 5 x N descriptors
-    ROWSN=0x35800,           # (6 + N) x 32 o
-    CCROWSN=0x35a00,
-    RECS=0x35c00,            # record per added machine: 0x60 o each
-    REC_ATK=0x35f00,
-    TABLES_AT=0x36000,
-)
-# For more than 6 added machines the rows move right after the descriptors (see gen_syntakt_engines.py)
-ROWS7 = dict(ROWSN=0x35860, CCROWSN=0x35a20)
-MARKS_ROW = 7                                # marks per row on the MACHINES screen
+MARKS_ROW = 7                                 # marks per row on the MACHINES screen (two rows = 14 machines)
+_layout = json.loads((pathlib.Path(__file__).resolve().parent / "registrar" / "layout.json").read_text(encoding="utf-8"))
+MAX_ENGINES = _layout["MAX_ENGINES"]          # the one machine-count constant
+FIRST = _layout["first"]                      # the stock machines (0..5); added engines are first..first+MAX_ENGINES-1
+PAY_ALONE = int(_layout["pay"], 16)
+BSS_OFF = int(_layout["bss_off"], 16)         # the variables window, above the moved tables
+# the reserved table region, offsets from PAY_ALONE: the registrar runtime, the parameter block, the data block,
+# the descriptors (76 + 5 x MAX_ENGINES), the parameter and CC rows (32 x (first + MAX_ENGINES)), the records
+# (0x60 x MAX_ENGINES). Everything fits before BSS_OFF.
+_OFFSET_KEYS = ("stubs", "data", "descn", "rowsn", "ccrowsn", "recs", "rec_atk")
+LAYOUT = {k.upper(): int(_layout[k], 16) for k in _OFFSET_KEYS}
 
 PAY = PAY_ALONE
 
@@ -103,13 +96,15 @@ def set_base(pay):
 
 
 def set_rows(n):
-    """Rows of the parameter screen for n added machines (ROWS7 beyond 6)."""
-    for k in ROWS7:
-        globals()[k] = PAY + (ROWS7[k] if n > 6 else LAYOUT[k])
+    """Compatibility shim: the rows live at fixed addresses sized for MAX_ENGINES, so nothing moves per build."""
+    if n > MAX_ENGINES:
+        raise SystemExit(f"!! {n} machines: the room holds {MAX_ENGINES}")
 
 
 def check_room(n, nm):
-    """The tables of n added machines (nm machines in all) fit in their place."""
+    """The tables of n added machines (nm machines in all) fit in their place (fixed, sized for MAX_ENGINES)."""
+    if n > MAX_ENGINES:
+        raise SystemExit(f"!! {n} machines: the room holds {MAX_ENGINES}")
     ndesc = NDESC + 5 * n
     for what, end, limit in (("descriptors", DESCN + ndesc * DSTRIDE, ROWSN),
                              ("rows", ROWSN + 32 * nm, CCROWSN),
@@ -117,8 +112,6 @@ def check_room(n, nm):
                              ("records", RECS + 0x60 * n, REC_ATK)):
         if end > limit:
             raise SystemExit(f"!! {what} to {end:#x}, past {limit:#x}")
-    if nm > 2 * MARKS_ROW:
-        raise SystemExit(f"!! {nm} machines: the MACHINES screen marks only have 2 rows of {MARKS_ROW}")
 
 
 def segments(parts, size):

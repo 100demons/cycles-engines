@@ -102,6 +102,14 @@ def part2(out, cycles):
             pkgs.setdefault(i, compose.web_package(i))
         cases.append({"ids": sel, "tweak": {k: tweak[k] for k in COMPARED}, "main_os": compose.sha(patched)})
         print(f"{'+'.join(sel)}: {len(tweak['writes'])} writes, {info['image']} bytes added, MAIN OS {compose.sha(patched)[:12]}")
+    # the capacity case: 16 copies of the reference machine (one id, named 16 times)
+    sel = ["refmachine"] * 16
+    tweak, info = compose.compose(img, sel)
+    with contextlib.redirect_stdout(io.StringIO()):
+        _syx, patched = compose.build_syx(raw, [tweak])
+    pkgs.setdefault("refmachine", compose.web_package("refmachine"))
+    cases.append({"ids": sel, "tweak": {k: tweak[k] for k in COMPARED}, "main_os": compose.sha(patched)})
+    print(f"refmachine x16: {len(tweak['writes'])} writes, {info['image']} bytes added, MAIN OS {compose.sha(patched)[:12]}")
     # fill() for 1 to max_machines synthetic machines
     rnd, lay, fills = random.Random(62), frs["layout"], []
     for n in range(1, frs["runtime"]["max_machines"] + 1):

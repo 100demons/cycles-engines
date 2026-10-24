@@ -17,7 +17,9 @@
              "-Werror"],
   "defines": {},
   "objects": ["refmachine.o"],
-  "patch_points": [],
+  "patch_points": [
+    {"symbol": "cm_machine_index", "kind": "machine_index"}
+  ],
   "symbols": {"update": "ref_update", "render": "ref_render"},
   "keep": []
  },

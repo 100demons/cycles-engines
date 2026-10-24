@@ -192,7 +192,7 @@ def frame(img, reg, n):
     (moved table references, bounds, the jumps and the call into the runtime's fixed entries, the MACHINES
     page's marks), the reloc of the Algorithm parameter's maximum, and the layout, the runtime, the stub template
     and the stock addresses fill() reads."""
-    pay, first = os113.PAY_ALONE, 6
+    pay, first = os113.PAY_ALONE, os113.FIRST
     rt = reg["runtime"]
     if int(rt["at"], 16) != os113.STUBS or int(rt["descn"], 16) != os113.DESCN or rt["marks_row"] != os113.MARKS_ROW:
         sys.exit("!! registrar.json was generated for another layout: run core/gen_registrar.py")
@@ -435,15 +435,16 @@ def computed_conflicts(writes, ram, declared):
 
 
 def compose(img, ids):
-    """Builds the tweak for the engines named in ids, in that order. Returns (tweak, info)."""
+    """Builds the tweak for the engines named in ids, in that order. Returns (tweak, info).
+
+    The same id may be named more than once: each name is one copy placed at the next slot, with its own
+    machine_index (this is how the capacity test places 16 copies of the reference machine)."""
     if not ids:
         sys.exit("!! name at least one engine")
-    if len(ids) != len(set(ids)):
-        sys.exit("!! an engine is named twice")
     mans = [load_manifest(i) for i in ids]
     pay = os113.PAY_ALONE
     os113.set_base(pay)
-    first = 6
+    first = os113.FIRST
     machines, blobs, syms_of, info_pkgs = [], [], {}, []
     with tempfile.TemporaryDirectory() as d:
         tmp = pathlib.Path(d)
