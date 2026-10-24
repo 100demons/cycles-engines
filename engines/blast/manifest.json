@@ -1,0 +1,39 @@
+{
+ "schema": "cycles-mod/0.1",
+ "id": "blast",
+ "version": "0.8",
+ "name": "BLAST machine: 14 melodic OPL2-style FM models",
+ "description": "One added machine with 14 FM models in the manner of the OPL2 (SIN, HLF, ABS, PLS, BAS, PIA, MAR, GLK, BRS, ACC, STR, STL, TMP, ZAP): a melodic '90s PC Soundblaster engine, higher fidelity Sega Genesis or Doom 2. SHAPE picks the model; COLOR, SWEEP, CONTOUR and DECAY as each model reads them.",
+ "license": "MIT",
+ "credit": {"kind": "own", "who": "100demons"},
+ "source": "tools/machines/blast",
+ "device": "Model:Cycles",
+ "os": "1.13",
+ "order": 27,
+ "build": {
+  "sources": ["blast.c"],
+  "include": ["."],
+  "cflags": ["-mcpu=54418", "-O2", "-malign-int", "-U_FORTIFY_SOURCE", "-ffreestanding", "-fno-builtin",
+             "-fno-tree-loop-distribute-patterns", "-nostdlib", "-fno-pic", "-fno-common", "-ffunction-sections",
+             "-fdata-sections", "-fomit-frame-pointer", "-Wall", "-Wextra", "-Werror"],
+  "defines": {},
+  "objects": ["blast.o"],
+  "patch_points": [],
+  "symbols": {"update": "blast_update", "render": "blast_render"},
+  "keep": []
+ },
+ "uses": [
+  {"point": "machine", "name": "BLAST", "image": 4, "decay_default": 50,
+   "knobs": [
+    {"long": "Index", "short": "Idx", "default": 64},
+    {"long": "Model", "short": "MODL", "default": 0, "min": 0, "max": 13},
+    {"long": "Ratio", "short": "RTIO", "default": 80},
+    {"long": "Env", "short": "Env", "default": 40}]}
+ ],
+ "claims": {"sound_slots": [], "record_slots": [], "ram": [], "formatters": [], "gestures": [], "views": []},
+ "cost": {"emulation": {"status": "not measured"}, "device": {"status": "not measured"}},
+ "stock_behaviour": {"changes": [], "fixes": [], "unchanged": ["the six stock machines", "every track that does not use BLAST"]},
+ "compat": {"built_against": ["modded-cycles"], "requires": [], "conflicts_declared": []},
+ "tests": {"emulation": {"tool": "tests/emu (voice loop, Unicorn)", "date": null, "build": null},
+           "hardware": {"date": null, "by": null, "build": null}, "status": "experimental"}
+}

@@ -1,0 +1,40 @@
+{
+ "schema": "cycles-mod/0.1",
+ "id": "punch",
+ "version": "0.5",
+ "name": "PUNCH machine: 12 OPL2-style FM percussion engines",
+ "description": "One added machine built from PUNCH's OPL2-style 2-operator FM voice: 12 curated percussion engines (KIK, TOM, BNG, CNG, TAI, TIM, MAR, DJB, BLK, GNG, BUB, ZAP); SHAPE picks the engine, SWEEP steps through the ratio list. COLOR, SWEEP, CONTOUR and DECAY as each engine reads them; PUNCH turns the chip's LFO on the FM engines.",
+ "license": "MIT",
+ "credit": {"kind": "own", "who": "100demons"},
+ "source": "tools/machines/punch",
+ "device": "Model:Cycles",
+ "os": "1.13",
+ "order": 27,
+ "build": {
+  "sources": ["punch.c"],
+  "include": ["."],
+  "cflags": ["-mcpu=54418", "-Os", "-malign-int", "-U_FORTIFY_SOURCE", "-ffreestanding", "-fno-builtin",
+             "-fno-tree-loop-distribute-patterns", "-nostdlib", "-fno-pic", "-fno-common", "-ffunction-sections",
+             "-fdata-sections", "-fomit-frame-pointer", "-fno-asynchronous-unwind-tables", "-fno-unwind-tables",
+             "-fmerge-all-constants", "-fno-inline-functions-called-once", "-Wall", "-Wextra", "-Werror"],
+  "defines": {},
+  "objects": ["punch.o"],
+  "patch_points": [],
+  "symbols": {"update": "punch_update", "render": "punch_render"},
+  "keep": []
+ },
+ "uses": [
+  {"point": "machine", "name": "PUNCH", "image": 4, "decay_default": 50,
+   "knobs": [
+    {"long": "Index", "short": "Idx", "default": 64},
+    {"long": "Model", "short": "MODL", "default": 0, "min": 0, "max": 11},
+    {"long": "Ratio", "short": "RTIO", "default": 68},
+    {"long": "Env", "short": "Env", "default": 40}]}
+ ],
+ "claims": {"sound_slots": [], "record_slots": [], "ram": [], "formatters": [], "gestures": [], "views": []},
+ "cost": {"emulation": {"status": "not measured"}, "device": {"status": "not measured"}},
+ "stock_behaviour": {"changes": [], "fixes": [], "unchanged": ["the six stock machines", "every track that does not use PUNCH"]},
+ "compat": {"built_against": ["modded-cycles"], "requires": [], "conflicts_declared": []},
+ "tests": {"emulation": {"tool": "tests/emu (voice loop, Unicorn)", "date": null, "build": null},
+           "hardware": {"date": null, "by": null, "build": null}, "status": "experimental"}
+}

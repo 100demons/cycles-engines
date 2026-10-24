@@ -1,0 +1,39 @@
+{
+ "schema": "cycles-mod/0.1",
+ "id": "sam",
+ "version": "0.1",
+ "name": "SAM machine: 36-word speech synthesizer",
+ "description": "Software Automated Mouth: a 36-word speech synthesizer (Braids' Renaissance voice). SHAPE = the word; SPEED, SCRUB and Character shape the voice. Currently half-broken alpha — \"I love you\".",
+ "license": "MIT",
+ "credit": {"kind": "own", "who": "100demons"},
+ "source": "tools/machines/sam",
+ "device": "Model:Cycles",
+ "os": "1.13",
+ "order": 38,
+ "build": {
+  "sources": ["sam.c"],
+  "include": ["."],
+  "cflags": ["-mcpu=54418", "-O2", "-malign-int", "-U_FORTIFY_SOURCE", "-ffreestanding", "-fno-builtin",
+             "-fno-tree-loop-distribute-patterns", "-nostdlib", "-fno-pic", "-fno-common", "-ffunction-sections",
+             "-fdata-sections", "-fomit-frame-pointer", "-Wall", "-Wextra", "-Werror"],
+  "defines": {},
+  "objects": ["sam.o"],
+  "patch_points": [],
+  "symbols": {"update": "sam_update", "render": "sam_render"},
+  "keep": []
+ },
+ "uses": [
+  {"point": "machine", "name": "SAM", "image": 4, "decay_default": 50,
+   "knobs": [
+    {"long": "Speed", "short": "SPED", "default": 64},
+    {"long": "Word", "short": "WORD", "default": 0, "min": 0, "max": 35},
+    {"long": "Scrub", "short": "SCRB", "default": 0},
+    {"long": "Character", "short": "CHAR", "default": 64}]}
+ ],
+ "claims": {"sound_slots": [], "record_slots": [], "ram": [], "formatters": [], "gestures": [], "views": []},
+ "cost": {"emulation": {"status": "not measured"}, "device": {"status": "not measured"}},
+ "stock_behaviour": {"changes": [], "fixes": [], "unchanged": ["the six stock machines", "every track that does not use SAM"]},
+ "compat": {"built_against": ["modded-cycles"], "requires": [], "conflicts_declared": []},
+ "tests": {"emulation": {"tool": "tests/emu (voice loop, Unicorn)", "date": null, "build": null},
+           "hardware": {"date": null, "by": null, "build": null}, "status": "experimental"}
+}

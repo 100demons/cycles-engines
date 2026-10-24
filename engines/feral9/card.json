@@ -1,6 +1,6 @@
 {
-  "label": "🐀 Feral (9.0.1)",
-  "description": "Nine noisy, unpredictable synthesis models on one extra machine, light on the processor.",
+  "label": "🐀 Feral (0.7 beta)",
+  "description": "Dangerous experimental Macro OSC: nyblcore, bytebeat, benjolin, rungler, chaotic maps, fourses, rhythmicon, gendy, pulsar, wave scan, and even worse to come.",
   "status": "tested",
   "credit": {"kind": "own", "who": "100demons"},
   "license": "LICENSE"
