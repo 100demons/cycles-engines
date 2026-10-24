@@ -1,0 +1,63 @@
+{
+ "schema": "cycles-mod/0.1",
+ "id": "lixr",
+ "version": "3",
+ "name": "LiXR machine: fixed-point drum voice with a decimator instead of the filter",
+ "description": "A clean-room drum voice in the spirit of the Sonic Potions LXR drum voices: one tableless oscillator with feedback FM, a noise/transient layer, a pitch envelope, a sample-and-rate decimator driven by CONTOUR and a soft saturator. Four knobs (COLOR, SHAPE, SWEEP, RATE) plus the stock PITCH, DECAY, PUNCH, GATE and FINE.",
+ "license": "MIT",
+ "credit": {"kind": "own", "who": "100demons and Claude"},
+ "source": "private source drop, notes 75 (lixr-blast-updates)",
+ "device": "Model:Cycles",
+ "os": "1.13",
+ "order": 36,
+ "build": {
+  "sources": ["lixr.c"],
+  "include": ["."],
+  "cflags": ["-mcpu=54418", "-O2", "-malign-int", "-U_FORTIFY_SOURCE", "-ffreestanding", "-fno-builtin",
+             "-fno-tree-loop-distribute-patterns", "-nostdlib", "-fno-pic", "-fno-common", "-ffunction-sections",
+             "-fdata-sections", "-fomit-frame-pointer", "-Wall", "-Wextra", "-Werror"],
+  "defines": {},
+  "objects": ["lixr.o"],
+  "symbols": {"update": "lixr_update", "render": "lixr_render"},
+  "keep": [],
+  "patch_points": []
+ },
+ "uses": [
+  {"point": "machine", "name": "LiXR", "image": 4, "decay_default": 50,
+   "knobs": [
+    {"long": "Color", "short": "COLR", "default": 64, "min": 0, "max": 127},
+    {"long": "Shape", "short": "SHPE", "default": 64, "min": 0, "max": 127},
+    {"long": "Sweep", "short": "SWEP", "default": 64, "min": 0, "max": 127},
+    {"long": "Rate", "short": "RATE", "default": 32, "min": 0, "max": 127}]}
+ ],
+ "claims": {
+  "sound_slots": [],
+  "record_slots": [],
+  "ram": [],
+  "formatters": [],
+  "gestures": [],
+  "views": []
+ },
+ "cost": {
+  "emulation": {"tool": "voice-loop counter (notes 75)", "per_voice": {"min": 6335, "max": 6499},
+                "reference": {"TONE": 6572, "ACID": 6530}},
+  "device": {"status": "not measured"}
+ },
+ "stock_behaviour": {
+  "changes": [],
+  "fixes": [],
+  "unchanged": ["the six stock machines", "every track that does not use LiXR"]
+ },
+ "compat": {
+  "built_against": ["modded-cycles, blast branch"],
+  "requires": [],
+  "conflicts_declared": []
+ },
+ "tests": {
+  "emulation": {"tool": "tools/emu/test_lixr.py in the real OS voice loop (Unicorn), on the composed alone build",
+                "date": "2026-10-22", "build": "36-lixr.json composed as machine 6"},
+  "hardware": {"date": "2026-10-22", "by": "owner (100demons)",
+               "build": "built and flashed from the model27 web flasher on a Model:Cycles: LiXR alone and SAMPLE + LiXR"},
+  "status": "tested"
+ }
+}

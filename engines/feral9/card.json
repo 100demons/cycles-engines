@@ -1,0 +1,7 @@
+{
+  "label": "🐀 Feral (9.0.1)",
+  "description": "Nine noisy, unpredictable synthesis models on one extra machine, light on the processor.",
+  "status": "tested",
+  "credit": {"kind": "own", "who": "100demons"},
+  "license": "LICENSE"
+}

@@ -1,0 +1,159 @@
+{
+ "schema": "cycles-mod/0.1",
+ "id": "feral9",
+ "version": "9",
+ "name": "Feral machine: nine noisy, unpredictable synthesis models",
+ "description": "One extra machine after Chord with nine models on SHAPE: NYB (bytebeat), GND (Gendy), BNJ (Benjolin), RYT (Rhythmicon resonators), FRS (Fourses), RNG (a HAVOC rungler), PLS (pulsar), SCN (scanned synthesis) and KOS (logistic map). COLOR and SWEEP are the model's two macros, CONTOUR the tone envelope (a third control on BNJ and RNG), PUNCH is FREE, DECAY and GATE as on Tone.",
+ "license": "MIT",
+ "credit": {
+  "kind": "own",
+  "who": "100demons and Claude"
+ },
+ "source": "tools/machines/feral9, package port of the feral9 source drop",
+ "device": "Model:Cycles",
+ "os": "1.13",
+ "order": 64,
+ "build": {
+  "sources": [
+   "tiny2.c",
+   "feral_ui.S"
+  ],
+  "include": [
+   "."
+  ],
+  "cflags": [
+   "-mcpu=54418",
+   "-O2",
+   "-malign-int",
+   "-U_FORTIFY_SOURCE",
+   "-ffreestanding",
+   "-fno-builtin",
+   "-fno-tree-loop-distribute-patterns",
+   "-nostdlib",
+   "-fno-pic",
+   "-fno-common",
+   "-ffunction-sections",
+   "-fdata-sections",
+   "-fomit-frame-pointer",
+   "-fwrapv",
+   "-Wall",
+   "-Wextra",
+   "-Werror"
+  ],
+  "defines": {
+   "CM_SYMBOLS": "1"
+  },
+  "objects": [
+   "feral9.o"
+  ],
+  "symbols": {
+   "update": "tiny2_update",
+   "render": "tiny2_render"
+  },
+  "keep": [
+   "feral_state_init"
+  ],
+  "patch_points": [
+   {
+    "symbol": "cm_descriptor_base",
+    "kind": "descriptor_base"
+   }
+  ]
+ },
+ "uses": [
+  {
+   "point": "machine",
+   "name": "Feral",
+   "image": 4,
+   "decay_default": 50,
+   "knobs": [
+    {
+     "long": "Color",
+     "short": "COLR",
+     "default": 64,
+     "min": 0,
+     "max": 127
+    },
+    {
+     "long": "Model",
+     "short": "MODL",
+     "default": 0,
+     "min": 0,
+     "max": 8
+    },
+    {
+     "long": "Sweep",
+     "short": "SWP",
+     "default": 64,
+     "min": 0,
+     "max": 127
+    },
+    {
+     "long": "Contour",
+     "short": "CNT",
+     "default": 64,
+     "min": 0,
+     "max": 127
+    }
+   ]
+  },
+  {
+   "point": "descriptor.state",
+   "descriptor": 1,
+   "init": "feral_state_init",
+   "why": "SHAPE shows the model names instead of 0..8"
+  }
+ ],
+ "claims": {
+  "sound_slots": [],
+  "record_slots": [],
+  "ram": [],
+  "formatters": [],
+  "gestures": [],
+  "views": []
+ },
+ "cost": {
+  "emulation": {
+   "tool": "source tree measurement (feral9 changes)",
+   "per_voice": {
+    "min": 2257,
+    "max": 4801
+   },
+   "reference": {
+    "TONE": 5290
+   }
+  },
+  "device": {
+   "status": "not measured"
+  }
+ },
+ "stock_behaviour": {
+  "changes": [],
+  "fixes": [],
+  "unchanged": [
+   "the six stock machines",
+   "every track that does not use Feral"
+  ]
+ },
+ "compat": {
+  "built_against": [
+   "feral9 source drop",
+   "model27"
+  ],
+  "requires": [],
+  "conflicts_declared": []
+ },
+ "tests": {
+  "emulation": {
+   "tool": "none in model27; the source tree measured the CPU",
+   "date": null,
+   "build": null
+  },
+  "hardware": {
+   "date": "2026-10-22",
+   "by": "owner (100demons)",
+   "build": "the standalone feral9 build; this packaged build is new"
+  },
+  "status": "tested"
+ }
+}

@@ -1,0 +1,479 @@
+/* Web flasher page, on top of ../assets/site.css. Class names are the ones app.js renders. */
+
+.fl-head{display:grid;grid-template-columns:1fr;gap:10px;padding:4px 0 26px}
+.fl-head h1{margin:0 0 24px}
+.fl-head p{font-size:19px;line-height:1.55;margin:0 0 14px;max-width:70ch}
+.fl-head .ver{font-size:15px;color:var(--muted);margin:0}
+.fl>section,.fl>details,.fl>.alert{max-width:820px}
+
+.alert{margin:0 0 20px;padding:2px 0 2px 14px;border-left:3px solid var(--bad);color:var(--bad);font-size:16px}
+.alert a{color:inherit}
+.mach-warning{margin:14px 0 18px;padding:2px 0 2px 14px;border-left:3px solid var(--bad);color:var(--bad);font-size:16px;line-height:1.5;max-width:74ch}
+.mach-warning a{color:inherit;font-weight:600}
+
+/* steps: a rule, a numbered trig key that lights up once the step is done */
+.step{padding:22px 0 44px;border-top:1px solid var(--ink)}
+.step>header{display:flex;align-items:center;gap:14px;margin:0 0 20px}
+.step h2{font-size:24px}
+.num{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:6px;background:var(--ctl);color:var(--ctl-ink);
+  font-weight:700;font-size:15px;box-shadow:0 2px 0 var(--ctl-edge)}
+.step.done .num{background:var(--red);color:var(--accent-ink)}
+.hint{margin:.8em 0 0;font-size:15px;color:var(--muted)}
+.hint:empty{display:none}
+.panel-text{margin:0;max-width:64ch}
+.note{margin:16px 0 0;font-size:15px;color:var(--muted);max-width:64ch}
+code{font-size:.82em}
+
+/* mode tabs */
+.seg{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px}
+.seg button{font:inherit;font-size:15px;line-height:1.2;background:var(--paper);border:1px solid var(--line-2);border-radius:5px;padding:9px 13px;color:var(--ink-2);cursor:pointer}
+.seg button:hover{background:var(--casing);border-color:var(--ink);color:var(--ink)}
+.seg button[aria-selected="true"],.seg button[aria-checked="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper);font-weight:600;text-decoration:none}
+
+/* key-shaped checkboxes: charcoal, red when on */
+.mod-row>input,.variants input,.check input{appearance:none;-webkit-appearance:none;flex:none;margin:0;width:22px;height:22px;border-radius:5px;
+  background:var(--ctl);box-shadow:0 2px 0 var(--ctl-edge);cursor:pointer}
+.mod-row>input:checked,.variants input:checked,.check input:checked{background:var(--red)}
+.variants input[type=radio]{border-radius:50%}
+
+/* mods, step 1: sections named after what a mod changes on the machine, one short row per mod, details on demand.
+ * Plain CSS (no nesting, color-mix or :has): the smoke test parses it with jsdom. Class names avoid site.css's .name and
+ * the progress bar's .meta. */
+#features{border-top:0}
+.vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* how to read the list, before ticking anything */
+.mods-lede{margin:0 0 14px;font-size:15px;line-height:1.55;color:var(--muted);max-width:70ch}
+.mods-lede .tag{font-size:inherit}
+.tag{font-size:14px;font-weight:600;letter-spacing:0;color:var(--accent-2)}
+.tag.ok{color:var(--ok)}
+/* "Experimental" outlined in amber so the exceptions stand out; "Tested" stays plain green */
+.tag.exp{display:inline-block;padding:0 6px;border:1px solid var(--accent-2);background:var(--accent-2-bg);border-radius:6px;line-height:1.35}
+
+/* search, shown from SEARCH_FROM mods (app.js) */
+.find{position:relative;margin:0 0 10px}
+.find input{width:100%;height:44px;padding:0 44px 0 40px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--paper);color:var(--ink);font:16px var(--f);
+  appearance:none;-webkit-appearance:none}
+.find input::placeholder{color:var(--muted)}
+.find .mag{position:absolute;left:13px;top:13px;color:var(--muted);pointer-events:none}
+.find .clr{position:absolute;right:0;top:0;width:44px;height:44px;padding:0;border:0;background:none;color:var(--muted);font:20px/1 var(--f);cursor:pointer}
+.find .clr:hover{color:var(--ink)}
+.found{margin:0 0 12px;font-size:14.5px;color:var(--muted)}
+.found b{color:var(--ink);font-weight:600}
+
+/* section chips: they jump to a section; a page LED lights when the section holds a ticked mod */
+.cats{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 4px;padding:0;list-style:none}
+.cats a{position:relative;display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:0 7px;border:1px solid var(--line-2);border-radius:var(--r);
+  font-size:13.5px;line-height:1.2;text-decoration:none;color:var(--ink-2);white-space:nowrap}
+.cats a:hover{border-color:var(--ink);color:var(--ink)}
+.cats .n{margin-left:-1px;color:var(--muted);font-variant-numeric:tabular-nums}
+.cats .zero a{opacity:.45}
+.led{flex:none;width:7px;height:7px;border-radius:50%;background:var(--line-2)}
+.led.on{background:var(--red);box-shadow:0 0 0 2px var(--accent-glow)}
+
+/* a section: an ink rule like the steps, a header button that folds it */
+.grp{margin-top:28px;scroll-margin-top:16px}
+.grp>h3{margin:0;font-size:inherit;letter-spacing:0}
+.grp-h{display:flex;align-items:center;gap:12px;width:100%;min-height:50px;padding:12px 0 11px;border:0;border-top:1px solid var(--ink);background:none;
+  font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.grp-h .ic{flex:none;width:22px;height:22px;color:var(--ink-2)}
+.grp-h .gt{font-size:19px;font-weight:700;letter-spacing:-.015em}
+.grp-h .gs{font-size:15px;color:var(--muted);font-weight:400}
+.grp-h .gn{margin-left:auto;font-size:14.5px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.grp-h .gn b{color:var(--ink);font-weight:700}
+.grp-h .chev{flex:none;color:var(--muted);transition:transform .15s}
+.grp-h[aria-expanded="false"] .chev{transform:rotate(-90deg)}
+.grp-h:hover .gt{text-decoration:underline;text-decoration-color:var(--red);text-decoration-thickness:2px;text-underline-offset:.2em}
+.grp-body{border-top:1px solid var(--line)}
+/* folded section: one line recalls what is ticked inside */
+.grp-sel{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 14px;margin:0;padding:0 0 4px 34px;font-size:14.5px;color:var(--ink-2)}
+.grp-sel span{display:inline-flex;align-items:baseline;gap:7px}
+.grp-sel span::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--red);transform:translateY(-1px)}
+.grp-sel .inc::before{background:none;box-shadow:inset 0 0 0 1.5px var(--red)}
+
+/* a mod = one row: key, name, one sentence; status and author on the right; Details opens the drawer */
+.mod{position:relative;border-bottom:1px solid var(--line)}
+.mod-row{display:grid;grid-template-columns:24px minmax(0,max-content) minmax(0,1fr);
+  grid-template-areas:"key ttl by" "key short short";column-gap:14px;row-gap:1px;align-items:baseline;padding:12px 0 13px;cursor:pointer}
+.mod-row>input{grid-area:key;align-self:start;margin-top:2px}
+.ttl{grid-area:ttl;display:flex;flex-wrap:wrap;align-items:baseline;gap:0 10px;font-weight:700;font-size:24px;line-height:1.35;letter-spacing:-.01em}
+.ttl .incl{font-weight:400;font-size:14.5px;color:var(--muted);letter-spacing:0}
+.by{grid-area:by;display:flex;flex-wrap:wrap;gap:0 12px;font-size:14px;line-height:1.35;color:var(--muted)}
+.by a{color:var(--ink-2)}
+.by .need{color:var(--ink-2)}
+.st{grid-area:tag;justify-self:end}
+.st .tag{font-size:13.5px}
+.short{grid-area:short;font-size:15.5px;line-height:1.45;color:var(--ink-2);display:block;white-space:pre-line}
+.more{position:absolute;top:8px;right:0;display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 9px 0 11px;border:0;border-radius:var(--r);
+  background:none;color:var(--muted);font:14.5px var(--f);cursor:pointer}
+.more:hover{background:var(--casing);color:var(--ink)}
+.more svg{flex:none;transition:transform .15s}
+.more[aria-expanded="true"]{color:var(--ink)}
+.more[aria-expanded="true"] svg{transform:rotate(180deg)}
+.ext{padding-left:36px}
+.ext:empty{display:none}
+.mod.incl .mod-row{cursor:default}
+.mod.incl .mod-row>input{opacity:.5;cursor:default}
+.mod.incl .nm{color:var(--ink-2)}
+.ext .variants{margin:0 0 12px}
+
+/* a pack: what it brings, on one line, and the mods of this list it already holds */
+.parts{margin:-5px 0 6px;padding:0;list-style:none;font-size:14.5px;line-height:1.5;color:var(--ink-2);max-width:72ch}
+.parts li{display:inline}
+.parts li+li::before{content:" · ";color:var(--muted)}
+.also{margin:0 0 12px;font-size:14.5px;line-height:1.5;color:var(--muted);max-width:72ch}
+.also b{font-weight:600;color:var(--ink-2)}
+
+/* engines: trig-key pads, red once lit; under each key, the machine's name and what it does */
+.pads{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px 10px;margin:2px 0 12px;max-width:620px}
+.pad{position:relative;display:block;cursor:pointer}
+.pad input{position:absolute;opacity:0;width:1px;height:1px}
+.pad b{display:grid;place-items:center;height:38px;border-radius:5px;background:var(--ctl);color:var(--ctl-ink);box-shadow:0 2px 0 var(--ctl-edge);
+  font-size:14px;font-weight:700;letter-spacing:.03em}
+.pad input:checked+b{background:var(--red);color:var(--accent-ink)}
+.pad input:focus-visible+b{outline:2px solid var(--ink);outline-offset:3px}
+.pad small{display:block;font-size:12.5px;line-height:1.3;color:var(--muted)}
+.pad .pl{margin-top:7px;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--ink-2)}
+.combo{margin:0 0 10px;font-size:14.5px;line-height:1.5;color:var(--ink-2);max-width:70ch}
+.combo .tag{margin-right:8px}
+.combo.quiet{color:var(--muted)}
+.lnk{font:inherit;font-weight:600;color:var(--ink);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;
+  text-decoration-color:var(--red);text-decoration-thickness:1.5px;text-underline-offset:.2em}
+.lnk.soft{font-weight:400;color:var(--muted);text-decoration-color:var(--line-2)}
+.lnk.soft:hover{color:var(--ink);text-decoration-color:var(--red)}
+
+/* to read: a clash before ticking (red), just unticked (ink, with Undo), good to know once ticked (amber) */
+.say{margin:0 0 12px;padding:1px 0 1px 12px;border-left:3px solid var(--warn);font-size:14.5px;line-height:1.5;color:var(--ink-2);max-width:70ch}
+.say b{color:var(--warn)}
+.say.clash{border-color:var(--bad)}
+.say.clash b{color:var(--bad)}
+.say.swap{border-color:var(--ink)}
+.say.swap b{color:var(--ink)}
+
+/* the Details drawer: the full description and the facts, always in the page (hidden while closed) */
+.det{margin:2px 0 14px;padding:14px 16px 13px;border-radius:var(--r);background:var(--casing);font-size:15px;line-height:1.5;color:var(--ink-2)}
+.det>p{margin:0 0 10px;max-width:70ch;white-space:pre-line}
+.facts{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:5px 18px;margin:0;font-size:14.5px;line-height:1.45}
+.facts dt{color:var(--muted)}
+.facts dd{margin:0;color:var(--ink-2);max-width:62ch}
+.facts dd b{font-weight:600;color:var(--ink)}
+.facts a{color:var(--ink)}
+.facts .feat-guide{font-weight:600;text-decoration-color:var(--red)}
+
+/* the recorded demo at the bottom of a machine's description: 16:9, never wider than the text */
+.vid{margin:14px 0 0;max-width:560px;aspect-ratio:16/9;border-radius:var(--r);overflow:hidden;background:#000}
+.vid iframe{display:block;width:100%;height:100%;border:0}
+
+/* "Your selection": stuck to the bottom of the screen while the list scrolls, resting at the end of step 1 */
+.sel{margin-top:26px;padding:11px 0 13px;border-top:1px solid var(--ink);background:var(--paper)}
+.js-sticky .sel{position:sticky;bottom:0;z-index:5}
+.sel.stuck{box-shadow:0 -14px 18px -16px rgba(0,0,0,.4)}
+.sel-h{display:flex;align-items:center;gap:6px 16px}
+.sel-sum{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 14px;min-width:0}
+.sel-t{font-size:17px;font-weight:700}
+.sel-c{font-size:15px;color:var(--ink-2)}
+.sel-c .fx{color:var(--warn)}
+.sel-x{margin-left:auto;display:flex;align-items:center;gap:18px;flex:none}
+.sel-more{display:none}
+.btn.sel-next{padding:9px 15px;font-size:15px}
+.chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0 0;padding:0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:0 2px 0 10px;border-radius:5px;background:var(--casing);font-size:14.5px;color:var(--ink)}
+.chip .ci{color:var(--muted)}
+.chip .cx{width:7px;height:7px;border-radius:50%;background:var(--warn)}
+.chip .x{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:4px;background:none;color:var(--muted);cursor:pointer;font:18px/1 var(--f)}
+.chip .x:hover{background:var(--line);color:var(--ink)}
+.sel.stuck .chips{max-height:66px;overflow:hidden}
+.sel-msg{margin:10px 0 0;padding-left:12px;border-left:3px solid var(--ink);font-size:14.5px;color:var(--ink-2)}
+.sel-need{margin-left:4px;font-size:14px;color:var(--muted)}
+.sel-none{margin:4px 0 0;font-size:15px;color:var(--muted)}
+.sel-foot{display:none}
+@media (max-height:500px){.js-sticky .sel{position:static}}
+
+.variants{display:grid;gap:0;margin:12px 0 0;border-top:1px solid var(--line)}
+.variants label{display:flex;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer;font-size:16px;color:var(--ink-2)}
+.variants input{width:18px;height:18px;margin-top:2px}
+.variants b{font-weight:700;color:var(--ink)}
+.variants small{display:block;color:var(--muted);font-size:14.5px}
+.variants .combo{margin:8px 0 0;font-size:14.5px;color:var(--muted);max-width:64ch}
+.samples-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;margin:0 0 6px;font-weight:700;font-size:18px}
+.warn-list{margin:14px 0 18px;padding-left:1.2em;max-width:64ch}
+.warn-list li{margin:.35em 0;color:var(--ink-2)}
+
+/* drop zones */
+#drop2-wrap,#drop3-wrap{margin-top:22px}
+.drop{display:flex;align-items:center;gap:16px;padding:18px 20px;border:1.5px dashed var(--line-2);border-radius:var(--r);cursor:pointer}
+.drop-ic{flex:none;color:var(--ink-2)}
+.drop-t strong{display:block;font-size:17px;word-break:break-all}
+.drop-t span{font-size:15px;color:var(--muted)}
+.drop:hover,.drop:focus-visible,.drop.over{border-color:var(--ink);background:var(--casing);outline:none}
+.drop.loaded{border-style:solid;border-color:var(--ok)}
+.drop.loaded .drop-ic{color:var(--ok)}
+
+/* status lines: the text says it, a plain sign before it */
+.status{margin-top:14px;font-size:16px}
+.status:empty{display:none}
+.status .row{display:flex;gap:10px;align-items:baseline;margin:.3em 0;color:var(--ink-2)}
+.status .row::before{content:"–";flex:none;width:1em;font-weight:700;color:var(--muted)}
+.status .is-ok::before{content:"✓";color:var(--ok)}
+.status .is-warn{color:var(--warn)}
+.status .is-warn::before{content:"!";color:var(--warn)}
+.status .is-bad{color:var(--bad)}
+.status .is-bad::before{content:"×";color:var(--bad)}
+.status .is-busy::before{content:"…";color:var(--ink)}
+.dot{display:none}
+.status a{color:inherit;font-weight:600}
+.hash{font:.82em var(--f-code);color:var(--muted);white-space:nowrap}
+
+/* connection */
+.howto{margin:0 0 20px;padding-left:1.3em;max-width:64ch}
+.howto li{margin:.4em 0;color:var(--ink-2)}
+.howto b{font-weight:700;color:var(--ink)}
+.portrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+select{flex:1 1 260px;min-width:0;padding:12px 36px 12px 12px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--paper);color:var(--ink);
+  font:16px/1.2 var(--f);appearance:none;-webkit-appearance:none;cursor:pointer;
+  background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
+  background-size:5px 5px,5px 5px;background-position:calc(100% - 19px) 52%,calc(100% - 14px) 52%;background-repeat:no-repeat}
+
+/* buttons */
+button.btn{border:0}
+.btn.secondary{background:none;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line-2)}
+.btn.secondary:hover{background:var(--casing);color:var(--ink)}
+.btn.big{width:100%;justify-content:center;padding:18px;font-size:18px}
+.btn:disabled,.btn:disabled:hover{background:var(--casing);color:var(--muted);box-shadow:none;cursor:not-allowed;transform:none}
+
+/* flash step */
+.summary{margin:0 0 16px;padding:2px 0 2px 14px;border-left:3px solid var(--ink);font-size:16px}
+.summary b{font-weight:700}
+.check{display:flex;align-items:flex-start;gap:12px;margin:0 0 18px;cursor:pointer;color:var(--ink-2);max-width:64ch}
+#panel-samples .check{margin:0}
+.actions{display:flex;gap:10px}
+.actions .big{flex:1}
+.missing{margin:12px 0 0;text-align:center;font-size:15px;color:var(--muted)}
+.missing:empty{display:none}
+.alt{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:18px 0 0;font-size:15px;color:var(--muted)}
+.alt .btn{padding:10px 16px;font-size:15px}
+.method-note{margin:0 0 16px;color:var(--ink-2)}
+.method-note:empty{display:none}
+.seg button:disabled{cursor:not-allowed;opacity:.5}
+.progress{margin-top:24px}
+.bar{display:grid;grid-template-columns:repeat(16,minmax(0,1fr));gap:6px}
+#bar{display:none}
+.bar i{aspect-ratio:1;max-height:40px;border-radius:5px;background:var(--ctl);box-shadow:0 2px 0 var(--ctl-edge)}
+.bar i.on{background:var(--red)}
+.bar i.cur{animation:cur .5s steps(1) infinite}
+@keyframes cur{50%{background:var(--red)}}
+.meta{display:flex;justify-content:space-between;margin-top:10px;font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums}
+.callout{margin-top:16px;padding:2px 0 2px 14px;border-left:3px solid var(--red);font-size:16px;color:var(--ink-2)}
+.callout.warn{border-color:var(--warn)}
+.result{margin-top:18px;padding:2px 0 2px 14px;border-left:3px solid var(--ink)}
+.result:empty{display:none}
+.result.ok{border-color:var(--ok)}
+.result.warn{border-color:var(--warn)}
+.result.bad{border-color:var(--bad)}
+.result p{margin:.35em 0;max-width:64ch}
+
+details>summary{cursor:pointer;font-weight:700}
+details.trouble{margin-top:8px}
+.trouble dl{margin:12px 0 0;max-width:64ch}
+.trouble dt{margin-top:12px;font-weight:700}
+.trouble dd{margin:3px 0 0;color:var(--ink-2)}
+.adv{padding:0;border-top:0}
+.adv .field{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:14px 0 0}
+.adv .hint{margin:0}
+.adv input[type=number]{width:5.5em;padding:8px 10px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--paper);color:var(--ink);font:16px var(--f)}
+#download{font-weight:600}
+#log{height:170px;overflow:auto;margin-top:16px;padding:10px 12px;background:var(--casing);border-radius:var(--r);
+  font:12.5px/1.6 var(--f-code);color:var(--ink-2);white-space:pre-wrap}
+#log .is-ok{color:var(--ok)} #log .is-bad{color:var(--bad)} #log .is-warn{color:var(--warn)}
+
+.credits{margin-top:0;padding-top:0;padding-bottom:0;border-top:0;max-width:820px}
+.credits h2{font-size:24px;margin:0 0 10px}
+.credits p{color:var(--muted);margin:0 0 10px}
+.credits ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.credits li{padding:9px 0;border-bottom:1px solid var(--line);color:var(--ink-2)}
+
+[hidden]{display:none !important}
+
+@media (max-width:900px){
+  .fl-head{grid-template-columns:1fr;padding:56px 0 40px}
+}
+@media (max-width:620px){
+  .bar{gap:4px}
+  /* mods: chips scroll sideways in their own strip, rows stack, 44 px targets, the selection bar folds to 2 lines */
+  .cats{flex-wrap:nowrap;overflow-x:auto;margin:0 calc(-1*var(--gut)) 4px;padding:0 var(--gut) 2px;scrollbar-width:none}
+  .cats::-webkit-scrollbar{display:none}
+  .cats a{min-height:44px;padding:0 14px 0 12px;font-size:15px}
+  .grp-h{min-height:56px}
+  .grp-h .gs{display:none}
+  .mod-row{grid-template-columns:23px max-content minmax(0,1fr);grid-template-areas:"key ttl ttl" ". short short" ". tag by";row-gap:3px;padding:12px 0 13px}
+  .ttl{padding-right:40px;font-size:23px}
+  .short{font-size:15px}
+  .st{justify-self:start}
+  .by{font-size:13.5px}
+  .more{top:2px;right:-10px;width:44px;height:44px;padding:0;justify-content:center}
+  .more .lbl{display:none}
+  .pads{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 8px}
+  .pad b{height:44px}
+  .facts{grid-template-columns:minmax(0,1fr);gap:0}
+  .facts dt{margin-top:8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+  .facts dt:first-child{margin-top:0}
+  .det{padding:12px 14px}
+  .sel{margin-left:calc(-1*var(--gut));margin-right:calc(-1*var(--gut));padding:10px var(--gut) 12px}
+  .sel-h{gap:10px}
+  .sel-sum{flex-direction:column;gap:0}
+  .sel-t{font-size:16px}
+  .sel-c{font-size:14px}
+  .sel.stuck:not(.open) .sel-t{display:none}
+  .sel.stuck:not(.open) .sel-c{display:flex;flex-direction:column;font-size:15px}
+  .sel.stuck:not(.open) .sel-n{font-weight:700;color:var(--ink)}
+  .sel.stuck:not(.open) .dotsep{display:none}
+  .sel.stuck.open .sel-body{max-height:56vh;overflow:auto}
+  .sel-need{width:100%;margin:4px 0 0}
+  .sel-x{gap:6px}
+  .sel-x .clear{display:none}
+  .sel.stuck .sel-more{display:inline-flex;align-items:center;justify-content:center;min-width:44px;height:44px;padding:0 6px;font-size:15px}
+  .btn.sel-next{height:44px;padding:0 13px}
+  .sel.stuck:not(.open) .sel-body{display:none}
+  .sel.stuck .chips{max-height:none;overflow:visible}
+  .sel-foot{display:block;margin:12px 0 0}
+  .chip{min-height:44px;padding-left:12px}
+  .chip .x{width:44px;height:44px}
+}
+.seg.sub{margin:0 0 18px;gap:6px 18px}
+.seg.sub button{font-size:15px}
+/* Mods tab: which machine receives the firmware (always the Model:Cycles OS, notes/57) */
+.mach-q{margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.mach-pane{margin:0 0 22px;padding:0 0 18px;border-bottom:1px solid var(--line)}
+.mach-credit{margin:0 0 14px}
+
+/* Credits: a closed disclosure, so the page ends on the flasher. */
+.credits details{border-top:0;padding:8px 0}
+.credits summary{cursor:pointer;font-weight:700;font-size:inherit}
+.credits summary::marker{color:var(--muted)}
+.credits details[open] summary{margin-bottom:12px}
+
+
+/* --- stark, utilitarian pass --- */
+.num{width:32px;height:32px;border-radius:0;background:var(--ink);color:var(--paper);box-shadow:none;
+  font:500 13px/1 var(--f-code);letter-spacing:.02em}
+.step.done .num{background:var(--paper);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.mod-row>input,.variants input,.check input{width:20px;height:20px;border-radius:0;background:var(--paper);
+  border:1.5px solid var(--ink);box-shadow:none}
+.mod-row>input:checked,.variants input:checked,.check input:checked{background:var(--ink);border-color:var(--ink);
+  box-shadow:inset 0 0 0 3px var(--paper)}
+.variants input[type=radio]{border-radius:0}
+.tag{font:500 12px/1.45 var(--f-code);letter-spacing:.04em;text-transform:uppercase;color:var(--ink)}
+.tag.ok{color:var(--ok)}
+.tag.exp{border-radius:0;border:1px solid var(--ink);background:none;padding:1px 5px}
+.cats a,.led,.chip,.chip .cx,.chip .x,.det,.drop,.more,#log,.bar i,.pad b,.find input,select,
+.adv input[type=number],.btn.secondary{border-radius:0}
+.bar i{box-shadow:none}
+.chip .cx{background:var(--ink)}
+button.btn{border:1px solid var(--ink)}
+.btn.secondary{background:none;color:var(--ink);box-shadow:none}
+.btn.secondary:hover{background:var(--ink);color:var(--paper)}
+
+#step-flash{padding-bottom:12px}
+
+
+/* middle ground: rounded keys and drawers, not the full original */
+.num{border-radius:5px;background:var(--ctl);color:var(--ctl-ink);box-shadow:0 2px 0 var(--ctl-edge);
+  font:600 13px/1 var(--f-code)}
+.step.done .num{background:var(--red);color:var(--accent-ink);box-shadow:0 2px 0 var(--ctl-edge)}
+.mod-row>input,.variants input,.check input{border-radius:3px;border:1.5px solid var(--line-2);background:var(--paper);box-shadow:none}
+.mod-row>input:checked,.variants input:checked,.check input:checked{background:var(--ink);border-color:var(--ink);
+  box-shadow:inset 0 0 0 3px var(--paper)}
+.tag{font:600 12px/1.45 var(--f-code);letter-spacing:.03em;text-transform:uppercase;color:var(--accent-2)}
+.tag.exp{border-radius:4px;border:1px solid var(--line-2);background:var(--accent-2-bg);padding:1px 5px}
+.cats a,.chip,.chip .x,.det,.drop,.more,#log,.bar i,.pad b,.find input,select,.adv input[type=number]{border-radius:5px}
+.chip .cx,.led{border-radius:50%}
+.bar i{box-shadow:0 2px 0 var(--ctl-edge)}
+.foot{margin-top:24px}
+
+
+
+.method-info{margin:0 0 16px}
+.method-info>summary{font-size:16px}
+.method-info .howto{margin-top:12px}
+
+.make-firmware{margin:12px 0;max-width:820px}
+.make-firmware>summary{color:var(--bad);font-weight:700}
+.make-firmware ol{margin:12px 0 0;padding-left:1.4em;max-width:64ch}
+.make-firmware li{margin:.35em 0}
+
+.discord{display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.discord svg{flex:none}
+.discord:hover{text-decoration:underline}
+
+.muted-link{color:inherit;text-decoration-color:currentColor}
+.step.done .num{background:var(--ctl);color:var(--ctl-ink);box-shadow:0 2px 0 var(--ctl-edge)}
+
+
+/* ticked boxes: a real check, not just a filled square */
+.mod-row>input:checked,.check input:checked,.variants input:not([type="radio"]):checked{
+  background-color:var(--ink);border-color:var(--ink);box-shadow:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6.2 4.6 9 10 3' fill='none' stroke='%23f7f6f2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-position:center;background-size:13px 13px;background-repeat:no-repeat;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .mod-row>input:checked,
+  :root:not([data-theme="light"]) .check input:checked,
+  :root:not([data-theme="light"]) .variants input:not([type="radio"]):checked {
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6.2 4.6 9 10 3' fill='none' stroke='%231a1a1a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+}
+:root[data-theme="dark"] .mod-row>input:checked,
+:root[data-theme="dark"] .check input:checked,
+:root[data-theme="dark"] .variants input:not([type="radio"]):checked {
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6.2 4.6 9 10 3' fill='none' stroke='%231a1a1a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.blurb-rule{color:var(--muted);letter-spacing:.18em;margin-top:-4px}
+
+/* progress: 16 random faces, grey until reached */
+.bar i{display:grid;place-items:center;font-style:normal;font-size:clamp(15px,2.6vw,22px);line-height:1;
+  background:var(--casing);border:1px solid var(--line-2);filter:grayscale(1);opacity:.35;
+  transition:opacity .12s,filter .12s,border-color .12s,background .12s}
+.bar i.on{background:var(--well);border-color:var(--ink);filter:none;opacity:1}
+.bar i.cur{background:var(--well);border-color:var(--ink);filter:none;opacity:1;animation:facecur .5s steps(1) infinite}
+@keyframes facecur{50%{opacity:.4;filter:grayscale(1)}}
+
+/* faces: the square stays the light-mode off-white in both themes */
+.bar i{background:#ebe9e3;border:1px solid #b8b5ac;filter:none;opacity:1}
+.bar i>span{display:grid;place-items:center;width:100%;height:100%;opacity:.35;filter:grayscale(1);
+  transition:opacity .12s,filter .12s}
+.bar i.on,.bar i.cur{background:#e2e0d9;border-color:#1e2130;animation:none}
+.bar i.on>span,.bar i.cur>span{opacity:1;filter:none}
+.bar i.cur>span{animation:facecur .5s steps(1) infinite}
+
+/* progress: grey boxes, a skull and a red box when reached */
+.bar i{background:#8f8f8a;border:1px solid #5f5f5a;filter:none;opacity:1}
+.bar i>span{opacity:0;filter:none;transition:opacity .12s}
+.bar i.on,.bar i.cur{background:#c0392b;border-color:#7f1d1d;animation:none}
+.bar i.on>span,.bar i.cur>span{opacity:1;filter:none}
+.bar i.cur>span{animation:skullpulse .5s steps(1) infinite}
+@keyframes skullpulse{50%{opacity:.4}}
+
+/* engine card checkbox matches its title size, after the style passes above */
+.mod-row>input{width:24px;height:24px}
+@media (max-width:620px){
+  .mod-row>input{width:23px;height:23px}
+}
+
+/* Cycles Engines: engine cards (tick boxes) */
+#features{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin:14px 0 6px}
+.card{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:10px;
+  padding:12px 14px;background:var(--casing);cursor:pointer;transition:border-color .12s}
+.card:hover{border-color:var(--line-2)}
+.card:has(input:checked){border-color:var(--red);box-shadow:0 0 0 1px var(--red)}
+.card-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card-head input{width:18px;height:18px;accent-color:var(--red);margin:0}
+.card-label{font-weight:600;color:var(--ink)}
+.card-status{font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;color:var(--accent-2);
+  background:var(--accent-2-bg)}
+.card-status.tested{color:var(--ok);background:rgba(43,106,59,.12)}
+.card-status.experimental{color:var(--warn);background:rgba(135,83,0,.12)}
+.card-slot{margin-left:auto;font-family:var(--f-code);font-size:12px;color:var(--red);font-weight:600}
+.card-desc{margin:0;font-size:13px;line-height:1.45;color:var(--ink-2)}
+.card-meta{margin:0;font-size:11px;color:var(--muted);display:flex;gap:10px}
+#slot-note{font-size:13px;color:var(--ink-2)}
+#features:empty::after{content:"No engines yet.";color:var(--muted);font-size:13px}

@@ -1,0 +1,341 @@
+/* Cycles Engines flasher — page logic.
+ *
+ * Flow: drop the official OS 1.13 file -> tick engines -> compose in the browser -> build the .syx -> flash over
+ * USB (fast, or classic SysEx). No firmware is committed or uploaded; the engines are packages (engines.js, made by
+ * tools/make_catalog.py) and docs/flasher/composer.js composes them, docs/flasher/builder.js builds, docs/flasher/
+ * flasher.js sends. Nothing here hard-codes a machine count: the capacity is one constant (core/registrar/layout.json
+ * -> frame.json), and any combination of engines composes together.
+ */
+(function () {
+"use strict";
+
+var E = window.MC_ENGINES, B = window.MCBuilder, C = window.MCComposer, F = window.MCFlasher;
+var $ = function (id) { return document.getElementById(id); };
+
+var state = {
+  raw: null,            // Uint8Array of the official .syx
+  mainOs: null,         // the MAIN OS, depacked (MCBuilder.mainOsOf)
+  midi: null,           // MIDIAccess
+  output: null,         // chosen MIDI output
+  busy: false,
+  cancelling: false,
+};
+
+// --- engine cards -------------------------------------------------------------------------------------
+var ticked = [];         // engine ids, in tick order (slot 7, 8, ...)
+
+function el(tag, cls, text) {
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+function renderCards() {
+  var box = $("features");
+  box.textContent = "";
+  E.engines.forEach(function (en) {
+    var label = document.createElement("label");
+    label.className = "card";
+    var check = document.createElement("input");
+    check.type = "checkbox";
+    check.value = en.id;
+    check.addEventListener("change", function () {
+      if (check.checked) ticked.push(en.id);
+      else ticked = ticked.filter(function (x) { return x !== en.id; });
+      refreshSlots();
+      refreshSummary();
+    });
+    var head = el("span", "card-head");
+    head.appendChild(check);
+    head.appendChild(el("strong", "card-label", en.card.label));
+    var status = el("span", "card-status " + (en.card.status || "experimental"), en.card.status || "experimental");
+    head.appendChild(status);
+    var slot = el("span", "card-slot", "");
+    head.appendChild(slot);
+    label.appendChild(head);
+    label.appendChild(el("p", "card-desc", en.card.description));
+    var meta = el("p", "card-meta");
+    if (en.card.credit) {
+      var who = en.card.credit.who || "";
+      meta.appendChild(el("span", null, "credit: " + who));
+    }
+    if (en.version) meta.appendChild(el("span", null, " v" + en.version));
+    label.appendChild(meta);
+    label._slot = slot;
+    box.appendChild(label);
+  });
+}
+
+function refreshSlots() {
+  var note = $("slot-note");
+  if (!ticked.length) { note.hidden = true; return; }
+  var lines = ticked.map(function (id, i) { return (7 + i) + " = " + id; });
+  note.hidden = false;
+  note.textContent = "Slots: " + lines.join(", ") +
+    "  (a sound saved on a slot finds the same engine in any later build that includes it).";
+  var labels = $("features").querySelectorAll("label.card");
+  labels.forEach(function (lab) {
+    var id = lab.querySelector("input").value;
+    var i = ticked.indexOf(id);
+    lab._slot.textContent = i < 0 ? "" : ("slot " + (7 + i));
+  });
+}
+
+function refreshSummary() {
+  var s = $("summary");
+  if (!state.raw || !ticked.length) { s.hidden = true; return; }
+  try {
+    var pkg = ticked.map(function (id) { return E.packages[id]; });
+    var r = C.compose(state.mainOs, E.registrar, pkg, []);
+    var budget = E.registrar.layout.end_limit - E.registrar.layout.image_end;
+    s.hidden = false;
+    s.textContent = "Engines: " + ticked.join(", ") + "  ·  slots " + (7) + "–" + (6 + ticked.length) +
+      "  ·  " + r.info.image + " bytes added to the image (" + Math.round(100 * r.info.image / budget) +
+      "% of the " + Math.round(budget / 1024) + " KB budget)";
+  } catch (e) {
+    s.hidden = false;
+    s.textContent = "This build can't be made: " + e.message;
+  }
+}
+
+// --- OS file ------------------------------------------------------------------------------------------
+function onFile(files) {
+  var f = files && files[0];
+  if (!f) return;
+  var st = $("file-status");
+  st.className = "status";
+  st.textContent = "Reading " + f.name + "…";
+  f.arrayBuffer().then(function (buf) {
+    var raw = new Uint8Array(buf);
+    try {
+      var mainOs = B.mainOsOf(raw, E.device);
+      state.raw = raw;
+      state.mainOs = mainOs;
+      st.className = "status good";
+      st.textContent = "Official Model:Cycles OS 1.13, " + raw.length + " bytes. Ready.";
+      refreshSummary();
+      updateFlash();
+    } catch (e) {
+      st.className = "status bad";
+      st.textContent = "Not the official OS 1.13: " + e.message;
+      state.raw = null;
+      state.mainOs = null;
+    }
+  }).catch(function (e) {
+    st.className = "status bad";
+    st.textContent = "Could not read the file: " + e.message;
+  });
+}
+
+function bindFile() {
+  var drop = $("drop"), input = $("file");
+  input.addEventListener("change", function () { onFile(input.files); });
+  ["dragenter", "dragover"].forEach(function (t) {
+    drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.add("over"); });
+  });
+  ["dragleave", "drop"].forEach(function (t) {
+    drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.remove("over"); });
+  });
+  drop.addEventListener("drop", function (e) { onFile(e.dataTransfer.files); });
+  drop.addEventListener("click", function () { input.click(); });
+  drop.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); }
+  });
+}
+
+// --- MIDI ---------------------------------------------------------------------------------------------
+function bindMidi() {
+  $("allow").addEventListener("click", function () {
+    if (!navigator.requestMIDIAccess) {
+      $("midi-status").className = "status bad";
+      $("midi-status").textContent = "This browser has no Web MIDI (use Chrome or Edge).";
+      return;
+    }
+    navigator.requestMIDIAccess({ sysex: true }).then(function (midi) {
+      state.midi = midi;
+      listPorts();
+    }).catch(function (e) {
+      $("midi-status").className = "status bad";
+      $("midi-status").textContent = "MIDI access denied: " + e.message;
+    });
+  });
+  $("refresh").addEventListener("click", listPorts);
+  $("port").addEventListener("change", function () {
+    var id = $("port").value;
+    state.output = Array.from(state.midi.outputs.values()).find(function (o) { return o.id === id; }) || null;
+    updateFlash();
+  });
+  $("m-fast").addEventListener("click", function () { selectMethod(true); });
+  $("m-slow").addEventListener("click", function () { selectMethod(false); });
+}
+
+function selectMethod(fast) {
+  $("m-fast").setAttribute("aria-checked", fast ? "true" : "false");
+  $("m-slow").setAttribute("aria-checked", fast ? "false" : "true");
+  state.fast = fast;
+}
+
+function listPorts() {
+  var sel = $("port"), outs = Array.from(state.midi.outputs.values());
+  sel.textContent = "";
+  outs.forEach(function (o) {
+    var opt = document.createElement("option");
+    opt.value = o.id;
+    opt.textContent = o.name;
+    sel.appendChild(opt);
+  });
+  var st = $("midi-status");
+  if (!outs.length) {
+    sel.hidden = true;
+    st.className = "status bad";
+    st.textContent = "No MIDI output found. Connect the Model:Cycles over USB and press Refresh.";
+    state.output = null;
+  } else {
+    sel.hidden = false;
+    $("refresh").hidden = false;
+    st.className = "status good";
+    st.textContent = outs.length + " MIDI output" + (outs.length > 1 ? "s" : "") + ".";
+    state.output = outs[0];
+  }
+  updateFlash();
+}
+
+// --- build + flash ------------------------------------------------------------------------------------
+function updateFlash() {
+  var ready = !!state.raw && ticked.length > 0 && !!state.output && $("ack").checked && !state.busy;
+  $("flash").disabled = !ready;
+}
+
+$("ack").addEventListener("change", updateFlash);
+
+function composeTweak() {
+  var pkg = ticked.map(function (id) { return E.packages[id]; });
+  return C.compose(state.mainOs, E.registrar, pkg, []).tweak;
+}
+
+function buildSyx() {
+  return B.build(state.raw, E.device, [composeTweak()]).raw;
+}
+
+function setProgress(on) {
+  $("progress").hidden = !on;
+  $("pct").textContent = on ? "0 %" : "0 %";
+  $("eta").textContent = "";
+}
+
+function flash() {
+  if (state.busy) return;
+  state.busy = true;
+  state.cancelling = false;
+  updateFlash();
+  $("flash").hidden = true;
+  $("stop").hidden = false;
+  $("result").className = "result";
+  $("result").textContent = "";
+  setProgress(true);
+
+  var syx;
+  try {
+    syx = buildSyx();
+  } catch (e) {
+    finishFlash(false, "Build failed: " + e.message);
+    return;
+  }
+  $("result").textContent = "Built " + syx.length + " bytes. Sending…";
+
+  var done = function (ok, msg) {
+    if (state.cancelling) return;
+    finishFlash(ok, msg);
+  };
+
+  var opts = { pace: 1.4, onProgress: function (f) { $("pct").textContent = Math.round(f * 100) + " %"; } };
+  if (state.fast) {
+    fastFlash(syx).then(done, function (e) { done(false, e.message); });
+  } else {
+    classicFlash(syx, opts).then(done, function (e) { done(false, e.message); });
+  }
+}
+
+function classicFlash(syx, opts) {
+  return new Promise(function (resolve, reject) {
+    $("eta").textContent = "about " + F.transferSeconds(syx, opts.pace) + " s";
+    F.sendSysex(state.output, syx, opts).then(resolve, reject);
+  });
+}
+
+function fastFlash(syx) {
+  return new Promise(function (resolve, reject) {
+    $("eta").textContent = "about " + F.fastSeconds(syx) + " s";
+    var input = state.midi && Array.from(state.midi.inputs.values()).find(function (i) { return true; });
+    var session;
+    F.xferOpen(input, state.output).then(function (s) {
+      session = s;
+      $("result").textContent = "Put the Model:Cycles in STARTUP MENU (FUNC + power on), then press TRIG 4.";
+      return F.xferIdentify(session);
+    }).then(function () {
+      return F.upgradeFast(session, syx, { onProgress: function (f) { $("pct").textContent = Math.round(f * 100) + " %"; } });
+    }).then(function () { resolve(true); }, reject);
+  });
+}
+
+function finishFlash(ok, msg) {
+  state.busy = false;
+  state.cancelling = false;
+  setProgress(false);
+  $("flash").hidden = false;
+  $("stop").hidden = true;
+  var r = $("result");
+  r.className = "result " + (ok ? "good" : "bad");
+  r.textContent = msg || (ok ? "Flashed." : "Failed.");
+  updateFlash();
+}
+
+$("flash").addEventListener("click", flash);
+$("stop").addEventListener("click", function () {
+  state.cancelling = true;
+  finishFlash(false, "Stopped.");
+});
+
+$("download").addEventListener("click", function (e) {
+  e.preventDefault();
+  if (!state.raw || !ticked.length) return;
+  try {
+    var syx = buildSyx();
+    var blob = new Blob([syx], { type: "application/octet-stream" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "model-cycles_OS1.13-" + ticked.join("+") + ".syx";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch (err) {
+    $("result").className = "result bad";
+    $("result").textContent = "Build failed: " + err.message;
+  }
+});
+
+// --- credits + boot -----------------------------------------------------------------------------------
+function credits() {
+  var list = $("credits-list");
+  var seen = {};
+  E.engines.forEach(function (en) {
+    var c = en.card.credit;
+    if (!c || seen[c.who]) return;
+    seen[c.who] = true;
+    var li = el("li");
+    li.textContent = c.who + (c.repo ? " — github.com/" + c.repo : "");
+    list.appendChild(li);
+  });
+  $("build-stamp").textContent = window.MC_BUILD;
+}
+
+function init() {
+  renderCards();
+  bindFile();
+  bindMidi();
+  selectMethod(true);
+  credits();
+}
+
+document.addEventListener("DOMContentLoaded", init);
+})();

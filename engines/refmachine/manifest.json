@@ -1,0 +1,37 @@
+{
+ "schema": "cycles-mod/0.1",
+ "id": "refmachine",
+ "version": "0.1",
+ "name": "REF machine: model27's reference machine, a parabolic sine and noise through the stock chain",
+ "description": "The smallest added machine that follows the machine contract: proves the composer, serves as the template for a new machine, measures the registrar's cost. Never offered to users.",
+ "license": "MIT",
+ "credit": {"kind": "own", "who": "durchgemacht and Claude", "repo": "durchgemacht/model27"},
+ "device": "Model:Cycles",
+ "os": "1.13",
+ "order": 28,
+ "build": {
+  "sources": ["refmachine.c"],
+  "include": ["."],
+  "cflags": ["-std=c99", "-mcpu=54418", "-O2", "-ffreestanding", "-fno-builtin", "-fno-tree-loop-distribute-patterns",
+             "-nostdlib", "-fno-pic", "-fno-common", "-ffunction-sections", "-fdata-sections", "-Wall", "-Wextra",
+             "-Werror"],
+  "defines": {},
+  "objects": ["refmachine.o"],
+  "patch_points": [],
+  "symbols": {"update": "ref_update", "render": "ref_render"},
+  "keep": []
+ },
+ "uses": [
+  {"point": "machine", "name": "REF", "image": 4, "decay_default": 64,
+   "knobs": [
+    {"long": "Tone", "short": "TONE", "default": 127},
+    {"long": "Noise", "short": "NOIS", "default": 0},
+    {"long": "Detune", "short": "DTUN", "default": 64},
+    {"long": "Level", "short": "LEVL", "default": 100}]}
+ ],
+ "claims": {"sound_slots": [], "record_slots": [], "ram": [], "gestures": [], "views": []},
+ "cost": {"emulation": {"status": "not measured"}, "device": {"status": "not measured"}},
+ "stock_behaviour": {"changes": [], "fixes": [], "unchanged": ["other tracks and machines"]},
+ "compat": {"built_against": ["model27"], "requires": [], "conflicts_declared": []},
+ "tests": {"emulation": {"tool": "digiemu; tools/emu/test_compose.py (Unicorn, the OS's own code, notes/60 §14)", "date": "2026-10-22", "build": "registered by the registrar runtime, alone and with sampler"}, "hardware": {"date": "2026-10-22", "by": "maintainer", "build": "registered by the registrar runtime as machine 7 next to sampler (the pair, notes/60 §12)"}, "status": "experimental"}
+}

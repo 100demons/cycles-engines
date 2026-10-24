@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cycles Engines — Flasher</title>
+<meta name="description" content="Flash any combination of engines on the Elektron Model:Cycles (OS 1.13) from your browser, over USB. No firmware is provided or uploaded: you bring your own official OS file.">
+<meta name="theme-color" content="#f7f6f2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15161d" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Tiny5&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=2026-10-24-01">
+<link rel="stylesheet" href="style.css?v=2026-10-24-01">
+<script>try{var l=localStorage.getItem("mc-lang"),t=localStorage.getItem("mc-theme")}catch(e){}document.documentElement.lang=l||(/^fr\b/i.test(navigator.language||"")?"fr":"en");if(t)document.documentElement.setAttribute("data-theme",t)</script>
+</head>
+<body data-page="flasher">
+<script>
+  // Version stamp: an old date means the browser serves a cached copy -> hard reload.
+  window.MC_BUILD = "2026-10-24-01";
+  window.addEventListener("error", function (e) {
+    var b = document.getElementById("errbar");
+    if (!b) return;
+    b.hidden = false;
+    b.textContent = "Error: " + (e.message || e.error) +
+      (e.filename ? "  [" + e.filename.split("/").pop() + ":" + e.lineno + "]" : "");
+  });
+</script>
+
+<header class="wrap top">
+  <nav aria-label="Site">
+    <a href="https://github.com/100demons/cycles-engines" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+  <button type="button" class="theme-btn" aria-label="Dark mode"><svg class="moon" width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 12.2A7 7 0 0 1 7.8 3.5a7 7 0 1 0 8.7 8.7Z"/></svg><svg class="sun" width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="3.6"/><path d="M10 1.8v2.1M10 16.1v2.1M1.8 10h2.1M16.1 10h2.1M4.2 4.2l1.5 1.5M14.3 14.3l1.5 1.5M4.2 15.8l1.5-1.5M14.3 5.7l1.5-1.5"/></svg></button>
+</header>
+
+<main class="wrap fl">
+  <div class="fl-head">
+    <h1>Cycles Engines</h1>
+    <div>
+      <p>Flash any combination of engines on the Elektron Model:Cycles, OS 1.13.</p>
+      <p>Nothing from Elektron is ever committed or uploaded — you bring your own official OS file.</p>
+      <p><a href="https://github.com/100demons/cycles-engines" target="_blank" rel="noopener">Source and credits</a>.</p>
+    </div>
+  </div>
+
+  <div id="errbar" class="alert bad" hidden></div>
+  <div id="compat" class="alert bad" role="alert" hidden></div>
+
+  <!-- 1. Choose -->
+  <section class="step" id="step-choose" aria-labelledby="h1s">
+    <header><span class="num">1</span><h2 id="h1s">Pick your engines</h2></header>
+    <div class="step-body">
+      <p class="hint">Tick any combination. Each engine is a package: nothing in an engine knows its slot, so any
+        two can live together. Engines are added after the six stock machines, in the order you tick them.</p>
+      <div id="features"></div>
+      <p class="vh" id="mod-live" aria-live="polite"></p>
+      <p class="note" id="slot-note" hidden></p>
+    </div>
+  </section>
+
+  <!-- 2. OS file -->
+  <section class="step" id="step-file" aria-labelledby="h2s">
+    <header><span class="num">2</span><h2 id="h2s">Load your official OS file</h2></header>
+    <div class="step-body">
+      <label class="drop" id="drop" tabindex="0">
+        <span class="drop-ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path class="arrow" d="M12 11v6M9.5 14.5 12 17l2.5-2.5"/></svg></span>
+        <span class="drop-t"><strong id="drop-title">Drop model-cycles_OS1.13.syx here</strong>
+          <span id="drop-sub">or click to choose it</span></span>
+        <input id="file" type="file" accept=".syx" hidden>
+      </label>
+      <p class="hint">Get it from Elektron's support page (Model:Cycles, OS 1.13). It stays on your computer.</p>
+      <div id="file-status" class="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- 3. Connect -->
+  <section class="step" id="step-connect" aria-labelledby="h3s">
+    <header><span class="num">3</span><h2 id="h3s">Connect your Model:Cycles over USB</h2></header>
+    <div class="step-body">
+      <div class="seg" role="radiogroup" aria-label="Method">
+        <button type="button" role="radio" id="m-fast" aria-checked="true">Fast (USB)</button>
+        <button type="button" role="radio" id="m-slow" aria-checked="false">Classic (CONFIG › UPGRADE)</button>
+      </div>
+      <div class="portrow">
+        <button type="button" class="btn primary" id="allow">Allow MIDI access</button>
+        <select id="port" aria-label="MIDI output" hidden></select>
+        <button type="button" class="btn" id="refresh" hidden>Refresh</button>
+      </div>
+      <div id="midi-status" class="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- 4. Flash -->
+  <section class="step" id="step-flash" aria-labelledby="h4s">
+    <header><span class="num">4</span><h2 id="h4s">Flash</h2></header>
+    <div class="step-body">
+      <div class="summary" id="summary" hidden></div>
+      <label class="check"><input id="ack" type="checkbox"><span>I've backed up my projects (Elektron Transfer)
+        and I understand that flashing is at my own risk.</span></label>
+      <div class="actions">
+        <button type="button" class="btn primary big" id="flash" disabled>Flash the Model:Cycles</button>
+        <button type="button" class="btn secondary" id="stop" hidden>Stop</button>
+      </div>
+      <p class="missing" id="missing" aria-live="polite"></p>
+      <p class="alt" id="alt" hidden><a class="btn secondary" id="download">Download the .syx</a>
+        <span>… and send it with Elektron Transfer, or over MIDI with a DAW.</span></p>
+      <div class="progress" id="progress" hidden>
+        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="barwrap"><div id="bar"></div><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="meta"><span id="pct">0 %</span><span id="eta"></span></div>
+        <div class="callout" id="watch"></div>
+      </div>
+      <div class="result" id="result" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="credits" id="credits">
+    <details>
+      <summary>Credits</summary>
+      <p>This flasher stands on the shoulders of these projects, none of which includes firmware:</p>
+      <ul id="credits-list"></ul>
+      <p>Built on the Modded-Cycles toolchain (18nelli18 and contributors, MIT) and model27 (durchgemacht, MIT);
+        the low-level code (mtlib) is drumkilla's (MIT). Third-party code keeps its own license; Elektron's
+        firmware is not covered.</p>
+    </details>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>Your firmware file never leaves your computer. Nothing is uploaded, no firmware is provided.</p>
+    <p>Flasher <span data-rel="version">1.0</span> <span id="build-stamp"></span></p>
+  </div>
+</footer>
+
+<!-- ?v= : same version stamp as MC_BUILD, so a browser never mixes a new page with cached old scripts -->
+<script src="../assets/site.js?v=2026-10-24-01"></script>
+<script src="builder.js?v=2026-10-24-01"></script>
+<script src="composer.js?v=2026-10-24-01"></script>
+<script src="engines.js?v=2026-10-24-01"></script>
+<script src="flasher.js?v=2026-10-24-01"></script>
+<script src="app.js?v=2026-10-24-01"></script>
+</body>
+</html>
