@@ -251,10 +251,29 @@ function buildSyx() {
   return B.build(state.raw, E.device, [composeTweak()]).raw;
 }
 
-function setProgress(on) {
-  $("progress").hidden = !on;
-  $("pct").textContent = on ? "0 %" : "0 %";
-  $("eta").textContent = "";
+function seedFaces() {
+  var cells = $("barwrap").querySelectorAll("i");
+  cells.forEach(function (c) {
+    var face = document.createElement("span");
+    face.textContent = "💀";
+    c.textContent = "";
+    c.appendChild(face);
+    c.setAttribute("aria-hidden", "true");
+  });
+}
+
+function leds(pct) {
+  var cells = $("barwrap").querySelectorAll("i");
+  var lit = Math.floor((pct / 100) * cells.length + 1e-9);
+  cells.forEach(function (c, k) {
+    c.className = k < lit ? "on" : (k === lit && pct < 100 ? "cur" : "");
+  });
+}
+
+function fmtTime(s) {
+  s = Math.max(0, Math.round(s));
+  var m = Math.floor(s / 60), r = s % 60;
+  return m ? m + " min " + ("0" + r).slice(-2) + " s" : r + " s";
 }
 
 function flash() {
@@ -266,7 +285,19 @@ function flash() {
   $("stop").hidden = false;
   $("result").className = "result";
   $("result").textContent = "";
-  setProgress(true);
+  $("progress").hidden = false;
+  $("bar").style.width = "0%";
+  seedFaces();
+  leds(0);
+  $("pct").textContent = "0 %";
+  $("eta").textContent = "";
+  var watch = $("watch");
+  watch.className = "callout";
+  watch.hidden = false;
+  watch.innerHTML = (state.fast
+    ? "The Model:Cycles checks every block as it arrives. At the end it asks you to confirm the update on its screen."
+    : "Watch the Model:Cycles screen: it should show that it is receiving. If nothing happens within a few seconds, press <b>Stop</b>.")
+    + "<br>Keep this tab in the foreground: browsers slow down background tabs.";
 
   var syx;
   try {
@@ -275,40 +306,48 @@ function flash() {
     finishFlash(false, "Build failed: " + e.message);
     return;
   }
-  $("result").textContent = "Built " + syx.length + " bytes. Sending…";
+
+  var pace = parseFloat($("pace").value) || 1.4;
+  var total = state.fast ? F.fastSeconds(syx) : F.transferSeconds(syx, pace);
+  var t0 = Date.now();
+  var onProgress = function (n, tot) {
+    var pct = (100 * n) / tot;
+    $("bar").style.width = pct.toFixed(1) + "%";
+    leds(pct);
+    $("barwrap").setAttribute("aria-valuenow", pct.toFixed(0));
+    $("pct").textContent = pct.toFixed(0) + " %";
+    var el = (Date.now() - t0) / 1000;
+    var left = n <= 0 ? total : state.fast ? (el / n) * (tot - n) : Math.max(total - el, (el / n) * (tot - n));
+    $("eta").textContent = fmtTime(left) + " left";
+  };
 
   var done = function (ok, msg) {
     if (state.cancelling) return;
     finishFlash(ok, msg);
   };
 
-  var pace = parseFloat($("pace").value) || 1.4;
-  var opts = { pace: pace, onProgress: function (f) { $("pct").textContent = Math.round(f * 100) + " %"; } };
   if (state.fast) {
-    fastFlash(syx).then(done, function (e) { done(false, e.message); });
+    fastFlash(syx, onProgress).then(function () { done(true, "Flashed."); }, function (e) { done(false, e.message); });
   } else {
-    classicFlash(syx, opts).then(done, function (e) { done(false, e.message); });
+    classicFlash(syx, pace, onProgress).then(function () { done(true, "Flashed."); }, function (e) { done(false, e.message); });
   }
 }
 
-function classicFlash(syx, opts) {
+function classicFlash(syx, pace, onProgress) {
   return new Promise(function (resolve, reject) {
-    $("eta").textContent = "about " + F.transferSeconds(syx, opts.pace) + " s";
-    F.sendSysex(state.output, syx, opts).then(resolve, reject);
+    F.sendSysex(state.output, syx, { pace: pace, onProgress: onProgress }).then(resolve, reject);
   });
 }
 
-function fastFlash(syx) {
+function fastFlash(syx, onProgress) {
   return new Promise(function (resolve, reject) {
-    $("eta").textContent = "about " + F.fastSeconds(syx) + " s";
     var input = state.midi && Array.from(state.midi.inputs.values()).find(function (i) { return true; });
     var session;
     F.xferOpen(input, state.output).then(function (s) {
       session = s;
-      $("result").textContent = "Put the Model:Cycles in STARTUP MENU (FUNC + power on), then press TRIG 4.";
       return F.xferIdentify(session);
     }).then(function () {
-      return F.upgradeFast(session, syx, { onProgress: function (f) { $("pct").textContent = Math.round(f * 100) + " %"; } });
+      return F.upgradeFast(session, syx, { onProgress: onProgress });
     }).then(function () { resolve(true); }, reject);
   });
 }
@@ -316,7 +355,7 @@ function fastFlash(syx) {
 function finishFlash(ok, msg) {
   state.busy = false;
   state.cancelling = false;
-  setProgress(false);
+  $("progress").hidden = true;
   $("flash").hidden = false;
   $("stop").hidden = true;
   var r = $("result");
