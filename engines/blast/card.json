@@ -1,6 +1,6 @@
 {
   "label": "💥 Blast (0.8 beta)",
-  "description": "FM Macro OSC - melodic '90s PC Soundblaster engine. Think higher fidelity Sega Genesis or Doom 2. Surprisingly tasteful. A curated stock Yamaha OPL2.",
+  "description": "Fourteen melodic FM models on one machine, a '90s PC Soundblaster engine in higher fidelity. Featuring: sine, half-sine, absolute sine, pulse, bass, piano, marimba, glockenspiel, brass, accordion, strings, steel drum, timpani and zap.",
   "status": "experimental",
   "credit": {"kind": "own", "who": "100demons"},
   "license": "LICENSE",

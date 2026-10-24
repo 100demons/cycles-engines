@@ -4867,7 +4867,7 @@ window.MC_ENGINES = {
    "id": "feral9",
    "card": {
     "label": "🐀 Feral (0.7 beta)",
-    "description": "Dangerous experimental Macro OSC: nyblcore, bytebeat, benjolin, rungler, chaotic maps, fourses, rhythmicon, gendy, pulsar, wave scan, and even worse to come.",
+    "description": "Nine noisy, unpredictable synthesis models on one machine, light on the processor. Featuring: bytebeat (nyblcore), benjolin, rungler, chaotic maps, fourses, rhythmicon, gendy, pulsar, wave terrain... and even worse to come.",
     "status": "tested",
     "credit": {
      "kind": "own",
@@ -4898,7 +4898,7 @@ window.MC_ENGINES = {
    "id": "blast",
    "card": {
     "label": "💥 Blast (0.8 beta)",
-    "description": "FM Macro OSC - melodic '90s PC Soundblaster engine. Think higher fidelity Sega Genesis or Doom 2. Surprisingly tasteful. A curated stock Yamaha OPL2.",
+    "description": "Fourteen melodic FM models on one machine, a '90s PC Soundblaster engine in higher fidelity. Featuring: sine, half-sine, absolute sine, pulse, bass, piano, marimba, glockenspiel, brass, accordion, strings, steel drum, timpani and zap.",
     "status": "experimental",
     "credit": {
      "kind": "own",
@@ -4922,7 +4922,7 @@ window.MC_ENGINES = {
    "id": "punch",
    "card": {
     "label": "👊 Punch (0.5 beta)",
-    "description": "FM Macro OSC - percussive/tonal - raw, heavy, digital. Extended fixed FM ratios allow modern sounds and alien harmonics to emerge. Mutated Yamaha OPL2.",
+    "description": "Twelve percussion FM engines on one machine, raw, heavy and digital. Featuring: kick, tom, bongo, conga, taiko, timbale, marimba, djembé, woodblock, gong, bubble and zap.",
     "status": "experimental",
     "credit": {
      "kind": "own",
