@@ -477,3 +477,7 @@ button.btn{border:1px solid var(--ink)}
 .card-meta{margin:0;font-size:11px;color:var(--muted);display:flex;gap:10px}
 #slot-note{font-size:13px;color:var(--ink-2)}
 #features:empty::after{content:"No engines yet.";color:var(--muted);font-size:13px}
+
+/* engine card YouTube video */
+.vid{margin:12px 0 0;max-width:560px;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#000}
+.vid iframe{display:block;width:100%;height:100%;border:0}

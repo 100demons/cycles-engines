@@ -25,10 +25,12 @@ ENGINES = ROOT / "engines"
 OUT = ROOT / "docs" / "flasher" / "engines.js"
 DEVICE = ROOT / "core" / "os113_dev.json"
 FRAME = ROOT / "core" / "registrar" / "frame.json"
+# the order the cards appear on the page (an id not listed goes to the end)
+DISPLAY_ORDER = ("feral9", "blast", "punch", "lixr", "sam")
 
 
 def engine_cards():
-    """The engines offered on the page, in slot order: every package with a card.json, by its manifest order."""
+    """The engines offered on the page, in DISPLAY_ORDER: every package with a card.json."""
     cards = []
     for d in sorted(p for p in ENGINES.iterdir() if p.is_dir()):
         mf = d / "manifest.json"
@@ -37,10 +39,11 @@ def engine_cards():
             continue
         m = json.loads(mf.read_text(encoding="utf-8"))
         card = json.loads(cf.read_text(encoding="utf-8"))
-        cards.append((m["order"], m["id"], card, m.get("version"), m.get("name"), m.get("cost")))
-    cards.sort()
+        cards.append((m["id"], card, m.get("version"), m.get("name"), m.get("cost")))
+    order = {mid: i for i, mid in enumerate(DISPLAY_ORDER)}
+    cards.sort(key=lambda c: order.get(c[0], len(order)))
     return [{"id": mid, "card": card, "version": version, "name": name, "cost": cost}
-            for _order, mid, card, version, name, cost in cards]
+            for mid, card, version, name, cost in cards]
 
 
 def render():

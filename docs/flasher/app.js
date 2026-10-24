@@ -49,12 +49,23 @@ function renderCards() {
     var head = el("span", "card-head");
     head.appendChild(check);
     head.appendChild(el("strong", "card-label", en.card.label));
-    var status = el("span", "card-status " + (en.card.status || "experimental"), en.card.status || "experimental");
-    head.appendChild(status);
     var slot = el("span", "card-slot", "slot " + (E.slots[en.id] || "?"));
     head.appendChild(slot);
     label.appendChild(head);
     label.appendChild(el("p", "card-desc", en.card.description));
+    if (en.card.video) {
+      var vid = document.createElement("div");
+      vid.className = "vid";
+      var ifr = document.createElement("iframe");
+      ifr.src = "https://www.youtube-nocookie.com/embed/" + en.card.video;
+      ifr.title = en.card.label + ", in video";
+      ifr.loading = "lazy";
+      ifr.allow = "accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+      ifr.referrerPolicy = "strict-origin-when-cross-origin";
+      ifr.allowFullscreen = true;
+      vid.appendChild(ifr);
+      label.appendChild(vid);
+    }
     var meta = el("p", "card-meta");
     if (en.card.credit) {
       var who = en.card.credit.who || "";
@@ -180,6 +191,17 @@ function selectMethod(fast) {
   $("m-fast").setAttribute("aria-checked", fast ? "true" : "false");
   $("m-slow").setAttribute("aria-checked", fast ? "false" : "true");
   state.fast = fast;
+  var note = $("method-note");
+  if (note) {
+    note.textContent = fast
+      ? "The update protocol of Elektron Transfer, straight from this page: about 30 seconds. At the end, the Model:Cycles asks you to confirm (YES or NO)."
+      : "The firmware is sent at MIDI speed while CONFIG › UPGRADE waits for it: 5 to 10 minutes. The fallback if the fast method doesn't work.";
+  }
+  var hf = $("howto-fast"), hu = $("howto-usb");
+  if (hf && hu) {
+    hf.hidden = !fast;
+    hu.hidden = fast;
+  }
 }
 
 function listPorts() {
@@ -255,7 +277,8 @@ function flash() {
     finishFlash(ok, msg);
   };
 
-  var opts = { pace: 1.4, onProgress: function (f) { $("pct").textContent = Math.round(f * 100) + " %"; } };
+  var pace = parseFloat($("pace").value) || 1.4;
+  var opts = { pace: pace, onProgress: function (f) { $("pct").textContent = Math.round(f * 100) + " %"; } };
   if (state.fast) {
     fastFlash(syx).then(done, function (e) { done(false, e.message); });
   } else {
