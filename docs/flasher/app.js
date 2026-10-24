@@ -35,8 +35,12 @@ function renderCards() {
   var box = $("features");
   box.textContent = "";
   E.engines.forEach(function (en) {
-    var label = document.createElement("label");
-    label.className = "card";
+    var d = document.createElement("div");
+    d.className = "mod";
+
+    var row = document.createElement("label");
+    row.className = "mod-row";
+
     var check = document.createElement("input");
     check.type = "checkbox";
     check.value = en.id;
@@ -46,13 +50,27 @@ function renderCards() {
       refreshSlots();
       refreshSummary();
     });
-    var head = el("span", "card-head");
-    head.appendChild(check);
-    head.appendChild(el("strong", "card-label", en.card.label));
-    var slot = el("span", "card-slot", "slot " + (E.slots[en.id] || "?"));
-    head.appendChild(slot);
-    label.appendChild(head);
-    label.appendChild(el("p", "card-desc", en.card.description));
+    row.appendChild(check);
+
+    var ttl = el("span", "ttl");
+    ttl.appendChild(el("span", "nm", en.card.label));
+    row.appendChild(ttl);
+
+    var by = el("span", "by");
+    var bits = [];
+    if (en.id in E.slots) bits.push("slot " + E.slots[en.id]);
+    if (en.card.credit && en.card.credit.who) bits.push("by " + en.card.credit.who);
+    if (en.version) bits.push("v" + en.version);
+    by.appendChild(el("span", null, bits.join(" · ")));
+    row.appendChild(by);
+
+    d.appendChild(row);
+
+    var ext = document.createElement("div");
+    ext.className = "ext";
+    var det = document.createElement("div");
+    det.className = "det";
+    det.appendChild(el("p", null, en.card.description));
     if (en.card.video) {
       var vid = document.createElement("div");
       vid.className = "vid";
@@ -64,17 +82,12 @@ function renderCards() {
       ifr.referrerPolicy = "strict-origin-when-cross-origin";
       ifr.allowFullscreen = true;
       vid.appendChild(ifr);
-      label.appendChild(vid);
+      det.appendChild(vid);
     }
-    var meta = el("p", "card-meta");
-    if (en.card.credit) {
-      var who = en.card.credit.who || "";
-      meta.appendChild(el("span", null, "credit: " + who));
-    }
-    if (en.version) meta.appendChild(el("span", null, " v" + en.version));
-    label.appendChild(meta);
-    label._slot = slot;
-    box.appendChild(label);
+    ext.appendChild(det);
+    d.appendChild(ext);
+
+    box.appendChild(d);
   });
 }
 
