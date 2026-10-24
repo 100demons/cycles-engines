@@ -5,9 +5,10 @@ every step: phase, step, what passed, what failed, what's next.
 
 ## Status
 
-- **Current phase**: 3 (Stable slots) — done, committing/merging.
-- **Last result**: Phase 3 stable slots + placeholder pass: equivalence, the stable-slot test (placeholder silent, LiXR
-  stable at machine 7), and the re-run of test_engines + test_capacity all pass.
+- **Current phase**: 4 (Slot-relative pictures and knob displays) — descriptor.state done; pictures not done.
+- **Last result**: Phase 3 merged (tag `phase-3`). Phase 4's descriptor.state generalisation (any of the four knobs,
+  not only SHAPE) is in and equivalence-tested; the pictures part needs the old UI harness, which was not carried
+  over.
 
 ## Environment (verified)
 
@@ -58,8 +59,19 @@ every step: phase, step, what passed, what failed, what's next.
 
 ## What's next
 
-1. Commit Phase 3, tag `phase-3`, merge to main.
-2. Phase 4 — Slot-relative pictures and knob displays (branch `phase-4-ui`).
+1. Commit Phase 4 (descriptor.state), tag `phase-4`, merge to main.
+2. Phase 5 — Port PUNCH, BLAST and SAM (branch `phase-5-engines`).
+
+## Phase 4 — Slot-relative pictures and knob displays (partial)
+
+- **descriptor.state generalised**: a display override may now target any of the four knob descriptors (COLOR,
+  SHAPE, SWEEP, CONTOUR), not only SHAPE. The registrar runtime's state_at / state_connect pass the knob (0..3) to
+  the initializer, which returns its state object for that knob or 0 to keep the generic SNARE object; compose.py
+  and composer.js allow descriptor 0..3; feral9's feral_state_init returns the custom object for SHAPE only.
+- Equivalence test PASSES after the change (the runtime grows 998 bytes; feral9.o rebuilt).
+- **Pictures not done**: per-slot custom pictures (the `picture_index` patch point and the Bitmap objects) need the
+  old UI harness (test_sdvintage_7th.py / test_syntakt_machines.py), which was not carried over. Reported as a gap;
+  the engines still use the stock TONE picture.
 
 ## Phase 3 — Stable slots
 

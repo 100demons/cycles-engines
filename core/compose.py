@@ -498,8 +498,8 @@ def compose_pairs(img, assigned):
             knobs = tuple((k["long"], k["short"], k["default"]) + ((k["min"], k["max"]) if "min" in k else ())
                           for k in mc["knobs"])
             state = next((u for u in m["uses"] if u["point"] == "descriptor.state"), None)
-            if state and state.get("descriptor") != 1:
-                sys.exit(f"!! {m['id']}: only the SHAPE descriptor (1) can have a state override for now")
+            if state and not (0 <= state.get("descriptor", 1) <= 3):
+                sys.exit(f"!! {m['id']}: a descriptor.state override needs descriptor 0..3 (COLOR..CONTOUR)")
             entry = dict(name=mc["name"], image=mc["image"], decay=mc["decay_default"], knobs=knobs,
                          update=syms[m["build"]["symbols"]["update"]],
                          render=syms[m["build"]["symbols"]["render"]],
