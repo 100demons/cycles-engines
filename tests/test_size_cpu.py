@@ -40,7 +40,7 @@ def main():
         m = json.loads((ENGINES / mid / "manifest.json").read_text(encoding="utf-8"))
         if img is not None:
             _tweak, info = compose.compose(img, [mid])
-            pkg = info["packages"][0]
+            pkg = next((p for p in info["packages"] if p["id"] == mid), None)
             added = info["image"]
         else:
             pkg = None
