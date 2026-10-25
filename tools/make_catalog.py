@@ -26,7 +26,7 @@ OUT = ROOT / "docs" / "flasher" / "engines.js"
 DEVICE = ROOT / "core" / "os113_dev.json"
 FRAME = ROOT / "core" / "registrar" / "frame.json"
 # the order the cards appear on the page (an id not listed goes to the end)
-DISPLAY_ORDER = ("feral9", "blast", "punch", "lixr", "sam")
+DISPLAY_ORDER = ("feral9", "blast", "punch", "sam")
 
 
 def engine_cards():
