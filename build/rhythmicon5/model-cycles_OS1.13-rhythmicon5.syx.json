@@ -1,0 +1,18 @@
+{
+ "machines": [
+  "rhythmicon5"
+ ],
+ "slots": {
+  "rhythmicon5": 7
+ },
+ "output": {
+  "file": "model-cycles_OS1.13-rhythmicon5.syx",
+  "sha256": "09da4fe0a23c5da9323368a45869976cfbf046ee4f64a8714f3106d671b7843d",
+  "bytes": 922912
+ },
+ "main_os": {
+  "sha256": "870d13a77217a054f96ebfb120f8c2e04c63c3a1d34ca7058c0e2943ab56fc69",
+  "bytes": 1776052,
+  "end": "0x401b1db4"
+ }
+}

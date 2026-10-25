@@ -1,0 +1,92 @@
+Rhythmicon V5 Cloud: build and proof
+  ok    official model-cycles_OS1.13.syx SHA-256 44fe586269631a0ca7da25a3383fc6733c314809505fc3cc52f1e0ed9800640c
+  ok    defaults: COLOR 63, SHAPE 27, cloud SWEEP 70, cloud CONTOUR 40 (HALO New's own defaults)
+  ok    default DECAY 80 (FIFTH's startup value)
+
+cloud: the copied code vs HALO New's cloud, sample for sample
+cloud bit-exact comparison (copied cloud vs HALO New's halo_dsp.h)
+  min: TIME 0, CLOUD 0     ok (1200 blocks, identical)
+  default: TIME 70, CLOUD 40 ok (3000 blocks, identical)
+  max: TIME 127, CLOUD 127 ok (3000 blocks, identical)
+  max + Freeze             ok (3000 blocks, identical)
+  default + Freeze         ok (2000 blocks, identical)
+  loud input, default      ok (600 blocks, identical)
+  loud input, max          ok (600 blocks, identical)
+ALL OK
+  ok    the cloud copy is bit-identical to HALO New's
+
+sweep: SHAPE -> FIFTH's old SWEEP curve
+  ok    T_RATE is FIFTH's own sweep curve, value for value
+  ok    SHAPE 0 gives old SWEEP 0 (rate 64)
+  ok    SHAPE 27 gives old SWEEP 16 (rate 128)
+  ok    SHAPE 127 gives old SWEEP 76 (rate 2261)
+  ok    128 SHAPE values give 128 distinct, rising sweep values (no repeats, no jumps)
+  ok    every SHAPE value follows SHAPE x 76 / 127 (worst 1 LSB from the 8.8 reference)
+
+decay: T60 measured from host renders (note C5, one octave)
+  ok    SHAPE   0: T60   324.3 ms, table   325.0 ms (-0.2 %)
+  ok    SHAPE  27: T60   179.3 ms, table   179.7 ms (-0.2 %)
+  ok    SHAPE  64: T60    80.0 ms, table    79.7 ms (+0.4 %)
+  ok    SHAPE  96: T60    39.2 ms, table    39.5 ms (-0.6 %)
+  ok    SHAPE 127: T60    19.9 ms, table    20.0 ms (-0.5 %)
+
+no fifths
+  ok    the fifth oscillator group is gone from the DSP source (no fifth amount, no fifth stack)
+  ok    SHAPE 0 is bit-identical to FIFTH with SHAPE 64 (never a fifth)
+  ok    the only strike loop is the octave stack (f x 2^i)
+
+level: worst case and the Rhythmicon's own loudness
+  ok    note 30: SHAPE 0, cloud max, Freeze after the cloud filled: peak 56364943
+  ok    note 36: SHAPE 0, cloud max, Freeze after the cloud filled: peak 150375951
+  ok    note 48: SHAPE 0, cloud max, Freeze after the cloud filled: peak 271738480
+  ok    note 84: SHAPE 0, cloud max, Freeze after the cloud filled: peak 292304480
+  ok    no hard clipping or fixed-point wraparound (worst peak 292304480)
+  Rhythmicon dry (SHAPE 27, CLOUD 0): peak 0.751, RMS 0.092
+  ok    the dry path stays below full scale, like FIFTH
+
+placement:
+  rhythmicon5  machine 6, code 25968 bytes at 0x43000000, variables 397512 bytes
+  payload 0x43000000..0x430980c8, 31860 bytes added to the image
+  used 0xFF zone: 0x4016cae8..0x4016cb4f (104 o)
+  reference rewritten by a tweak (neutralised): 0x400b1106 -> 0x4016cae8 (32-bit constant)
+  references (32-bit constants) to these zones in the original image: none
+  payload rhythmicon5 : 622792 o from the tweak alone, 1 relocations, copied to 0x43000000 at boot, packed to 31860 o
+
+wrote /Users/ooo/Desktop/cycles-work/cycles-engines/build/rhythmicon5/model-cycles_OS1.13-rhythmicon5.syx (922912 bytes)
+MAIN OS 1776052 bytes, SHA-256 870d13a77217a054f96ebfb120f8c2e04c63c3a1d34ca7058c0e2943ab56fc69
+
+emulator: the real OS 1.13 voice loop (Unicorn)
+  payload rhythmicon5 : 622792 o from the tweak alone, 1 relocations, copied to 0x43000000 at boot, packed to 31860 o
+  ok     bootstrap depacker: grown OS read back identically (680670 -> 1776052 o, end 0x401b1db4 < 0x40200000: yes)
+  ok    bootstrap depacker reads the grown OS back
+  ok     boot hook: payload copied intact, BSS zeroed yes, return normal
+  ok    boot hook copies the payload and clears the BSS
+  ok    voice loop starts, no unmapped access
+  ok    makes sound at the defaults (peak 370660484)
+  ok    extremes: peak 433537688, no hard clipping, no wraparound
+
+stock machines unchanged, sample for sample:
+  ok    SNARE on the patched OS identical to the stock OS
+  ok    KICK on the patched OS identical to the stock OS
+
+host vs emulator, bit for bit:
+  ok    default: host vs emulator bit-exact (dry 198, cloud 198, final 198 blocks)
+  ok    SHAPE sweep + cloud + Freeze: host vs emulator bit-exact (dry 198, cloud 198, final 198 blocks)
+  ok    heavy (SHAPE 0, cloud max): host vs emulator bit-exact (dry 218, cloud 218, final 218 blocks)
+  ok    host and emulator agree sample for sample
+
+CPU, instructions per 32-frame block, one voice (whole loop minus the no-voice loop)
+  TONE                 5291  (1.00 x TONE)
+  default              3899  med 0.74, p95 0.74, first strike 1.39 x TONE
+  heavy                4665  med 0.88, p95 0.89, first strike 1.39 x TONE
+  heavy + Freeze       4351  med 0.82, p95 0.82, first strike 1.39 x TONE
+  dry (CLOUD 0)        3147  med 0.59, p95 0.59, first strike 1.39 x TONE
+  ok    CPU under one TONE voice: worst median 4665 (0.88), worst steady 4688 (0.89) vs TONE 5291
+
+usual proof suite (tests/emu/test_engines.py):
+  ok    rhythmicon5: RHY5 (machine 10) makes sound (peak 325001561)
+  ok    rhythmicon5: RHY5 (machine 10) makes sound (peak 325001561)
+  ALL OK
+  ok    test_engines.py: ALL OK
+
+ALL OK

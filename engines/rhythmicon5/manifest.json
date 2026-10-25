@@ -1,0 +1,60 @@
+{
+ "schema": "cycles-mod/0.1",
+ "id": "rhythmicon5",
+ "version": "1.0",
+ "name": "Rhythmicon V5 Cloud: the octave Rhythmicon into HALO New's granular cloud",
+ "description": "FIFTH's Rhythmicon with no fifths, swept by one SHAPE macro, into HALO New's granular cloud. COLOR = Octaves, SHAPE = sweep up / ring down, SWEEP = cloud Time, CONTOUR = cloud amount, PUNCH = Freeze, DECAY = stock amp envelope.",
+ "license": "MIT",
+ "credit": {"kind": "own", "who": "100demons and Claude, after Emilie Gillet (Mutable Instruments)"},
+ "device": "Model:Cycles",
+ "os": "1.13",
+ "order": 95,
+ "build": {
+  "sources": ["rhythmicon5.c"],
+  "include": ["."],
+  "cflags": ["-mcpu=54418", "-O3", "-malign-int", "-U_FORTIFY_SOURCE", "-ffreestanding", "-fno-builtin",
+             "-fno-tree-loop-distribute-patterns", "-nostdlib", "-fno-pic", "-fno-common", "-ffunction-sections",
+             "-fdata-sections", "-fomit-frame-pointer", "-fwrapv", "-Wall", "-Wextra", "-Werror"],
+  "defines": {},
+  "objects": ["rhythmicon5.o"],
+  "symbols": {"update": "rhythmicon5_update", "render": "rhythmicon5_render"},
+  "keep": ["rhythmicon5_wet_entry"],
+  "patch_points": []
+ },
+ "uses": [
+  {"point": "machine", "name": "RHY5", "image": 4, "decay_default": 80,
+   "knobs": [
+    {"long": "Octaves", "short": "OCT", "default": 63, "min": 0, "max": 127},
+    {"long": "Shape", "short": "SHP", "default": 27, "min": 0, "max": 127},
+    {"long": "Time", "short": "TIM", "default": 70, "min": 0, "max": 127},
+    {"long": "Cloud", "short": "CLD", "default": 40, "min": 0, "max": 127}]}
+ ],
+ "claims": {"sound_slots": [], "record_slots": [], "ram": [], "formatters": [], "gestures": [], "views": []},
+ "cost": {
+  "emulation": {
+   "tool": "build/rhythmicon5/build_and_prove.py, real OS voice loop (Unicorn), instructions per 32-frame block",
+   "per_voice": {"min": 0, "max": 0},
+   "reference": {"TONE": 0}
+  },
+  "device": {"status": "not measured"}
+ },
+ "stock_behaviour": {
+  "changes": [],
+  "fixes": [],
+  "unchanged": ["the six stock machines", "every track that does not use Rhythmicon V5 Cloud"]
+ },
+ "compat": {
+  "built_against": ["FIFTH (engines/fifth, 0.1)", "HALO_new (add-on, 25 October 2026)"],
+  "requires": [],
+  "conflicts_declared": []
+ },
+ "tests": {
+  "emulation": {
+   "tool": "build/rhythmicon5/build_and_prove.py",
+   "date": null,
+   "build": null
+  },
+  "hardware": {"date": null, "by": null, "build": null},
+  "status": "experimental"
+ }
+}
