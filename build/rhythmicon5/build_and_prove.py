@@ -49,7 +49,7 @@ OFF = 7
 MARK = 0x52354331
 OUT = HERE / "model-cycles_OS1.13-rhythmicon5.syx"
 WAV = HERE / "wav"
-CC = "/private/var/folders/t3/xm7ns55x7gs7whyhm0ppm4n80000gn/T/opencode/halonew/tools/machines/halo"
+HALO_REF = ROOT / "tests" / "halo"
 HALO_FALLBACK = ROOT.parent / "model27" / "tools" / "machines" / "halo"
 
 FAIL = []
@@ -74,7 +74,7 @@ def json_defaults():
 # ------------------------------------------------------------------------------------------------ cloud copy
 def cloud_copy():
     print("\ncloud: the copied code vs HALO New's cloud, sample for sample")
-    halo = pathlib.Path(CC)
+    halo = HALO_REF
     if not (halo / "halo_dsp.h").is_file():
         halo = HALO_FALLBACK
     exe = HERE / "cloud_compare"

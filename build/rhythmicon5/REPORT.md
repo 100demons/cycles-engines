@@ -137,5 +137,5 @@ The cloud code and tables were copied from HALO New's add-on (25 October 2026):
 - `halo_tables.h` SHA-256 `c9fa973f46ad453005ac9fe521db5ad300fa6b76d4e582dcda234f63a2f89232`
 
 `r5_cloud.h` contains the cloud functions verbatim (only the state structs are cut down to the cloud half);
-`r5_cloud_tables.h` contains only the values the cloud reads, copied verbatim. The side-by-side proof compiles the
-originals and the copy and compares every sample.
+`r5_cloud_tables.h` contains only the values the cloud reads, copied verbatim. The side-by-side proof compiles the originals and the copy and compares every sample. An unmodified reference copy of
+`halo_dsp.h` and `halo_tables.h` is included in `tests/halo/` so the proof can be rerun without the HALO package.

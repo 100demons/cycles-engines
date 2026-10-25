@@ -5,7 +5,7 @@
 This is the fifth Rhythmicon (the FIFTH engine) with the fifths group removed and the granular cloud from HALO New
 added after it. The cloud is a verbatim copy in `r5_cloud.h` / `r5_cloud_tables.h`: same controls, curves, defaults,
 internal settings, buffer and Freeze behaviour. The proof compiles it side by side with HALO New's own
-`halo_dsp.h` and compares every output sample.
+`halo_dsp.h` (an unmodified reference copy is in `tests/halo/`) and compares every output sample.
 
 Status: experimental · Version 1.0 · For: Model:Cycles OS 1.13 · MIT
 
