@@ -77,11 +77,11 @@ host vs emulator, bit for bit:
 
 CPU, instructions per 32-frame block, one voice (whole loop minus the no-voice loop)
   TONE                 5291  (1.00 x TONE)
-  default              3899  med 0.74, p95 0.74, first strike 1.39 x TONE
-  heavy                4665  med 0.88, p95 0.89, first strike 1.39 x TONE
-  heavy + Freeze       4351  med 0.82, p95 0.82, first strike 1.39 x TONE
-  dry (CLOUD 0)        3147  med 0.59, p95 0.59, first strike 1.39 x TONE
-  ok    CPU under one TONE voice: worst median 4665 (0.88), worst steady 4688 (0.89) vs TONE 5291
+  default              3899  med 0.74, worst steady 0.76, first strike 1.39 x TONE
+  heavy                4665  med 0.88, worst steady 0.90, first strike 1.39 x TONE
+  heavy + Freeze       4351  med 0.82, worst steady 0.84, first strike 1.39 x TONE
+  dry (CLOUD 0)        3147  med 0.59, worst steady 0.59, first strike 1.39 x TONE
+  ok    CPU under one TONE voice: worst median 4665 (0.88), worst steady 4759 (0.90) vs TONE 5291
 
 usual proof suite (tests/emu/test_engines.py):
   ok    rhythmicon5: RHY5 (machine 10) makes sound (peak 325001561)

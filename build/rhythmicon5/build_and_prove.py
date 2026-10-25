@@ -361,10 +361,10 @@ def cpu_proof(full, runtime, tweak, info):
                          ("dry (CLOUD 0)", (127, 27, 70, 0), 0)):
         c = costs(p["index"], kn, freeze=fr) - zero
         steady = c[20:]
-        rows.append((name, int(np.median(steady)), int(np.percentile(steady, 95)), int(c.max()), int(c[1])))
+        rows.append((name, int(np.median(steady)), int(steady.max()), int(c.max()), int(c[1])))
     print(f"  {'TONE':18s} {tone:6d}  (1.00 x TONE)")
     for name, med, p95, mx, first in rows:
-        print(f"  {name:18s} {med:6d}  med {med / tone:.2f}, p95 {p95 / tone:.2f}, "
+        print(f"  {name:18s} {med:6d}  med {med / tone:.2f}, worst steady {p95 / tone:.2f}, "
               f"first strike {first / tone:.2f} x TONE")
     med = max(r[1] for r in rows if r[0] != "dry (CLOUD 0)")
     steady = max(r[2] for r in rows if r[0] != "dry (CLOUD 0)")

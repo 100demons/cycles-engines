@@ -63,11 +63,11 @@ All are inside the required ±10 %.
 Instructions per 32-frame block, one voice, measured in the real OS voice loop against TONE in the same run.
 TONE = 5,291.
 
-| Case | Median | Worst steady (p95) | × TONE |
+| Case | Median | Worst steady block | × TONE (med / worst) |
 |---|---|---|---|
-| Default | 3,899 | 3,910 | 0.74 / 0.74 |
-| Heavy (SHAPE 0, cloud max) | 4,665 | 4,688 | 0.88 / 0.89 |
-| Heavy + Freeze | 4,351 | 4,353 | 0.82 / 0.82 |
+| Default | 3,899 | 3,996 | 0.74 / 0.76 |
+| Heavy (SHAPE 0, cloud max) | 4,665 | 4,759 | 0.88 / 0.90 |
+| Heavy + Freeze | 4,351 | 4,436 | 0.82 / 0.84 |
 | Dry (CONTOUR 0) | 3,147 | 3,147 | 0.59 / 0.59 |
 
 The sustained load is under one TONE voice. The **first note after selecting the machine** costs 7,374 instructions

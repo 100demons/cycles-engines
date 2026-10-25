@@ -66,8 +66,9 @@ renders, the no-fifths deletion, defaults, the emulator (boot, dispatch, sound, 
 emulator bit-exactness, CPU against TONE, and the usual `tests/emu/test_engines.py` suite. `build/rhythmicon5/prove.log`
 is the last run: **ALL OK**.
 
-CPU (instructions per 32-frame block, one voice, TONE 5,291 in the same run): default 3,899 (0.74×), heavy 4,665
-(0.88×), heavy + Freeze 4,351 (0.82×), dry 3,147 (0.59×). The one-time first strike after choosing the machine is
+CPU (instructions per 32-frame block, one voice, TONE 5,291 in the same run): default 3,899 median / 3,996
+worst steady (0.74× / 0.76×), heavy 4,665 / 4,759 (0.88× / 0.90×), heavy + Freeze 4,351 / 4,436 (0.82× / 0.84×),
+dry 3,147 / 3,147 (0.59×). The one-time first strike after choosing the machine is
 7,374 (1.39×), the same one-block initialization pattern as HALO (1.14×) and FIFTH; every sustained block is under
 TONE.
 
