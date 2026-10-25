@@ -127,3 +127,11 @@ every step: phase, step, what passed, what failed, what's next.
   old per-build assembler, gen_macro.added_machine) are dropped: the composer uses the committed runtime and objects.
   This matches ARCHITECTURE.md "only what this flasher needs".
 - The old flasher's Samples-OS cross-flash and Syntakt-engine features are not carried over (Cycles OS 1.13 only).
+
+## Fix (2026-10-24): Feral SHAPE showed a stray character instead of the model names
+
+- Cause: `feral_fmt` in `engines/feral9/feral_ui.S` passed the address of the name-table entry to `%s` instead of the
+  pointer stored in it, so SHAPE printed the first byte of a pointer (`C`). The DSP is untouched.
+- Fix: load the pointer (`move.l (%a0), %a0`); feral9.o and engines.js regenerated.
+- New test `tests/emu/test_feral_names.py` runs the OS's state lookup and the formatter and checks NYB..KOS (alone and
+  with PUNCH + BLAST). Equivalence test and `test_engines.py` (no failures in its first run) pass. Not yet checked on hardware.

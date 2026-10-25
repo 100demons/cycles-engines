@@ -45,6 +45,7 @@ feral_fmt:
 2:	lsl.l	#2, %d0
 	lea	feral_names, %a0
 	adda.l	%d0, %a0
+	move.l	(%a0), %a0		/* the table holds pointers: load the name's address */
 	move.l	%a0, -(%sp)
 	pea	feral_s_s
 	move.l	20(%sp), -(%sp)
