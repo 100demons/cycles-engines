@@ -104,6 +104,7 @@ function parameterBlock(fr, machines) {
     put32(e, 4, lay.recs + 0x60 * i);                                // rec
     put32(e, 8, m.knob_hook || 0);                                   // knob_hook
     put32(e, 12, m.state_init || 0);                                 // state object initializer
+    put32(e, 16, m.turn_hook || 0);                                  // the stepped-SWEEP turn hook
     parts.push(e);
   });
   const out = concat(...parts);
@@ -315,12 +316,11 @@ function compose(mainOs, frames, packages, tweaks = [], slots = {}, placeholder 
     const mc = p.uses.find((u) => u.point === "machine");
     if (!mc) throw new Error(`${p.id}: no 'machine' entry in uses: not an added machine`);
     const state = p.uses.find((u) => u.point === "descriptor.state");
-    if (state && !(0 <= (state.descriptor == null ? 1 : state.descriptor) && (state.descriptor == null ? 1 : state.descriptor) <= 3))
-      throw new Error(`${p.id}: a descriptor.state override needs descriptor 0..3 (COLOR..CONTOUR)`);
+    const turn = p.uses.find((u) => u.point === "turn");
     const entry = { name: mc.name, image: mc.image, decay: mc.decay_default,
                     knobs: mc.knobs.map((k) => [k.long, k.short, k.default].concat("min" in k ? [k.min, k.max] : [])),
                     update: syms[p.symbols.update], render: syms[p.symbols.render],
-                    state_init: state ? syms[state.init] : 0 };
+                    state_init: state ? syms[state.init] : 0, turn_hook: turn ? syms[turn.init] : 0 };
     blobs.push([codeAt, blob]);
     symsOf[p.id] = syms;
     info.push({ id: p.id, index: s - 1, desc: 76 + 5 * (s - 7), code_at: codeAt, code: blob.length, bss_at: bssAt,

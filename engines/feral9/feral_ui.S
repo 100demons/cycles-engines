@@ -8,9 +8,10 @@
 
 	.globl	feral_state_init
 feral_state_init:
-	cmp.l	#1, %d0		/* SHAPE? */
+	move.l	4(%sp), %d0		/* the knob index (0 = COLOR .. 3 = CONTOUR) */
+	cmp.l	#1, %d0			/* SHAPE? */
 	beq.s	fs_shape
-	moveq	#0, %d0		/* the other knobs keep the generic object */
+	moveq	#0, %d0			/* the other knobs keep the generic object */
 	rts
 fs_shape:
 	tst.l	feral_state_ready

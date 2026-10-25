@@ -5,19 +5,31 @@ every step: phase, step, what passed, what failed, what's next.
 
 ## Status
 
-- **Current phase**: 4 (Slot-relative pictures and knob displays) — descriptor.state done; pictures not done.
-- **Last result**: Phase 3 merged (tag `phase-3`). Phase 4's descriptor.state generalisation (any of the four knobs,
-  not only SHAPE) is in and equivalence-tested; the pictures part needs the old UI harness, which was not carried
-  over.
+- **Current phase**: 5 (Port PUNCH, BLAST and SAM) — done, in review. The descriptor.state fix (all four knobs) and
+  the slot-relative turn hook are in and verified; the custom pictures remain not ported (engines keep TONE's).
+- **Last result**: the knob displays and the stepped SWEEP now work for Feral, BLAST, PUNCH and SAM; the DSP is
+  byte-for-byte unchanged from the old standalone builds. The remaining question is the LiXR slot (8): LiXR was
+  removed from the catalog but is still in `engines/slots.json`, so a build shows a blank `----` placeholder at slot 8.
 
 ## Environment (verified)
 
 - `gh` logged in as `100demons` (repo, workflow scopes).
 - `node` v24.22.1, `python3` 3.12.8 with `unicorn` 2.1.4 and `numpy` 2.5.4.
-- m68k toolchain: `m68k-elf-gcc 16.2.0` at `/Users/ooo/Projects/m68k-elf-16.2/bin` (set `M68K_CROSS` or add to PATH).
-- Old repo (read-only reference): `/Users/ooo/Projects/cycles-flasher`.
-- Official OS: `/Users/ooo/Projects/model-cycles/firmware/model-cycles_OS1.13.syx`
-  (section_sha256 `cc99d4f0…ee98`, stock_syx_sha256 `44fe5862…640c`).
+- m68k toolchain: `m68k-elf-gcc 16.2.0` at `~/m68k-elf-16.2/bin` (set `M68K_CROSS` or add to PATH).
+- Old repo (read-only reference): `~/Desktop/cycles-work/cycles-rename`.
+- Official OS: `~/Desktop/cycles-work/cycles-engines/firmware/model-cycles_OS1.13.syx`
+  (stock_syx_sha256 `44fe5862…640c`).
+
+## Phase 5 — Port PUNCH, BLAST and SAM (in progress)
+
+- Turn hook: the registrar runtime gains a `turn` entry (the OS's knob turn at 0x4000b82a), and the machine entry
+  grew from 16 to 20 bytes (a `turn_hook` long). compose.py / composer.js write it; gen_registrar.py / frame.json
+  carry the detour. The descriptor.state initializer now takes the knob on the stack (the standard C ABI), so the
+  C init functions work; Feral's feral_ui.S reads it from the stack and returns 0 for non-SHAPE.
+- BLAST (slot 10), PUNCH (slot 9) and SAM (slot 11) are packages with a `descriptor.state` init and (BLAST, PUNCH) a
+  `turn` init; their hard-coded descriptors 76–79 and the standalone detours are gone. Their DSP is unchanged (the
+  committed `.o` is byte-for-byte the old standalone's), so they render the same audio.
+- Feral (slot 7): its manifest no longer carries the `descriptor` field, and SHAPE shows the model names again.
 
 ## Phase 1 — Foundation
 

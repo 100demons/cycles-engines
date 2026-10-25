@@ -1,5 +1,11 @@
 # Byte artefacts — never committed
 
+# Official firmware and anything built from it
+/firmware/
+*.syx
+*.zip
+*.wav
+
 # Built .syx and reports (byte-for-byte proof output, test builds, checkpoints)
 /build/*
 !/build/checkpoints/

@@ -20,7 +20,7 @@
   "objects": ["sam.o"],
   "patch_points": [],
   "symbols": {"update": "sam_update", "render": "sam_render"},
-  "keep": []
+  "keep": ["sam_state_init"]
  },
  "uses": [
   {"point": "machine", "name": "SAM", "image": 4, "decay_default": 50,
@@ -28,7 +28,9 @@
     {"long": "Speed", "short": "SPED", "default": 64},
     {"long": "Word", "short": "WORD", "default": 0, "min": 0, "max": 35},
     {"long": "Scrub", "short": "SCRB", "default": 0},
-    {"long": "Character", "short": "CHAR", "default": 64}]}
+    {"long": "Character", "short": "CHAR", "default": 64}]},
+  {"point": "descriptor.state", "init": "sam_state_init",
+   "why": "COLOR shows the speaking rate, SHAPE the word, SWEEP the scrub and CONTOUR the character macro instead of numbers"}
  ],
  "claims": {"sound_slots": [], "record_slots": [], "ram": [], "formatters": [], "gestures": [], "views": []},
  "cost": {"emulation": {"status": "not measured"}, "device": {"status": "not measured"}},

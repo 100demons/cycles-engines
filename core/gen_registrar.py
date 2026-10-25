@@ -26,11 +26,11 @@ OUT = HERE / "registrar" / "registrar.json"
 FRAME = HERE / "registrar" / "frame.json"
 SRC = HERE / "registrar" / "registrar.S"
 STUB = HERE / "registrar" / "stub.S"
-REGS_OFF = 0x400                       # the parameter block: REGS = STUBS + 0x400, room for MAX_ENGINES entries
-ENTRY = 16                             # one entry per machine: 16 bytes
+REGS_OFF = 0x480                       # the parameter block: REGS = STUBS + 0x480, room for the runtime + MAX_ENGINES entries
+ENTRY = 20                             # one entry per machine: 20 bytes
 MAX_ENGINES = os113.MAX_ENGINES        # the one capacity constant (core/registrar/layout.json)
 ENTRIES = ("state_at", "state_connect", "cc_bounds", "drum_icons", "small_icon", "record_at", "record_of", "marks",
-           "knob_vec", "desc_machine", "builder_row")
+           "knob_vec", "desc_machine", "builder_row", "turn")
 PLACEHOLDERS = {"src": 0x7a5a5a51, "dst": 0x7b5b5b52, "longs": 0x7c5c5c53}
 
 

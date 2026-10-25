@@ -20,7 +20,7 @@
   "objects": ["blast.o"],
   "patch_points": [],
   "symbols": {"update": "blast_update", "render": "blast_render"},
-  "keep": []
+  "keep": ["blast_state_init", "blast_turn"]
  },
  "uses": [
   {"point": "machine", "name": "BLAST", "image": 4, "decay_default": 50,
@@ -28,7 +28,11 @@
     {"long": "Index", "short": "Idx", "default": 64},
     {"long": "Model", "short": "MODL", "default": 0, "min": 0, "max": 13},
     {"long": "Ratio", "short": "RTIO", "default": 80},
-    {"long": "Env", "short": "Env", "default": 40}]}
+    {"long": "Env", "short": "Env", "default": 40}]},
+  {"point": "descriptor.state", "init": "blast_state_init",
+   "why": "SHAPE shows the model names (SIN..ZAP) and SWEEP the ratio names (1:2..15X) instead of numbers"},
+  {"point": "turn", "init": "blast_turn",
+   "why": "SWEEP steps through the ratio list one detent at a time, not one knob unit at a time"}
  ],
  "claims": {"sound_slots": [], "record_slots": [], "ram": [], "formatters": [], "gestures": [], "views": []},
  "cost": {"emulation": {"status": "not measured"}, "device": {"status": "not measured"}},

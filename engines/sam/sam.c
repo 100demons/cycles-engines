@@ -136,8 +136,11 @@ int sam_char_fmt(void *fn, s32 v, char *buf)
 	return OS_SPRINTF(buf, "%s", s);
 }
 
-/* The interface objects of descriptors 76..79: copies of SNARE's, with our text functions. */
-u32 sam_state_at(s32 desc)
+/* the descriptor-state initializer: the registrar runtime calls it with the knob index (0 = COLOR .. 3 = CONTOUR).
+ * COLOR (0) is the speaking rate, SHAPE (1) the word, SWEEP (2) the scrub and CONTOUR (3) the character macro; every
+ * knob has its own object, a copy of SNARE's with our text function, built at the first call, after the OS's own
+ * (0x400de244, at boot). */
+u32 sam_state_init(s32 knob)
 {
 	if (!ui_ready) {
 		const u32 *color = (const u32 *)UI_COLOR;
@@ -158,26 +161,7 @@ u32 sam_state_at(s32 desc)
 		ui_contour[8] = (u32)sam_char_fmt;
 		ui_ready = 1;
 	}
-	return desc == 76 ? (u32)ui_color
-		: (desc == 77 ? (u32)ui_shape : (desc == 78 ? (u32)ui_sweep : (u32)ui_contour));
+	return knob == 0 ? (u32)ui_color
+		: (knob == 1 ? (u32)ui_shape : (knob == 2 ? (u32)ui_sweep : (u32)ui_contour));
 }
-
-__asm__(
-"	.text\n"
-/* state_connect (gen_syntakt_engines.detours_asm): the text of a descriptor's value in the buffer
- * 0x40a71500. Our object's text function (+0x14) is called by 0x400ddf60 (fn, value, buffer). */
-"	.globl	sam_state_connect\n"
-"sam_state_connect:\n"
-"	move.l	4(%sp), -(%sp)\n"
-"	jsr	sam_state_at\n"
-"	addq.l	#4, %sp\n"
-"	addi.l	#0x14, %d0\n"
-"	pea	0x40a71500\n"
-"	move.l	12(%sp), -(%sp)\n"
-"	move.l	%d0, -(%sp)\n"
-"	jsr	0x400ddf60\n"
-"	lea	12(%sp), %sp\n"
-"	move.l	#0x40a71500, %d0\n"
-"	rts\n"
-);
 #endif

@@ -78,8 +78,18 @@ engines/<id>/
 | `descriptor_base` | its first knob descriptor |
 | `picture_index` | its picture index (added in phase 4) |
 
-Display overrides: a `descriptor.state` entry may target **any** of the four knob descriptors (today's composer only
-allows SHAPE; phase 4 generalises it).
+Display overrides: a `descriptor.state` entry gives an engine one knob-state initializer for **all four knobs at
+once** — never a single knob, and never a hard-coded descriptor number. The manifest carries one `uses` entry
+`{ "point": "descriptor.state", "init": "<symbol>", "why": "…" }`; `init` is `init(knob) -> state*` where `knob` is
+**0 = COLOR, 1 = SHAPE, 2 = SWEEP, 3 = CONTOUR** (the position among the engine's four knobs, *not* a descriptor
+number). It returns that knob's interface-object pointer, or **0** to keep the generic SNARE object. The registrar
+runtime calls `init(knob)` for any of the engine's four knob descriptors and falls back to the generic SNARE object
+when it returns 0; Amp Decay (`first_desc + 4`) is never overridden. There is no per-knob `descriptor` field.
+
+The knob-turn stepping for stepped SWEEP ratios (BLAST, PUNCH) is a separate, also slot-relative hook: a `uses`
+entry `{ "point": "turn", "init": "<symbol>", "why": "…" }` whose `init` is `init(cur, delta) -> value` (the new
+value, or −1 to keep the OS's own step). The registrar runtime's `turn` entry calls it for the engine's SWEEP knob,
+never a hard-coded descriptor.
 
 ## 3. Capacity and memory
 

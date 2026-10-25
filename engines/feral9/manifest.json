@@ -99,9 +99,8 @@
   },
   {
    "point": "descriptor.state",
-   "descriptor": 1,
    "init": "feral_state_init",
-   "why": "SHAPE shows the model names instead of 0..8"
+   "why": "SHAPE shows the model names instead of 0..8; every other knob keeps the generic state"
   }
  ],
  "claims": {

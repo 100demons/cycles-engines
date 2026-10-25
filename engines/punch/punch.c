@@ -113,36 +113,11 @@ void punch_render(s32 *out, char *v)
 }
 
 #ifdef __mcoldfire__
-#include "punch_icons.h"
-
-/* The OS's Bitmap (constructor 0x40070172): vtable, width, height, words per column, image, mask, flag (0: static,
- * the destructor frees nothing). A is the machine page's card (48 x 33), B its emblem (34 x 34), C the small emblem
- * (25 x 22); the image and mask planes are in punch_icons.h. */
-struct bitmap {
-	u32 vt, w, h, wpc, img, mask, flag;
-};
-#define BITMAP_VT 0x401117c8
-#define BITMAP(name, w_, h_, img_, msk_) \
-	const struct bitmap name = { BITMAP_VT, w_, h_, ((h_) + 31) >> 5, (u32)(img_), (u32)(msk_), 0 }
-
-BITMAP(punch_bm_a, 48, 33, PUNCH_IMG_A, PUNCH_MSK_A);
-BITMAP(punch_bm_b, 34, 34, PUNCH_IMG_B, PUNCH_MSK_B);
-BITMAP(punch_bm_c, 25, 22, PUNCH_IMG_C, PUNCH_MSK_C);
-
 /* ------------------------------------------------------------------------------------------------------------
  * SWEEP on the ratio models: the interface. Called by the OS's interface code (not the audio interrupt). The OS's
  * functions that return a pointer are declared to return u32: they return it in d0, where m68k-linux-gnu-gcc would
  * read a pointer from a0 (notes/42 par. 6).
  */
-#ifndef COLOR_DESC
-#define COLOR_DESC 76
-#endif                               /* PUNCH: 76 COLOR, 77 SHAPE, 78 SWEEP, 79 CONTOUR */
-#ifndef SHAPE_DESC
-#define SHAPE_DESC 77
-#endif
-#ifndef SWEEP_DESC
-#define SWEEP_DESC 78
-#endif
 #define UI_COLOR    (0x40a71754 + 100 * 51)          /* SNARE's COLOR, SHAPE and SWEEP interface objects (100 bytes) */
 #define UI_SHAPE    (0x40a71754 + 100 * 52)
 #define UI_SWEEP    (0x40a71754 + 100 * 53)
@@ -221,7 +196,8 @@ s32 punch_fine(void *fn, s32 v, s32 delta, s32 lo, s32 hi, s32 def)
 	return v < lo ? lo : (v > hi ? hi : v);
 }
 
-/* a turn without FUNC (from punch_turn_hook): the next or previous ratio, one per detent; -1: the OS's own step */
+/* a turn without FUNC (from the registrar runtime's turn entry): the next or previous ratio, one per detent;
+ * -1: the OS's own step */
 s32 punch_turn(s32 cur, s32 delta)
 {
 	u32 c, s, n, last = (u32)FM_RATIO_COUNT - 1;
@@ -245,9 +221,11 @@ s32 punch_turn(s32 cur, s32 delta)
 	return step_value(s);
 }
 
-/* the interface objects of descriptors 77 and 78 (from state_at, gen_punch.py): built at the first call, after the
- * OS's own (0x400de244, at boot) */
-u32 punch_state_at(s32 desc)
+/* the descriptor-state initializer: the registrar runtime calls it with the knob index (0 = COLOR .. 3 = CONTOUR).
+ * For COLOR (0) it returns the FM-index object, for SHAPE (1) the model-name object and for SWEEP (2) the ratio
+ * object; CONTOUR (3) answers 0, so the runtime keeps the generic SNARE object. The objects are copies of SNARE's,
+ * built at the first call, after the OS's own (0x400de244, at boot). */
+u32 punch_state_init(s32 knob)
 {
 	if (!ui_ready) {
 		const u32 *sweep = (const u32 *)UI_SWEEP, *shape = (const u32 *)UI_SHAPE;
@@ -265,54 +243,6 @@ u32 punch_state_at(s32 desc)
 		ui_color[8] = (u32)punch_color_fmt;
 		ui_ready = 1;
 	}
-	return desc == SWEEP_DESC ? (u32)ui_sweep
-		: (desc == SHAPE_DESC ? (u32)ui_shape : (u32)ui_color);
+	return knob == 2 ? (u32)ui_sweep : (knob == 1 ? (u32)ui_shape : (knob == 0 ? (u32)ui_color : 0));
 }
-
-#define MC_STR2(x) #x
-#define MC_STR(x) MC_STR2(x)
-
-__asm__(
-"	.text\n"
-/* state_connect (gen_syntakt_engines.detours_asm, at 0x4004dfa2: the text of a descriptor's value in the buffer
- * 0x40a71500) for descriptors 76, 77 and 78: our object's text function (+0x14), called by 0x400ddf60
- * (fn, value, buffer) */
-"	.globl	punch_state_connect\n"
-"punch_state_connect:\n"
-"	move.l	4(%sp), -(%sp)\n"
-"	jsr	punch_state_at\n"
-"	addq.l	#4, %sp\n"
-"	addi.l	#0x14, %d0\n"
-"	pea	0x40a71500\n"
-"	move.l	12(%sp), -(%sp)\n"
-"	move.l	%d0, -(%sp)\n"
-"	jsr	0x400ddf60\n"
-"	lea	12(%sp), %sp\n"
-"	move.l	#0x40a71500, %d0\n"
-"	rts\n"
-/* the OS's knob turn (0x4000b7d6), at 0x4000b82a, after vt[28] (the current value, d0) and before vt[20] (the new
- * value): d2 = descriptor, d3 = delta, the two arguments of vt[28] still on the stack. Descriptor 78 on a ratio
- * model: the value of the next or previous step, then on at 0x4000b834 with the stack as after vt[20] (4 more
- * arguments, which 0x4000b834 pops). Otherwise: the three moved instructions, then on at 0x4000b830. */
-"	.globl	punch_turn_hook\n"
-"punch_turn_hook:\n"
-"	moveq	#" MC_STR(SWEEP_DESC) ", %d1\n"
-"	cmp.l	%d1, %d2\n"
-"	bne.s	1f\n"
-"	move.l	%d0, -(%sp)\n"
-"	move.l	%d3, -(%sp)\n"
-"	move.l	%d0, -(%sp)\n"
-"	jsr	punch_turn\n"
-"	addq.l	#8, %sp\n"
-"	tst.l	%d0\n"
-"	bmi.s	2f\n"
-"	addq.l	#4, %sp\n"
-"	lea	-16(%sp), %sp\n"
-"	jmp	0x4000b834\n"
-"2:	move.l	(%sp)+, %d0\n"
-"1:	move.l	%d3, -(%sp)\n"
-"	move.l	%d0, -(%sp)\n"
-"	move.l	%d2, -(%sp)\n"
-"	jmp	0x4000b830\n"
-);
 #endif

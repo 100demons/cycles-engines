@@ -131,7 +131,7 @@ def web_package(mid):
         sys.exit(f"!! {mid}: {path} is missing: run core/build_engine.py (it writes the object)")
     lay = relocate.layout(path.read_bytes(), upd, rnd, keep, mid)
     uses = [{k: v for k, v in u.items() if k != "why"} for u in m["uses"]
-            if u["point"] in ("machine", "memory.ram", "descriptor.state") or "hook" in u or "vtable" in u]
+            if u["point"] in ("machine", "memory.ram", "descriptor.state", "turn") or "hook" in u or "vtable" in u]
     return {"id": mid, "name": m["name"], "order": m["order"], "version": m["version"],
             "symbols": {"update": upd, "render": rnd}, "keep": keep, "patch_points": pps, "uses": uses,
             "conflicts_declared": [c["with"] for c in m.get("compat", {}).get("conflicts_declared", [])],
@@ -182,6 +182,7 @@ def parameter_block(fr, machines):
         e[4:8] = os113.be32(lay["recs"] + 0x60 * i)      # rec
         e[8:12] = os113.be32(m.get("knob_hook", 0))      # knob_hook
         e[12:16] = os113.be32(m.get("state_init", 0))    # state object initializer
+        e[16:20] = os113.be32(m.get("turn_hook", 0))     # the stepped-SWEEP turn hook
         out += e
     if len(out) > rt["regs_header"] + rt["entry_size"] * rt["max_machines"]:
         sys.exit("!! parameter block too big")
@@ -257,6 +258,8 @@ def frame(img, reg, n):
         w(va, bytes.fromhex(old), jmp(entries[sym]))
     for va, old, sym in os113.CALLS:
         w(va, bytes.fromhex(old), bytes.fromhex("4eb9") + os113.be32(entries[sym]) + bytes.fromhex("4e71"))
+    # the OS's knob turn (0x4000b82a), detoured to the runtime's turn: a machine's stepped SWEEP (registrar.S).
+    w(0x4000b82a, bytes.fromhex("2f032f002f02"), jmp(entries["turn"]))
     writes.sort(key=lambda x: x["off"])
     lo_, hi_ = os113.DESC - BASE, os113.DESC - BASE + os113.NDESC * os113.DSTRIDE
     final, orig = bytearray(img[lo_:hi_]), img[lo_:hi_]
@@ -498,12 +501,12 @@ def compose_pairs(img, assigned):
             knobs = tuple((k["long"], k["short"], k["default"]) + ((k["min"], k["max"]) if "min" in k else ())
                           for k in mc["knobs"])
             state = next((u for u in m["uses"] if u["point"] == "descriptor.state"), None)
-            if state and not (0 <= state.get("descriptor", 1) <= 3):
-                sys.exit(f"!! {m['id']}: a descriptor.state override needs descriptor 0..3 (COLOR..CONTOUR)")
+            turn = next((u for u in m["uses"] if u["point"] == "turn"), None)
             entry = dict(name=mc["name"], image=mc["image"], decay=mc["decay_default"], knobs=knobs,
                          update=syms[m["build"]["symbols"]["update"]],
                          render=syms[m["build"]["symbols"]["render"]],
-                         state_init=syms[state["init"]] if state else 0)
+                         state_init=syms[state["init"]] if state else 0,
+                         turn_hook=syms[turn["init"]] if turn else 0)
             blobs.append((code_at, blob))
             syms_of[pid] = syms
             info_pkgs.append(dict(id=pid, index=s - 1, desc=76 + 5 * (s - 7), code_at=code_at, code=len(blob),

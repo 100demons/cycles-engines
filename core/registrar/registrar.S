@@ -6,12 +6,13 @@
  *   REGS+0   .byte n, first, top, nm        n machines added; first = 6; top = first + n - 1; nm = first + n
  *   REGS+4   .long last                     76 + 5 n: the first descriptor after the added machines'
  *   REGS+8   .long knob_tab                 DATA + 12 nm: knob_vec's table machine -> record
- *   REGS+12  .long machines_end             REGS + 16 + 16 n
- *   REGS+16  machine[n], 16 bytes each:
+ *   REGS+12  .long machines_end             REGS + 16 + 20 n
+ *   REGS+16  machine[n], 20 bytes each:
  *            .byte index, image, first_desc, rec_param     index = first + i; rec_param = first_desc - 51
  *            .long rec                                      RECS + 0x60 i, the machine's record (built on first use)
  *            .long knob_hook                                0, or a package's hook called by knob_vec (MACRO's lo-fi)
- *            .long 0
+ *            .long state_init                               the descriptor.state initializer (state_at/state_connect)
+ *            .long turn_hook                                0, or a package's hook for the stepped SWEEP (turn)
  *
  * Each entry keeps the register contract of the detour it replaces (notes/60 §5.2): the constants come from the
  * block with cmp.l / mvz.b from memory, the loops use a0 where the detour owned it (the whole-function entries and
@@ -46,8 +47,8 @@ map_state:
 9:	rts
 
 /* A package may put a descriptor-state initializer in the last long of its machine entry
- * (REGS+16+16i+12): called with d0 = the knob (0..3, COLOR..CONTOUR), it returns the state object for that
- * descriptor, or 0 to keep the generic SNARE object. */
+ * (REGS+16+16i+12): called with the knob index (0..3, COLOR..CONTOUR) on the stack, it returns the state
+ * object for that descriptor, or 0 to keep the generic SNARE object. */
 	.globl	state_at
 state_at:
 	move.l	%d2, -(%sp)
@@ -72,12 +73,14 @@ sat_loop:
 	move.l	(%sp)+, %a0
 	move.l	(%sp)+, %d3
 	move.l	(%sp)+, %d2
+	move.l	%d0, -(%sp)		/* pass the knob on the stack */
 	jsr	(%a1)
+	addq.l	#4, %sp
 	tst.l	%d0
 	bne.s	sat_ret
 	bra.s	sat_generic2
 sat_next:
-	lea	16(%a0), %a0
+	lea	20(%a0), %a0
 	bra.s	sat_loop
 sat_generic:
 	move.l	(%sp)+, %a0
@@ -116,12 +119,14 @@ sc_loop:
 	move.l	(%sp)+, %a0
 	move.l	(%sp)+, %d3
 	move.l	(%sp)+, %d2
+	move.l	%d0, -(%sp)		/* pass the knob on the stack */
 	jsr	(%a1)
+	addq.l	#4, %sp
 	tst.l	%d0
 	bne.s	sc_found
 	bra.s	sc_generic2
 sc_next:
-	lea	16(%a0), %a0
+	lea	20(%a0), %a0
 	bra.s	sc_loop
 sc_found:
 	add.l	#0x14, %d0
@@ -166,7 +171,7 @@ find_machine:
 	bcc.s	9f
 	cmp.b	(%a0), %d1
 	beq.s	8f
-	lea	16(%a0), %a0
+	lea	20(%a0), %a0
 	bra.s	1b
 9:	suba.l	%a0, %a0
 8:	rts
@@ -400,7 +405,7 @@ find_desc:
 	addq.l	#3, %d1
 	cmp.l	%d1, %d0
 	bls.s	8f
-2:	lea	16(%a0), %a0
+2:	lea	20(%a0), %a0
 	bra.s	1b
 9:	suba.l	%a0, %a0
 8:	rts
@@ -443,7 +448,48 @@ builder_row:
 	bhi.s	4f
 	mvz.b	(%a1), %d5
 	bra.s	2f
-4:	lea	16(%a1), %a1
+4:	lea	20(%a1), %a1
 	bra.s	3b
 2:	jmp	0x4005a384
 1:	jmp	0x4005a346
+
+/* --- the OS's knob turn (0x4000b82a -> 0x4000b830, mid-function; the three moved instructions are replayed
+ * here): d2 = descriptor, d3 = delta, d0 = the current value, a2 = the object, a3 = vt[20]; the two args of
+ * vt[28] (a2, desc) are still on the stack. A machine's turn hook (entry +16) is called for its SWEEP knob
+ * (first_desc + 2): a value >= 0 replaces the OS's, -1 or no hook falls back to vt[20]. Saves d2 d3 d0 (d0 is
+ * the value, d2 d3 are callee-saved); a0 a1 d1 are scratch and the other registers stay. */
+	.globl	turn
+turn:
+	move.l	%d2, -(%sp)		/* save desc */
+	move.l	%d3, -(%sp)		/* save delta */
+	move.l	%d0, -(%sp)		/* save the current value */
+	move.l	%d2, %d0		/* find_desc wants the descriptor in d0 */
+	bsr.w	find_desc
+	move.l	%a0, %d1
+	beq.w	turn_os			/* not an added machine's knob */
+	mvz.b	2(%a0), %d1		/* first_desc */
+	addq.l	#2, %d1
+	cmp.l	%d1, %d2		/* its SWEEP knob (first_desc + 2)? */
+	bne.w	turn_os
+	move.l	16(%a0), %a0		/* the package's turn hook */
+	tst.l	%a0
+	beq.w	turn_os
+	move.l	4(%sp), -(%sp)		/* delta (saved) */
+	move.l	4(%sp), -(%sp)		/* cur (saved) */
+	jsr	(%a0)			/* the hook: new value, or -1 */
+	addq.l	#8, %sp
+	tst.l	%d0
+	bmi.w	turn_os
+	addq.l	#4, %sp		/* drop the saved cur */
+	addq.l	#4, %sp		/* drop the saved delta */
+	move.l	(%sp)+, %d2		/* restore desc */
+	lea	-16(%sp), %sp		/* the 4 args vt[20] would have taken */
+	jmp	0x4000b834
+turn_os:
+	move.l	(%sp)+, %d0		/* restore the current value */
+	move.l	(%sp)+, %d3		/* restore delta */
+	move.l	(%sp)+, %d2		/* restore desc */
+	move.l	%d3, -(%sp)		/* replay the three moved instructions */
+	move.l	%d0, -(%sp)
+	move.l	%d2, -(%sp)
+	jmp	0x4000b830

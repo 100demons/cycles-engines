@@ -21,7 +21,7 @@
   "objects": ["punch.o"],
   "patch_points": [],
   "symbols": {"update": "punch_update", "render": "punch_render"},
-  "keep": []
+  "keep": ["punch_state_init", "punch_turn"]
  },
  "uses": [
   {"point": "machine", "name": "PUNCH", "image": 4, "decay_default": 50,
@@ -29,7 +29,11 @@
     {"long": "Index", "short": "Idx", "default": 64},
     {"long": "Model", "short": "MODL", "default": 0, "min": 0, "max": 11},
     {"long": "Ratio", "short": "RTIO", "default": 68},
-    {"long": "Env", "short": "Env", "default": 40}]}
+    {"long": "Env", "short": "Env", "default": 40}]},
+  {"point": "descriptor.state", "init": "punch_state_init",
+   "why": "COLOR shows the FM index, SHAPE the model names (KIK..ZAP) and SWEEP the ratio names (1:4..15X) instead of numbers"},
+  {"point": "turn", "init": "punch_turn",
+   "why": "SWEEP steps through the ratio list one detent at a time, not one knob unit at a time"}
  ],
  "claims": {"sound_slots": [], "record_slots": [], "ram": [], "formatters": [], "gestures": [], "views": []},
  "cost": {"emulation": {"status": "not measured"}, "device": {"status": "not measured"}},
