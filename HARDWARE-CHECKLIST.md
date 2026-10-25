@@ -40,3 +40,20 @@ point of this phase is that LiXR is always slot 8 — a sound saved with it find
 - [ ] Save a sound that uses LiXR, and a pattern with a machine lock on LiXR.
 - [ ] Flash Feral + LiXR. The saved sound and the machine lock still play LiXR (not Feral, not `----`).
 - [ ] The six stock machines still work as before.
+
+---
+
+## phase-5.syx (Feral + BLAST + PUNCH + SAM — the four engines, with knob displays)
+
+Built from the beta page (tick all four) or `core/compose.py --machines feral9,blast,punch,sam`. The four engines
+sit at slots 7..10 with no gap. This phase fixes the value-window displays and the stepped SWEEP.
+
+- [ ] The MACHINES page shows the four engines after the six stock ones, with no blank `----` gap.
+- [ ] Each engine makes sound on its own track.
+- [ ] Feral: SHAPE shows the model names (NYB..KOS); COLOR, SWEEP and CONTOUR show their normal numbers.
+- [ ] BLAST: SHAPE shows the model names (SIN..ZAP) and SWEEP shows the ratios (1:2..15X), stepping one detent
+      at a time; COLOR and CONTOUR show their normal numbers.
+- [ ] PUNCH: COLOR shows the FM index, SHAPE shows the model names (KIK..ZAP) and SWEEP shows the ratios
+      (1:4..15X), stepping one detent at a time.
+- [ ] SAM: COLOR shows the rate, SHAPE the word, SWEEP the scrub and CONTOUR the character (DEEP/DARK/SAM/BRIT/THIN).
+- [ ] The six stock machines still work as before.
