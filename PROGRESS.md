@@ -10,6 +10,8 @@ every step: phase, step, what passed, what failed, what's next.
 - **Last result**: the knob displays and the stepped SWEEP now work for Feral, BLAST, PUNCH and SAM; the DSP is
   byte-for-byte unchanged from the old standalone builds. The remaining question is the LiXR slot (8): LiXR was
   removed from the catalog but is still in `engines/slots.json`, so a build shows a blank `----` placeholder at slot 8.
+- **Page update (2026-10-24)**: SAM's card is no longer offered (not ready); its package stays buildable from the
+  command line and slot 10 stays reserved. The cards are now ordered PUNCH, BLAST, Feral.
 
 ## Environment (verified)
 

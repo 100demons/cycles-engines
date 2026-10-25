@@ -45,7 +45,7 @@ point of this phase is that LiXR is always slot 8 — a sound saved with it find
 
 ## phase-5.syx (Feral + BLAST + PUNCH + SAM — the four engines, with knob displays)
 
-Built from the beta page (tick all four) or `core/compose.py --machines feral9,blast,punch,sam`. The four engines
+Built from `core/compose.py --machines feral9,blast,punch,sam` (the page no longer offers SAM). The four engines
 sit at slots 7..10 with no gap. This phase fixes the value-window displays and the stepped SWEEP.
 
 - [ ] The MACHINES page shows the four engines after the six stock ones, with no blank `----` gap.
