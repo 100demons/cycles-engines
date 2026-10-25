@@ -20,7 +20,8 @@ CONTOUR; PUNCH belongs to the cloud.
   - Sweep: `SHAPE × 76 / 127` feeds FIFTH's existing sweep curve, with the fractional part kept in Q16. SHAPE 0 is
     old SWEEP 0, SHAPE 27 is old SWEEP 16, SHAPE 127 is old SWEEP 76; all 128 values are distinct and rising.
   - Ring: `T60 = 325 ms × (20 / 325)^(SHAPE / 127)`, from a new lookup table. This is log-spaced and inverted
-    (SHAPE 0 = longest, 127 = shortest).
+    (SHAPE 0 = longest, 127 = shortest). All octave partials share the same pole radius, so the T60 applies to every
+    partial; there are no separate mode ratios to preserve.
 - **CONTOUR is no longer the Rhythmicon's.** The cloud keeps CONTOUR. FIFTH's old CONTOUR only controlled ring
   length, so once ring time moved to SHAPE there was no other Rhythmicon job left to freeze at 64.
 - **SWEEP is no longer the Rhythmicon's.** The cloud keeps SWEEP (TIME). FIFTH's old SWEEP became SHAPE's sweep.
