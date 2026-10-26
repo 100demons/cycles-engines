@@ -62,9 +62,9 @@ function renderCards() {
     ext.className = "ext";
     var det = document.createElement("div");
     det.className = "det";
-    det.appendChild(el("p", null, en.card.description));
+    var desc = en.card.description, vid = null, mark = "\n\n[[video]]\n\n", at;
     if (en.card.video) {
-      var vid = document.createElement("div");
+      vid = document.createElement("div");
       vid.className = "vid";
       var ifr = document.createElement("iframe");
       ifr.src = "https://www.youtube-nocookie.com/embed/" + en.card.video;
@@ -74,7 +74,15 @@ function renderCards() {
       ifr.referrerPolicy = "strict-origin-when-cross-origin";
       ifr.allowFullscreen = true;
       vid.appendChild(ifr);
+    }
+    at = desc.indexOf(mark);
+    if (vid && at >= 0) {
+      det.appendChild(el("p", null, desc.slice(0, at)));
       det.appendChild(vid);
+      det.appendChild(el("p", null, desc.slice(at + mark.length)));
+    } else {
+      det.appendChild(el("p", null, at >= 0 ? desc.split(mark).join("\n\n") : desc));
+      if (vid) det.appendChild(vid);
     }
     ext.appendChild(det);
     d.appendChild(ext);
