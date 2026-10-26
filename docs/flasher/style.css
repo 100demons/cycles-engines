@@ -21,7 +21,6 @@
 .hint{margin:.8em 0 0;font-size:15px;color:var(--muted)}
 .hint:empty{display:none}
 .panel-text{margin:0;max-width:64ch}
-.note{margin:16px 0 0;font-size:15px;color:var(--muted);max-width:64ch}
 code{font-size:.82em}
 
 /* mode tabs */
@@ -163,7 +162,13 @@ code{font-size:.82em}
 /* the recorded demo at the bottom of a machine's description: 16:9, never wider than the text */
 .vid{margin:14px 0 0;max-width:560px;aspect-ratio:16/9;border-radius:var(--r);overflow:hidden;background:#000}
 .vid iframe{display:block;width:100%;height:100%;border:0}
-.det>.vid+p{margin-top:14px}
+
+/* the engine list and knob notes, folded under the video until opened */
+.guide{margin:14px 0 0;border-top:1px solid var(--line-2);padding-top:9px}
+.guide>summary{font:600 12px/1.45 var(--f-code);letter-spacing:.04em;color:var(--ink)}
+.guide>summary:hover{text-decoration:underline;text-decoration-color:var(--red);text-decoration-thickness:2px;text-underline-offset:.2em}
+.guide[open]>summary{margin-bottom:9px}
+.guide>p{margin:0;max-width:70ch;white-space:pre-line}
 
 /* "Your selection": stuck to the bottom of the screen while the list scrolls, resting at the end of step 1 */
 .sel{margin-top:26px;padding:11px 0 13px;border-top:1px solid var(--ink);background:var(--paper)}
@@ -461,5 +466,4 @@ button.btn{border:1px solid var(--ink)}
 }
 
 /* engine cards use the original flasher's .mod / .mod-row / .ttl / .by / .det classes (defined above) */
-#slot-note{font-size:15px;color:var(--ink-2)}
 #features:empty::after{content:"No engines yet.";color:var(--muted);font-size:15px}

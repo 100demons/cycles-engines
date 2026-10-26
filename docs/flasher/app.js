@@ -47,7 +47,6 @@ function renderCards() {
     check.addEventListener("change", function () {
       if (check.checked) ticked.push(en.id);
       else ticked = ticked.filter(function (x) { return x !== en.id; });
-      refreshSlots();
       refreshSummary();
     });
     row.appendChild(check);
@@ -76,12 +75,12 @@ function renderCards() {
       vid.appendChild(ifr);
     }
     at = desc.indexOf(mark);
-    if (vid && at >= 0) {
+    if (at >= 0) {
       det.appendChild(el("p", null, desc.slice(0, at)));
-      det.appendChild(vid);
-      det.appendChild(el("p", null, desc.slice(at + mark.length)));
+      if (vid) det.appendChild(vid);
+      det.appendChild(guide(desc.slice(at + mark.length)));
     } else {
-      det.appendChild(el("p", null, at >= 0 ? desc.split(mark).join("\n\n") : desc));
+      det.appendChild(el("p", null, desc));
       if (vid) det.appendChild(vid);
     }
     ext.appendChild(det);
@@ -91,25 +90,13 @@ function renderCards() {
   });
 }
 
-function refreshSlots() {
-  var note = $("slot-note");
-  if (!ticked.length) { note.hidden = true; return; }
-  var slots = Object.assign({}, E.slots);
-  ticked.forEach(function (id) { if (!(id in slots)) slots[id] = null; });
-  var ordered = Object.keys(slots).sort(function (a, b) { return slots[a] - slots[b]; });
-  var highest = Math.max.apply(null, ordered.filter(function (id) { return ticked.indexOf(id) >= 0; })
-    .map(function (id) { return slots[id]; }).concat([6]));
-  var parts = [];
-  for (var s = 7; s <= highest; s++) {
-    var id = null;
-    Object.keys(slots).forEach(function (k) { if (slots[k] === s) id = k; });
-    if (id && ticked.indexOf(id) >= 0) parts.push(s + " = " + id);
-    else if (id) parts.push(s + " = ---- (placeholder)");
-    else parts.push(s + " = ---- (placeholder)");
-  }
-  note.hidden = false;
-  note.textContent = "Slots: " + parts.join(", ") +
-    "  (a sound saved on a slot finds the same engine in any later build that includes it).";
+/* The engine list and knob notes sit under the video, folded away until wanted. */
+function guide(text) {
+  var d = document.createElement("details");
+  d.className = "guide";
+  d.appendChild(el("summary", null, "TECHNICAL DETAILS / GUIDE"));
+  d.appendChild(el("p", null, text));
+  return d;
 }
 
 function refreshSummary() {

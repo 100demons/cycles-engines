@@ -12,6 +12,11 @@ every step: phase, step, what passed, what failed, what's next.
   removed from the catalog but is still in `engines/slots.json`, so a build shows a blank `----` placeholder at slot 8.
 - **Page update (2026-10-24)**: SAM's card is no longer offered (not ready); its package stays buildable from the
   command line and slot 10 stays reserved. The cards are now ordered PUNCH, BLAST, Feral.
+- **Page update (2026-10-26)**: the "Slots: …" note is gone at the owner's request (this supersedes the slot display
+  in ARCHITECTURE.md §4/§6). Each card's engine list and knob notes now sit in a "TECHNICAL DETAILS / GUIDE"
+  disclosure under its video. Cache stamp 2026-10-26-3. Equivalence and size/CPU tests PASS; the engine emulator
+  test PASSES for feral9, punch and blast (the older `test_slots.py` still expects LiXR at slot 8 and fails at its
+  first slot check; that stale expectation predates this change).
 
 ## Environment (verified)
 
