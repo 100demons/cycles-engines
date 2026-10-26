@@ -1,6 +1,6 @@
 {
   "label": "👊 Punch (0.5 beta)",
-  "description": "Twelve percussion FM engines on one machine, raw, heavy and digital, built on the Yamaha OPL2 with extended fixed FM ratios for modern sounds and alien harmonics. Featuring: kick, tom, bongo, conga, taiko, timbale, marimba, djembé, woodblock, gong, bubble and zap.",
+  "description": "Twelve percussion FM engines on one machine. Raw, heavy and digital. Built on the Yamaha OPL2 with extended fixed FM ratios for modern sounds and alien harmonics.\n\n[[video]]\n\nKIK - Kick: the classic FM kick, three octaves of pitch drop into a sine body\nTOM - Tom: tuned membrane, one octave of pitch drop\nBNG - Bongo: high, short and tight\nCNG - Conga: lower and rounder, with a short bend\nDJB - Djembe: hand drum, pitch drop and FM body\nTAI - Taiko: big low drum, deep pitch drop, FM body\nTIM - Timpani: felt thud and a long membrane\nMAR - Marimba: fundamental plus tuned overtone, mallet click\nBLK - Woodblock: short, hard pitched click\nGNG - Gong: low inharmonic metal, long FM decay\nBUB - Bubble: pitch rises into the note\nZAP - Laser: four-octave pitch fall\n\nSHAPE picks the engine\nCOLOR is the FM depth\nSWEEP is the ratio, 1:4 to 15X\nCONTOUR shapes the model's movement\n\n[GATE] = on\nholds the note for its length\n\n[PUNCH] = on\nMAR: vibrato\nGNG: tremolo\nOthers: nothing",
   "status": "experimental",
   "credit": {"kind": "own", "who": "100demons"},
   "license": "LICENSE",

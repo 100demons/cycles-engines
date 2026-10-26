@@ -4872,7 +4872,7 @@ window.MC_ENGINES = {
    "id": "punch",
    "card": {
     "label": "👊 Punch (0.5 beta)",
-    "description": "Twelve percussion FM engines on one machine, raw, heavy and digital, built on the Yamaha OPL2 with extended fixed FM ratios for modern sounds and alien harmonics. Featuring: kick, tom, bongo, conga, taiko, timbale, marimba, djembé, woodblock, gong, bubble and zap.",
+    "description": "Twelve percussion FM engines on one machine. Raw, heavy and digital. Built on the Yamaha OPL2 with extended fixed FM ratios for modern sounds and alien harmonics.\n\n[[video]]\n\nKIK - Kick: the classic FM kick, three octaves of pitch drop into a sine body\nTOM - Tom: tuned membrane, one octave of pitch drop\nBNG - Bongo: high, short and tight\nCNG - Conga: lower and rounder, with a short bend\nDJB - Djembe: hand drum, pitch drop and FM body\nTAI - Taiko: big low drum, deep pitch drop, FM body\nTIM - Timpani: felt thud and a long membrane\nMAR - Marimba: fundamental plus tuned overtone, mallet click\nBLK - Woodblock: short, hard pitched click\nGNG - Gong: low inharmonic metal, long FM decay\nBUB - Bubble: pitch rises into the note\nZAP - Laser: four-octave pitch fall\n\nSHAPE picks the engine\nCOLOR is the FM depth\nSWEEP is the ratio, 1:4 to 15X\nCONTOUR shapes the model's movement\n\n[GATE] = on\nholds the note for its length\n\n[PUNCH] = on\nMAR: vibrato\nGNG: tremolo\nOthers: nothing",
     "status": "experimental",
     "credit": {
      "kind": "own",
@@ -4896,7 +4896,7 @@ window.MC_ENGINES = {
    "id": "blast",
    "card": {
     "label": "💥 Blast (0.8 beta)",
-    "description": "Fourteen melodic FM models on one machine, a '90s PC Soundblaster engine in higher fidelity, built on the Yamaha OPL2. Featuring: sine, half-sine, absolute sine, pulse, bass, piano, marimba, glockenspiel, brass, accordion, strings, steel drum, timpani and zap.",
+    "description": "Fourteen melodic FM models on one machine. A '90s PC Soundblaster engine, built on the Yamaha OPL2.\n\n[[video]]\n\nSIN - Sine: clean two-operator FM, modulator depth on COLOR\nHLF - Half-sine: hollow, reedy carrier\nABS - Absolute sine: folded wave, octave-rich and bright\nPLS - Pulse: nasal, square-edged carrier\nBAS - Bass: short FM slap over a round body\nPIA - Piano: bright bark settling into a round tone\nMAR - Marimba: fundamental plus tuned overtone, mallet click\nGLK - Glockenspiel: bright strike with a quiet high partial\nBRS - Brass: slow swell into a sustained brass\nACC - Accordion: two detuned half-sine reeds\nSTR - Strings: feedback saw modulator with a bowed attack\nSTL - Steel drum: hollow ring with a semitone blip\nTMP - Timpani: felt thud and a long low membrane\nZAP - Laser: four-octave pitch fall\n\nSHAPE picks the model\nCOLOR is the FM depth\nSWEEP is the fixed modulator:carrier ratio, 1:2 to 15X\nCONTOUR shapes the model\n\n[GATE] = on\nBRS, ACC, and STR: sustain\nPIA, MAR, GLK and STL: delays the damper so long notes ring.\n\n[PUNCH] = on\nSIN, HLF, ABS, PLS, MAR, BRS and STR: vibrato\nBAS, PIA, GLK and STL: tremolo\nACC: vibrato and tremolo\nTMP and ZAP: nothing",
     "status": "experimental",
     "credit": {
      "kind": "own",
