@@ -5,7 +5,50 @@ every step: phase, step, what passed, what failed, what's next.
 
 ## CRACK — hybrid-rate drum engine (branch `engine-crack`)
 
-- **Milestone**: M0 (setup) — done. Next: M1 (hero on the host).
+- **Milestone**: M1 (hero on the host) — done. Next: M2 (device proof of the core).
+- **M1 result**: `tests/crack/test_crack_sound.py` — **159 checks, 0 failed, ALL OK**. The hero passes all of
+  §9.1, every §9.2 macro point passes, and all 16 recipes pass. Host build: the default macOS SDK link is broken
+  in this environment (`tapi error: malformed file` from the default `MacOSX27.0.sdk`); the harness retries with
+  the newest working SDK (`MacOSX26.sdk`) and says so on the first line. The DSP itself compiles with
+  `cc -std=c99 -O2 -Wall -Wextra -Werror`.
+- **M1 measurements** (halved host output, 0 dBFS = 1 << 30; note 60, home, velocity 100): peak **−5.19 dBFS**,
+  RMS 150 ms **−25.07 dBFS** (stock SNARE −25.86 dBFS in the same domain; Δ +0.79 dB), body/wire **+3.02 dB**,
+  air − wire **8.71 dB**, 20–90 Hz **33.4 dB** below body, −40 dB at **179.8 ms**, smack **−17.65 dB**, max step
+  **1.0000 FS**, |mean| **−72.6 dBFS**, retrigger **0.564×**.
+- **M1 design decisions logged**: the core is 24 kHz / 16 samples a block; the click/air layer is 48 kHz. The
+  click noise is band-limited by a 2-pole low-pass at about 10.6 kHz (the air layer still supplies >12 kHz) so a
+  loud click does not make a sample-to-sample jump above full scale; a final ±full-scale slew guard makes §9.1 #8
+  exact. Velocity is applied after the compressor (the compressor envelope still sees velocity), otherwise the
+  compressor flattened the 30→127 difference below the required 10 dB. PUNCH lengthens the click to 5× its decay
+  (12.5 ms at home) and uses the specified +6 dB click, +0.25 ring level, +0.1 ring feedback, ×1.25 ring ratio,
+  +0.3 mode 3, +5 st spike, ×0.75 wire decay, ×0.85 wire level and +2 dB overall. The SHAPE 0 column was tuned
+  inside the allowed ±30 % (body 0.70, mode 1 0.70, mode 2 0.056, body decay 1.12, tension 13.3 st) so that the
+  3·f0–10 kHz energy is lowest at 0 and highest at 127. Home T60 values were raised inside ±30 % to 210 ms (body)
+  and 310 ms (wire) to meet the 170–380 ms length check. The final makeup table is in the README when M4 finishes.
+- **M1 host checks**, real tail of the run:
+  ```
+  159 checks, 0 failed
+  ALL OK
+  ```
+  Hero block:
+  ```
+  PASS  9.1.1 peak -6..-0.5 dBFS: -5.19 dBFS
+  PASS  9.1.2 strongest 120-400 Hz peak is 180-215 Hz: 200.0 Hz
+  PASS  9.1.3 mode 1 >=3 st up at trig, <=0.5 st by 30 ms: trig 6.09 st, 30 ms 0.00 st
+  PASS  9.1.4 body / wire within 6 dB: +3.02 dB
+  PASS  9.1.4 air <=24 dB below wire: wire-air 8.71 dB
+  PASS  9.1.4 20-90 Hz >=15 dB below body: body-sub 33.44 dB
+  PASS  9.1.5 first 3 ms peak >=0.7 x overall: 1.00
+  PASS  9.1.6 -40 dB at 170-380 ms: 179.8 ms
+  PASS  9.1.7 80-150 ms <=22 dB below 0-30 ms: -17.65 dB
+  PASS  9.1.8 clean: max step 1.0000 FS, |mean| -72.6 dBFS, zero tail True
+  PASS  9.1.9 retrigger step <=1.2 x first onset: 0.564 x
+  PASS  9.1.10 two renders identical: identical
+  ```
+- **M1 demo**: `build/crack-demos/01-hero.wav` (32-bit PCM, 48 kHz, 900 blocks).
+- **M1 size so far**: `sizeof(cr_voice)` = **640 bytes** exactly (comb buffer included, macros 16-bit); table data
+  **566 bytes** (the generated header is 5,118 bytes of source). Code size is measured from the committed `.o` in
+  M2/M4.
 - **Branch**: `engine-crack`, created from the current `rhythmicon-v5-cloud` HEAD with the working tree's uncommitted
   state left in place. Never merged to `main`.
 - **M0 measurements** (emulator, real OS voice loop, note 60, TONE defaults color 40 / shape 38 / sweep 52 /
