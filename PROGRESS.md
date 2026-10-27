@@ -89,10 +89,10 @@ ms and cuts in 0.2 ms; PUNCH 505/46 ms; velocity 30↔127 19.31 dB, centroid 980
 22.0 ms; shaker 2 bursts; tambourine 8 bursts / 91.9 % >4 kHz; ride 1.2 s+; crash 1.5 s+ / 91.6 %; cowbell peaks
 795 and 540 Hz; reverse peak 990 ms; crushed hold 3/7; laser 1541–1609 Hz; gong 1.4–1.6 s −7.5 dB).
 
-**Emulator sample-exact:** host vs device after the OS's `>>1`:
-`hero_closed`, `hero_open`, `choke_pair`, `soft_hit`, `roll`, all 17 recipes and a machine change are identical.
-The full exact run is in `build/sheen_exact.log`; the earlier selected runs are quoted below. The test feeds the OS
-trig one block before the host script because the OS sets `v+0x38` in the following block, exactly as PUNCH reads it.
+**Emulator sample-exact:** host vs device after the OS's `>>1`: **22 cases, ALL OK** in the final run
+(`build/sheen_exact.log`): hero_closed, hero_open, choke_pair, soft_hit, roll, all 17 recipes and a machine change,
+all sample-identical. The test feeds the OS trig one block before the host script because the OS sets `v+0x38` in
+the following block, exactly as PUNCH reads it.
 
 ```
 ok    hero_closed: 9600 samples identical
@@ -101,6 +101,9 @@ ok    choke_pair: 22400 samples identical
 ok    roll: 16000 samples identical
 ok    recipe04_trap_closed: 19200 samples identical
 ok    recipe17_gong: 32000 samples identical
+ok    recipe14_reverse_cymbal: 64000 samples identical
+...
+ALL OK
 ```
 
 **CPU (real voice loop, same run): FAIL**
@@ -131,9 +134,10 @@ per-engine placement and the composer's own build. This is the same repository c
 (`--check` passes).
 
 **Builds (gitignored, contain Elektron's OS):**
-`build/sheen_OS1.13.syx`, `build/sheen-core_OS1.13.syx`, `build/sheen-all_OS1.13.syx` (feral9, punch, blast,
-sheen; 977,568 bytes). Demos in `build/sheen-demos/`: `00-groove.wav` plus all 17 recipes and the four macro
-sweeps (54 files). Hardware checklist appended to `HARDWARE-CHECKLIST.md`.
+`build/sheen_OS1.13.syx` (909,856 bytes, SHA-256 `47dd73e94be23dc5…`),
+`build/sheen-core_OS1.13.syx` (same bytes), and `build/sheen-all_OS1.13.syx` (feral9, punch, blast, sheen;
+977,568 bytes, SHA-256 `00a5c849f311ea14…`). Demos in `build/sheen-demos/`: `00-groove.wav` plus all 17 recipes
+and the four macro sweeps (54 files). Hardware checklist appended to `HARDWARE-CHECKLIST.md`.
 
 **Decisions / deviations logged**
 
@@ -170,7 +174,7 @@ sweeps (54 files). Hardware checklist appended to `HARDWARE-CHECKLIST.md`.
   **20,576 bytes**. The all-seven-carded build exceeds the shared code window by 12,292 bytes; the required
   four-engine build fits.
 - **Checks:** the combined host run is **196 checks, 1 failed**: §9.1 17/18 (roll step ratio FAIL 10.278×,
-  everything else PASS), §9.2 **131/131 PASS**, §9.3 **47/47 PASS**. §9.4 exact **all selected cases PASS**; level
+  everything else PASS), §9.2 **131/131 PASS**, §9.3 **47/47 PASS**. §9.4 exact **22/22 PASS**; level
   +1.71 dB PASS; CPU/six voices FAIL; size/code window FAIL; `test_engines.py` alone and with
   `feral9,punch,blast,sheen` PASS.
 - **Where:** branch `engine-sheen`, slot **14** (machine 13). `build/sheen_OS1.13.syx`,
