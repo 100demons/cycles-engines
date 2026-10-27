@@ -347,8 +347,9 @@ def macros():
     check("9.2 HEAT crest falls 0->96", crest[96] < crest[0],
           f"0={crest[0]:.1f}, 64={crest[64]:.1f}, 96={crest[96]:.1f} dB")
     r = h[127]
-    check("9.2 HEAT 127 crush hold 4 / bits 6", int(r.tr[1]["crush_hold"]) == 4 and int(r.tr[1]["crush_bits"]) == 6,
-          f"hold {r.tr[1]['crush_hold']}, bits {r.tr[1]['crush_bits']}")
+    rr = next(z for z in r.tr if float(z["mode1_hz"]) > 0)
+    check("9.2 HEAT 127 crush hold 4 / bits 6", int(rr["crush_hold"]) == 4 and int(rr["crush_bits"]) == 6,
+          f"hold {rr['crush_hold']}, bits {rr['crush_bits']}")
 
     # DECAY
     d = all_points_clean("decay", "decay")

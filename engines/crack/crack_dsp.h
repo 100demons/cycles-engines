@@ -41,7 +41,7 @@ typedef uint8_t u8;
 #define CR_WIRE_GAIN_Q12 2300
 #endif
 #ifndef CR_CLICK_GAIN_Q12
-#define CR_CLICK_GAIN_Q12 16000
+#define CR_CLICK_GAIN_Q12 15000
 #endif
 #ifndef CR_IN_Q12
 #define CR_IN_Q12       2867                /* sum into the heat chain */
@@ -152,10 +152,6 @@ static inline s32 cr_lut5(const s16 *t, s32 x)
 	u32 s;
 	s32 f;
 
-	if (x < 0)
-		x = 0;
-	if (x > 32766)
-		x = 32766;
 	s = (u32)x >> 13;
 	f = x & 8191;
 	return (s32)t[s] + (((s32)(t[s + 1] - t[s]) * f) >> 13);
@@ -558,8 +554,6 @@ static void cr_trig(cr_voice *v, const cr_in *in)
 	if (!v->active) {                        /* from silence: phases start at zero, buffer clean */
 		v->phase[0] = v->phase[1] = v->phase[2] = 0;
 		v->reset_inc = 1;
-		for (t = 0; t < CR_COMB; t++)
-			v->comb[t] = 0;
 		v->comb_lp = 0;
 		v->widx = 0;
 		v->ic1 = v->ic2 = 0;
@@ -1153,6 +1147,10 @@ static int cr_block(cr_voice *v, const cr_in *in, s32 *out)
 	    && v->benv[2].level == 0 && v->wenv.level == 0 && v->clap_level == 0
 	    && v->click_env == 0) {
 		v->active = 0;
+		for (i = 0; i < CR_COMB; i++)
+			v->comb[i] = 0;
+		v->comb_lp = 0;
+		v->widx = 0;
 	}
 	return 1;
 }

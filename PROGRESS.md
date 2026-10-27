@@ -49,6 +49,39 @@ every step: phase, step, what passed, what failed, what's next.
 - **M1 size so far**: `sizeof(cr_voice)` = **640 bytes** exactly (comb buffer included, macros 16-bit); table data
   **566 bytes** (the generated header is 5,118 bytes of source). Code size is measured from the committed `.o` in
   M2/M4.
+- **Milestone**: M2 (device proof) — done; M3 (all macro groups) — implemented and verified together. Next: M4.
+- **M2 device proof** (`tests/crack/test_crack_emu.py`, real OS 1.13 voice loop, Unicorn): **ALL OK**.
+  - `crack.o`: 13,784 bytes; `text` 9,048, `bss` 3,960 (six voices, 660 bytes each including the 20-byte bridge
+    input; the DSP voice alone is 640).
+  - CRACK alone at slot 11 / machine 10: payload 229,240 bytes, packed 16,240, `.syx` 906,528 bytes; MAIN OS SHA-256
+    `7179537e…f1239`. Fallback saved as `build/crack-core_OS1.13.syx` (SHA-256 `0942bdaa…c704e7`).
+  - Sample exact, host vs emulator after the OS's `>>1`: hero **0 differing samples**, rimshot **0**, ghost note
+    (velocity word 35<<8) **0**, retrigger at 40 ms **0**, machine change mid-note **0**.
+  - Level: hero RMS first 150 ms **−31.14 dBFS** vs stock SNARE **−31.86 dBFS** = **+0.72 dB** (within ±3).
+  - CPU (`count_instructions`, six voices, same run): TONE steady 33,356 (5,559/voice); CRACK steady 74,409
+    (12,402/voice), worst trig + all four knobs changing **78,295** (13,049/voice), first note after a machine change
+    104,836 (17,473/voice), idle 46,010 (7,668/voice); TONE idle 45,818.
+    **Engine cost** = active minus the same build's idle block, per voice: steady **4,733** = **0.851 × TONE**;
+    worst **5,381** = **0.968 × TONE**; silent work **192** instructions (raw idle block 46,010).
+    The hard ceiling (≤1.00 × TONE) is met; the **0.90 margin target is not met** on the worst block (0.968).
+    The raw six-voice total is much larger because the OS takes the more expensive idle voice-loop path for an
+    engine that bypasses the stock amp chain; both numbers are reported, none is hidden. First note after a machine
+    change resets the voice once (the OS owns v+0x2c until the first trig), hence the 17,473/voice first-note block.
+  - The `crack-core` build is the fallback if later packaging fails.
+- **M3 macro groups**: DECAY/GATE/velocity, SHAPE (modes, tension, PM, ring), COLOR (wires, clap), SWEEP (attack,
+  click, spike, transient), HEAT (compressor, drive/clip, tilt, fold, crush, makeup) and PUNCH rim are all in the
+  same DSP; the final §9.1–9.3 host run is **159 checks, 0 failed**. The emulator sample-exact proof above covers
+  the home voice and the control paths; the M4 run repeats it for every recipe. Decisions: the click noise is
+  band-limited by a 2-pole 10.6 kHz low-pass (the air layer carries >12 kHz), which keeps a loud click from making a
+  sample step above full scale; a ±full-scale final slew guard makes §9.1 #8 exact; velocity is applied after the
+  compressor (the envelope still sees velocity); PUNCH lengthens the click 5× (12.5 ms) to clear the §9.2 +2 dB
+  >3 kHz check; SHAPE 0 and the home T60 values were tuned inside the allowed ±30 %; the HEAT makeup table now
+  lifts HEAT 0 and trims HEAT 96 so the 150 ms RMS stays within ±3 dB of the hero.
+- **M3 host tail**: `159 checks, 0 failed / ALL OK`.
+- **Next**: M4 — README/card/CHANGELOG/LICENSE, 16 recipe demos and macro sweeps, slot 11 in `engines/slots.json`,
+  catalog, the four repository tests, the two final builds and the hardware checklist. Note for the owner: this
+  branch's `slots.json` ends at slot 10, so CRACK takes **11**. The shared working tree has uncommitted rings /
+  ultraferal / feraldrum packages at 11–13; when merging onto that tree CRACK must take **14** instead.
 - **Branch**: `engine-crack`, created from the current `rhythmicon-v5-cloud` HEAD with the working tree's uncommitted
   state left in place. Never merged to `main`.
 - **M0 measurements** (emulator, real OS voice loop, note 60, TONE defaults color 40 / shape 38 / sweep 52 /

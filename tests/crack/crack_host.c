@@ -39,6 +39,12 @@
 static int ev_trig[MAX_EVENTS], ev_end[MAX_EVENTS], ev_reset[MAX_EVENTS];
 static int n_trig, n_end, n_reset;
 
+static s32 knob(s32 x)
+{
+	x = x < 0 ? 0 : (x > 0x7f00 ? 0x7f00 : x);
+	return x + (x >> 7);
+}
+
 static int in_list(const int *v, int n, int lo, int hi)
 {
 	int i;
@@ -125,7 +131,7 @@ int main(int argc, char **argv)
 	FILE *ft = NULL;
 	int blocks = 400, note = 60, pitch = 64, fine = 64, color = 64, shape = 64;
 	int sweep = 64, contour = 64, decay = 40, punch = 0, gate = 0, vel = 100, seed = 0;
-	int b, i;
+	int b, i, trig_pending = 0;
 	long n = 0, cap = 0;
 	FILE *fs;
 	char line[512];
@@ -222,12 +228,17 @@ int main(int argc, char **argv)
 		return 2;
 	}
 
-	in.note = (note << 16) + ((pitch - 64) << 16) + ((fine - 64) << 11);
-	in.color = (s16)(color * 256);
-	in.shape = (s16)(shape * 256);
-	in.sweep = (s16)(sweep * 256);
-	in.contour = (s16)(contour * 256);
-	in.decay = (s16)(decay * 256);
+	{
+		s32 pm = note << 16;
+
+		pm = pm < 0 ? 0 : (pm > (127 << 16) ? 127 << 16 : pm);
+		in.note = pm + ((pitch - 64) << 16) + ((fine - 64) << 11);
+	}
+	in.color = (s16)knob(color * 256);
+	in.shape = (s16)knob(shape * 256);
+	in.sweep = (s16)knob(sweep * 256);
+	in.contour = (s16)knob(contour * 256);
+	in.decay = (s16)knob(decay * 256);
 	in.punch = (u8)(punch != 0);
 	in.gate = (u8)(gate != 0);
 	in.vel = (u8)(vel < 0 ? 0 : (vel > 127 ? 127 : vel));
@@ -250,7 +261,13 @@ int main(int argc, char **argv)
 			cr_reset(&v, (u8)seed);
 			in.vel = (u8)(vel < 0 ? 0 : (vel > 127 ? 127 : vel));
 		}
-		in.trig = (u8)in_list(ev_trig, n_trig, lo, hi);
+		{
+			int tn = in_list(ev_trig, n_trig, lo, hi);
+
+			/* the OS puts the trig at v+0x38, i.e. one block after the trig mask; mimic it */
+			in.trig = (u8)trig_pending;
+			trig_pending = tn;
+		}
 		in.end = (u8)in_list(ev_end, n_end, lo, hi);
 		cr_block(&v, &in, out);
 		for (i = 0; i < 32; i++)

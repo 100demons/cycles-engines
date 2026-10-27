@@ -1,0 +1,147 @@
+{
+ "schema": "cycles-mod/0.1",
+ "id": "crack",
+ "version": "0.1",
+ "name": "CRACK machine: hybrid-rate snare / drum engine",
+ "description": "One added machine: a hybrid-rate drum voice. Three sine modes with two pitch envelopes, a TPT-filtered noise snare with head-coupled rattle and clap bursts, a tuned comb ring, and a 24 kHz heat chain, with a full-rate click and air layer above 12 kHz. The four knobs are Wires, Body, Snap and Heat; PUNCH is a rimshot, GATE sustains, DECAY is the engine's own envelope time.",
+ "license": "MIT",
+ "credit": {
+  "kind": "own",
+  "who": "100demons"
+ },
+ "source": "engines/crack",
+ "device": "Model:Cycles",
+ "os": "1.13",
+ "order": 28,
+ "build": {
+  "sources": [
+   "crack.c"
+  ],
+  "include": [
+   "."
+  ],
+  "cflags": [
+   "-mcpu=54418",
+   "-Os",
+   "-malign-int",
+   "-U_FORTIFY_SOURCE",
+   "-ffreestanding",
+   "-fno-builtin",
+   "-fno-tree-loop-distribute-patterns",
+   "-nostdlib",
+   "-fno-pic",
+   "-fno-common",
+   "-ffunction-sections",
+   "-fdata-sections",
+   "-fomit-frame-pointer",
+   "-fno-asynchronous-unwind-tables",
+   "-fno-unwind-tables",
+   "-fmerge-all-constants",
+   "-fno-inline-functions-called-once",
+   "-Wall",
+   "-Wextra",
+   "-Werror"
+  ],
+  "defines": {},
+  "objects": [
+   "crack.o"
+  ],
+  "patch_points": [],
+  "symbols": {
+   "update": "crack_update",
+   "render": "crack_render"
+  },
+  "keep": []
+ },
+ "uses": [
+  {
+   "point": "machine",
+   "name": "CRACK",
+   "image": 1,
+   "decay_default": 40,
+   "knobs": [
+    {
+     "long": "Wires",
+     "short": "WIRE",
+     "default": 64
+    },
+    {
+     "long": "Body",
+     "short": "BODY",
+     "default": 64
+    },
+    {
+     "long": "Snap",
+     "short": "SNAP",
+     "default": 64
+    },
+    {
+     "long": "Heat",
+     "short": "HEAT",
+     "default": 64
+    }
+   ]
+  }
+ ],
+ "claims": {
+  "sound_slots": [],
+  "record_slots": [],
+  "ram": [],
+  "formatters": [],
+  "gestures": [],
+  "views": []
+ },
+ "cost": {
+  "emulation": {
+   "tool": "tests/crack/test_crack_emu.py (Unicorn OS 1.13 voice loop)",
+   "date": "2026-10-26",
+   "build": "CRACK alone, slot 11 / machine 10",
+   "per_voice": {
+    "worst": 5381,
+    "steady": 4733,
+    "idle": 7668,
+    "first_note": 17473
+   },
+   "reference": {
+    "TONE": 5559
+   },
+   "ratio": {
+    "worst": 0.968,
+    "steady": 0.851,
+    "raw_worst": 2.347
+   },
+   "note": "Engine cost = active six-voice block minus the same build idle six-voice block, divided by six. Worst = trig with all four knobs changing on that block (hard ceiling <=1.00 x TONE met; margin target 0.90 x not met). Steady = 0.851 x. Raw six-voice blocks: CRACK worst 78,295 / steady 74,409 / idle 46,010 vs TONE steady 33,356; the raw total includes the OS six-voice loop and is not the engine-code comparison. First note after a machine change costs 17,473/voice once (the OS still owns v+0x2c until the first trig, so the bridge resets the voice once)."
+  },
+  "device": {
+   "status": "not measured"
+  }
+ },
+ "stock_behaviour": {
+  "changes": [],
+  "fixes": [],
+  "unchanged": [
+   "the six stock machines",
+   "every track that does not use CRACK"
+  ]
+ },
+ "compat": {
+  "built_against": [
+   "modded-cycles"
+  ],
+  "requires": [],
+  "conflicts_declared": []
+ },
+ "tests": {
+  "emulation": {
+   "tool": "tests/crack/test_crack_emu.py (voice loop, Unicorn)",
+   "date": null,
+   "build": null
+  },
+  "hardware": {
+   "date": null,
+   "by": null,
+   "build": null
+  },
+  "status": "experimental"
+ }
+}
