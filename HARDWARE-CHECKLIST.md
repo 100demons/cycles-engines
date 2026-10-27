@@ -86,5 +86,6 @@ also in the build. **Not hardware-tested.** The emulator checks are listed in `P
 - [ ] The six stock machines still work as before, sample for sample.
 - [ ] Report the CPU feel: if six tracks of CRACK strain the device more than six TONE tracks, say so. The
       emulator engine-cost ratio is **0.606× TONE steady** and **0.713× TONE on the worst trig block**; the 0.90×
-      margin target is met in emulation. The first note after a machine change is heavier once (1.464×); steady
-      play is the 0.606× figure.
+      margin target is met on that measure. **The raw six-voice block is 2.09× TONE** because of the OS loop path,
+      so this is the most important thing to judge by ear/feel on hardware. The first note after a machine change
+      is heavier once (1.464×); steady play is the 0.606× figure.

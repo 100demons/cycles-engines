@@ -107,9 +107,12 @@ every step: phase, step, what passed, what failed, what's next.
     process was stopped after 4 cases), so it was run in two focused batches: the first 10 recipes (hero, rimshot,
     ghost, trap clap-snare, 808, 909, brush, gated 80s, kick, tom) and then the remaining 5 (clap, metal hat,
     metal hit, zap, crushed) plus the sustained bass. **All 16 recipes: 0 differing samples.**
-- **Cut ladder**: **none applied.** The hard ceiling (≤1.00× TONE) is met on the defined worst block (0.713×), so
-  the ladder's trigger (over 1.00×) was not reached; the 0.90 margin target is also met. The one size target miss
-  is code+tables (11,564 bytes vs the 6 KB target); the image budget is fine.
+- **Cut ladder**: **not applied.** The engine's own code is 0.713× TONE worst / 0.606× steady, under both the 0.90
+  target and the 1.00 hard ceiling, so the ladder was not triggered on the engine-code measure. The **raw six-voice
+  block is 2.09× TONE** (69,799 vs 33,356) because the OS voice loop takes the expensive idle path for an engine that
+  bypasses the stock amp chain; that overhead is in the OS, not in the engine, and cutting engine features would not
+  remove it (the idle floor is 45,842 raw). The one size target miss is code+tables (11,564 bytes vs the 6 KB
+  target); the image budget is fine. This is reported as a raw-CPU FAIL in §9.4.3/9.4.5 below, not hidden.
 - **M4 hardware checklist**: appended to `HARDWARE-CHECKLIST.md` (flash, hero at home, PUNCH p-locked, velocity
   from the pads, GATE long note, six CRACK tracks, 16 recipes by ear, save/reload, stock machines). **Not
   hardware-tested.**
@@ -158,9 +161,9 @@ measurements, printed by the test. Size: `crack.o` 16,228 bytes, text 11,560, BS
 | 9.3 all 16 recipes | PASS | clean, RMS > −40; kick 50 Hz, clap 7 bursts, hat −0.87 dB, zap 35.3 st, bass 0.000 st / 48 Hz |
 | 9.4.1 emulator dispatch/sound/stock | PASS | `test_engines.py` both selections ALL OK |
 | 9.4.2 sample exact | PASS | 0 differing samples: hero, rim, ghost, retrigger, machine change; all 16 recipes in two focused runs |
-| 9.4.3 CPU | PASS | worst 0.713× TONE, steady 0.606× (target 0.90× met) |
+| 9.4.3 CPU | **FAIL on the raw total; PASS on engine cost** | raw worst 69,799 = 2.09× TONE (33,356); engine cost 3,965/voice = 0.713× TONE, steady 3,368 = 0.606× |
 | 9.4.4 level | PASS | +0.72 dB |
-| 9.4.5 six voices | PASS | engine cost 23,789 vs six TONE 33,356 (0.713×) |
+| 9.4.5 six voices | **FAIL on the raw total; PASS on engine cost** | raw 69,799 vs six TONE 33,356 (2.09×); engine cost 23,789 vs 33,356 (0.713×) |
 | 9.4.6 size | PASS | 11,564 code+tables, 3,960 variables, 18,752 image |
 
 ### Final macro tables
@@ -184,10 +187,13 @@ the §9.1 hero checks (all pass), every §9.2 macro point (all pass), all 16 rec
 vs device code for the hero, rimshot, ghost note, retrigger, machine change and every recipe (0 differing
 samples; the 16 recipe comparisons were run in two focused batches because one Unicorn process is very slow),
 the six stock machines unchanged, the composed builds booting and every installed engine dispatching, the image
-budget, and the CPU instruction counts. The CPU hard ceiling and the 0.90 margin target are met (0.713× TONE
-worst, 0.606× steady). The first note after a machine change costs more once (the bridge resets the voice because
-the OS owns v+0x2c until the first trig); steady play is the 0.606× figure. Code+tables are 11,564 bytes: the
-6 KB code target is **not** met (the hard 344 KB image budget is).
+budget, and the CPU instruction counts. On the **engine-cost** measure both the 0.90 target and the 1.00 hard
+ceiling are met (0.713× TONE worst, 0.606× steady). On the **raw six-voice block** the check is a **FAIL**: 69,799
+vs TONE 33,356 (2.09×), because the OS voice loop takes the expensive idle path for an engine that bypasses the
+stock amp chain; the idle floor alone is 45,842 raw. Cutting engine features cannot remove that OS overhead. The
+first note after a machine change costs more once (the bridge resets the voice because the OS owns v+0x2c until
+the first trig). Code+tables are 11,564 bytes: the 6 KB code target is **not** met (the hard 344 KB image budget
+is). Hardware was not tested.
 
 **What was not tested.** Hardware. Nothing in this report is hardware-tested. The owner checklist is in
 `HARDWARE-CHECKLIST.md`. The default macOS SDK link is broken in this environment (`tapi error`); the host tests
