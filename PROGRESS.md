@@ -177,6 +177,11 @@ and the four macro sweeps (54 files). Hardware checklist appended to `HARDWARE-C
   everything else PASS), §9.2 **131/131 PASS**, §9.3 **47/47 PASS**. §9.4 exact **22/22 PASS**; level
   +1.71 dB PASS; CPU/six voices FAIL; size/code window FAIL; `test_engines.py` alone and with
   `feral9,punch,blast,sheen` PASS.
+- **§9.1 detail:** #1 peak −4.54 dBFS PASS; #2 92.1 % >5 kHz, −25.48 dB (100–1 k vs 6–11 k), −10.41 dB
+  (2–4.5 k) PASS; #3 air −5.08 dB PASS; #4 peak 0.02 ms PASS; #5 length 46.4 ms PASS; #6 round robin 0.888 /
+  0.01 dB PASS; #7 open length 504.8 ms PASS; #8 bloom −1.92 dB PASS; #9 centroid 10851→10197 Hz PASS; #10 open
+  81.6 % and −20.69 dB PASS; #11 choke 28.57 dB PASS; #12 peaks 0 dips PASS, step 10.278× **FAIL**; #13 clean
+  PASS; #14 deterministic PASS.
 - **Where:** branch `engine-sheen`, slot **14** (machine 13). `build/sheen_OS1.13.syx`,
   `build/sheen-core_OS1.13.syx`, `build/sheen-all_OS1.13.syx`; `build/sheen-demos/00-groove.wav` then the 17
   recipes and macro sweeps. Hardware checklist appended.
