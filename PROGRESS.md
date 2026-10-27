@@ -3,6 +3,31 @@
 How a long run resumes after an interruption. Read ARCHITECTURE.md first, then this file. Keep it up to date after
 every step: phase, step, what passed, what failed, what's next.
 
+## SHEEN — hybrid-rate hi-hat / metal percussion engine (branch `engine-sheen`)
+
+- **Milestone**: M0 (setup) — done. Next: M1 (hero pair on the host).
+- **Branch**: `engine-sheen`, created from the `engine-crack` working tree. CRACK's uncommitted files are left
+  untouched; only SHEEN's files, this section and the shared files named in the spec are committed.
+- **M0 environment (verified)**: m68k-elf-gcc 16.2.0 at `~/m68k-elf-16.2/bin`; python 3.12.8, numpy 2.5.4,
+  unicorn 2.1.4; node v24.22.1; official OS SHA-256 `44fe5862…640c`.
+- **M0 measurements** (real OS voice loop, Unicorn, note 60, TONE defaults color 40 / shape 38 / sweep 52 / contour 42
+  / decay 42, track soloed, same run):
+  - TONE trig block **8,982** instructions; steady blocks **7,403** then **6,901**, **6,901**, **6,901**, **6,901**.
+  - Ceiling: **TONE steady 6,901** instructions/block; target ≤ 0.90 × = **6,211**.
+  - Stock METAL peak (all knobs 64, DECAY 40, note 60): raw **522,540,549** = **−6.26 dBFS** with full scale
+    `1 << 30` (the OS's halved output domain), i.e. −12.28 dBFS if `1 << 31` is called full scale. RMS 0–100 ms
+    **−19.01 dBFS** (FS `1 << 30`).
+- **M0 decisions logged**:
+  - Host and emulator are compared in the OS's halved domain: the host renderer applies `>> 1` to the DSP's Q31, and
+    0 dBFS is `1 << 30` there. Tests state this.
+  - **Slot**: `engines/slots.json` on this branch has rings = 11, ultraferal = 12, feraldrum = 13. The spec reserves
+    11 for CRACK and says SHEEN is 12 "unless something else has taken it"; 12 and 13 are taken, so SHEEN will be
+    appended at **slot 14 / machine 13** in M4.
+  - **MACRO table format**: five breakpoints in the knob's 0..32766 domain, linear interpolation; frequencies,
+    times and log-domain values stored as `log2` Q8, levels Q15, ratios Q12. Envelope times and macro outputs are
+    16-bit as required.
+- **M0 checks**: SPEC moved to `engines/sheen/SPEC.md`. Nothing hardware-tested (nothing is, at any point).
+
 ## CRACK — hybrid-rate drum engine (branch `engine-crack`)
 
 - **Milestone**: M0 (setup) — done. Next: M1 (hero on the host).
