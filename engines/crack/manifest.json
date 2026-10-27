@@ -97,22 +97,22 @@
    "date": "2026-10-26",
    "build": "CRACK alone, slot 11 / machine 10",
    "per_voice": {
-    "worst": 5381,
-    "steady": 4733,
+    "worst": 3965,
+    "steady": 3368,
     "idle": 7668,
-    "first_note": 17473,
-    "max": 5381,
-    "min": 4733
+    "first_note": 15777,
+    "max": 3965,
+    "min": 3368
    },
    "reference": {
     "TONE": 5559
    },
    "ratio": {
-    "worst": 0.968,
-    "steady": 0.851,
-    "raw_worst": 2.347
+    "worst": 0.713,
+    "steady": 0.606,
+    "raw_worst": 2.093
    },
-   "note": "Engine cost = active six-voice block minus the same build idle six-voice block, divided by six. Worst = trig with all four knobs changing on that block (hard ceiling <=1.00 x TONE met; margin target 0.90 x not met). Steady = 0.851 x. Raw six-voice blocks: CRACK worst 78,295 / steady 74,409 / idle 46,010 vs TONE steady 33,356; the raw total includes the OS six-voice loop and is not the engine-code comparison. First note after a machine change costs 17,473/voice once (the OS still owns v+0x2c until the first trig, so the bridge resets the voice once)."
+   "note": "Engine cost = active six-voice block minus the same build idle six-voice block, divided by six. Worst = trig with all four knobs changing on that block: 3,965/voice = 0.713 x TONE (target 0.90 met). Steady = 3,368/voice = 0.606 x. Raw six-voice blocks: CRACK worst 69,799 / steady 66,219 / idle 46,010 vs TONE steady 33,356; the raw total includes the OS six-voice loop. First note after a machine change costs 15,777/voice once (the OS owns v+0x2c until the first trig, so the bridge resets once)."
   },
   "device": {
    "status": "not measured"

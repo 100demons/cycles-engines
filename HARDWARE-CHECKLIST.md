@@ -85,5 +85,6 @@ also in the build. **Not hardware-tested.** The emulator checks are listed in `P
       same slot.
 - [ ] The six stock machines still work as before, sample for sample.
 - [ ] Report the CPU feel: if six tracks of CRACK strain the device more than six TONE tracks, say so. The
-      emulator engine-cost ratio is 0.851× TONE steady and 0.968× TONE on the worst trig block; the margin target
-      0.90× is not met on the worst block.
+      emulator engine-cost ratio is **0.606× TONE steady** and **0.713× TONE on the worst trig block**; the 0.90×
+      margin target is met in emulation. The first note after a machine change is heavier once (1.464×); steady
+      play is the 0.606× figure.

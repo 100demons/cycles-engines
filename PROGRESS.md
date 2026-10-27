@@ -50,7 +50,8 @@ every step: phase, step, what passed, what failed, what's next.
   **566 bytes** (the generated header is 5,118 bytes of source). Code size is measured from the committed `.o` in
   M2/M4.
 - **Milestone**: M2 (device proof) — done; M3 (all macro groups) — implemented and verified together. Next: M4.
-- **M2 device proof** (`tests/crack/test_crack_emu.py`, real OS 1.13 voice loop, Unicorn): **ALL OK**.
+- **M2 device proof** (`tests/crack/test_crack_emu.py`, real OS 1.13 voice loop, Unicorn): **ALL OK**. These are the
+  M2 **pre-inlining** numbers; the final M4 numbers, size and builds are in the M4 section below.
   - `crack.o`: 13,784 bytes; `text` 9,048, `bss` 3,960 (six voices, 660 bytes each including the 20-byte bridge
     input; the DSP voice alone is 640).
   - CRACK alone at slot 11 / machine 10: payload 229,240 bytes, packed 16,240, `.syx` 906,528 bytes; MAIN OS SHA-256
@@ -67,7 +68,7 @@ every step: phase, step, what passed, what failed, what's next.
     The raw six-voice total is much larger because the OS takes the more expensive idle voice-loop path for an
     engine that bypasses the stock amp chain; both numbers are reported, none is hidden. First note after a machine
     change resets the voice once (the OS owns v+0x2c until the first trig), hence the 17,473/voice first-note block.
-  - The `crack-core` build is the fallback if later packaging fails.
+  - The `crack-core` build is the fallback if later packaging fails. It was rebuilt with the final M4 object below.
 - **M3 macro groups**: DECAY/GATE/velocity, SHAPE (modes, tension, PM, ring), COLOR (wires, clap), SWEEP (attack,
   click, spike, transient), HEAT (compressor, drive/clip, tilt, fold, crush, makeup) and PUNCH rim are all in the
   same DSP; the final §9.1–9.3 host run is **159 checks, 0 failed**. The emulator sample-exact proof above covers
@@ -87,17 +88,16 @@ every step: phase, step, what passed, what failed, what's next.
   (`01-hero-snare` … `16-sustained-bass`) and the macro sweeps `macro-{wires,body,snap,heat}-{000,032,064,096,127}`
   plus `macro-decay-{000,040,064,100,115}`. Not committed (build/ is gitignored).
 - **M4 builds** (both contain Elektron's OS; never committed):
-  - `build/crack_OS1.13.syx` — 906,528 bytes, `.syx` SHA-256 `0942bdaa…c704e7`, MAIN OS SHA-256 `7179537e…f1239`,
-    payload packed 16,240 bytes. CRACK alone at slot 11 / machine 10 (slots 7–10 are the silent placeholders).
-  - `build/crack-all_OS1.13.syx` — 974,240 bytes, `.syx` SHA-256 `0ba2865a…3863d`, MAIN OS SHA-256
-    `b5d96989…f1dd`, payload packed 86,360 bytes. Feral 7, PUNCH 8, BLAST 9, CRACK 11 (slot 10 is `----`).
-  - `build/crack-core_OS1.13.syx` — the M2 fallback, byte-identical to `crack_OS1.13.syx`
-    (`0942bdaa…c704e7`).
+  - `build/crack_OS1.13.syx` — 908,064 bytes, `.syx` SHA-256 `995e0272…4349`, MAIN OS SHA-256 `d8883247…073a`,
+    payload packed 18,752 bytes. CRACK alone at slot 11 / machine 10 (slots 7–10 are the silent placeholders).
+  - `build/crack-all_OS1.13.syx` — 975,776 bytes, `.syx` SHA-256 `b58fd347…4655`, MAIN OS SHA-256
+    `d47d10f5…1371`, payload packed 88,872 bytes. Feral 7, PUNCH 8, BLAST 9, CRACK 11 (slot 10 is `----`).
+  - `build/crack-core_OS1.13.syx` — the fallback, byte-identical to `crack_OS1.13.syx` (`995e0272…4349`).
 - **M4 repository tests** (all run, real output in the logs):
   - `tests/test_equivalence.py firmware/model-cycles_OS1.13.syx`: **PASS** (every package placed, every selection
     including CRACK byte-identical, fill 16/16).
-  - `tests/test_size_cpu.py firmware/model-cycles_OS1.13.syx`: **PASS**. CRACK code+tables **9,052**, variables
-    **3,960**, image added **16,240**; all four carded engines together 86,360 / 351,936 (24.5%).
+  - `tests/test_size_cpu.py firmware/model-cycles_OS1.13.syx`: **PASS**. CRACK code+tables **11,564**, variables
+    **3,960**, image added **18,752**; all four carded engines together 88,872 / 351,936 (25.3%).
   - `tests/emu/test_engines.py --machines crack --blocks 8`: **ALL OK**.
   - `tests/emu/test_engines.py --machines feral9,punch,blast,crack --blocks 8`: **ALL OK** (all four dispatch and
     sound; stock SNARE/KICK sample-identical).
@@ -107,9 +107,9 @@ every step: phase, step, what passed, what failed, what's next.
     process was stopped after 4 cases), so it was run in two focused batches: the first 10 recipes (hero, rimshot,
     ghost, trap clap-snare, 808, 909, brush, gated 80s, kick, tom) and then the remaining 5 (clap, metal hat,
     metal hit, zap, crushed) plus the sustained bass. **All 16 recipes: 0 differing samples.**
-- **Cut ladder**: **none applied.** The hard ceiling (≤1.00× TONE) is met on the defined worst block (0.968×), so
-  the ladder's trigger (over 1.00×) was not reached. The 0.90 margin target is **not met** on the worst block;
-  the steady block is 0.851×. This is the one target miss in the engine.
+- **Cut ladder**: **none applied.** The hard ceiling (≤1.00× TONE) is met on the defined worst block (0.713×), so
+  the ladder's trigger (over 1.00×) was not reached; the 0.90 margin target is also met. The one size target miss
+  is code+tables (11,564 bytes vs the 6 KB target); the image budget is fine.
 - **M4 hardware checklist**: appended to `HARDWARE-CHECKLIST.md` (flash, hero at home, PUNCH p-locked, velocity
   from the pads, GATE long note, six CRACK tracks, 16 recipes by ear, save/reload, stock machines). **Not
   hardware-tested.**
@@ -120,36 +120,36 @@ every step: phase, step, what passed, what failed, what's next.
 |---|---|---|---|---|
 | TONE steady (reference) | 33,356 | 5,559 | — | — |
 | TONE idle | 45,818 | 7,636 | — | — |
-| CRACK steady | 74,409 | 12,402 | 4,733 | **0.851×** |
-| CRACK worst (trig + all four knobs changing) | 78,295 | 13,049 | 5,381 | **0.968×** |
-| CRACK first note after a machine change | 104,836 | 17,473 | 10,380 | 1.867× (one-time reset) |
+| CRACK steady | 66,219 | 11,036 | 3,368 | **0.606×** |
+| CRACK worst (trig + all four knobs changing) | 69,799 | 11,633 | 3,965 | **0.713×** |
+| CRACK first note after a machine change | 94,660 | 15,777 | 8,136 | 1.464× (one-time reset) |
 | CRACK silent | 46,010 | 7,668 | 0 (192 above TONE idle) | — |
-| six CRACK voices, engine cost | — | — | 32,285 | 0.968× (six TONE 33,356) |
+| six CRACK voices, engine cost | — | — | 23,789 | 0.713× (six TONE 33,356) |
 
 The raw six-voice total is larger than TONE because the OS voice loop takes the more expensive idle path for an
 engine that bypasses the stock amp chain; the engine-code comparison is the "engine cost" column. Both are real
-measurements, printed by the test. Size: `crack.o` 13,784 bytes, text 9,048, BSS 3,960 (660 bytes per track:
-640 DSP voice + 20 bridge input); tables 566 bytes; `sizeof(cr_voice)` = 640.
+measurements, printed by the test. Size: `crack.o` 16,228 bytes, text 11,560, BSS 3,960 (660 bytes per track:
+640 DSP voice + 20 bridge input); tables 566 bytes; code+tables 11,564; `sizeof(cr_voice)` = 640.
 
 ### §9 final checklist (real measured value)
 
 | check | result | value |
 |---|---|---|
-| 9.1.1 peak / emulator RMS vs SNARE | PASS | −5.19 dBFS host; −31.14 vs −31.86 dBFS (+0.72 dB) |
+| 9.1.1 peak / emulator RMS vs SNARE | PASS | −5.58 dBFS host; −31.14 vs −31.86 dBFS (+0.72 dB) |
 | 9.1.2 pitch 180–215 Hz | PASS | 200.0 Hz |
 | 9.1.3 crack trace | PASS | +6.14 st at trig, 0.00 st by 30 ms |
 | 9.1.4 body/wire ±6 dB | PASS | +3.17 dB |
 | 9.1.4 air ≤24 dB below wire | PASS | 8.71 dB |
 | 9.1.4 20–90 Hz ≥15 dB below body | PASS | 33.23 dB |
 | 9.1.5 first 3 ms ≥0.7× peak | PASS | 1.00 |
-| 9.1.6 −40 dB at 170–380 ms | PASS | 179.8 ms |
-| 9.1.7 80–150 ms ≤22 dB below 0–30 | PASS | −17.62 dB |
-| 9.1.8 clean (step/mean/zero) | PASS | 1.0000 FS, −72.5 dBFS, zero tail |
-| 9.1.9 retrigger step ≤1.2× | PASS | 0.566× |
+| 9.1.6 −40 dB at 170–380 ms | PASS | 179.9 ms |
+| 9.1.7 80–150 ms ≤22 dB below 0–30 | PASS | −17.55 dB |
+| 9.1.8 clean (step/mean/zero) | PASS | 0.9501 FS, −72.5 dBFS, zero tail |
+| 9.1.9 retrigger step ≤1.2× | PASS | 0.555× |
 | 9.1.10 deterministic | PASS | identical |
-| 9.2 COLOR | PASS | ratios −44.5 → 6.4 dB; 6 clap bursts |
-| 9.2 SHAPE | PASS | 6.0 / 9.5 / 45.8 dB at 0/64/127; tension 11.99 → 0.41 st |
-| 9.2 SWEEP | PASS | onset/tail −22.27 → −8.29 dB; 34.6 st at 127 |
+| 9.2 COLOR | PASS | ratios −44.2 → 6.5 dB; 6 clap bursts |
+| 9.2 SHAPE | PASS | 5.9 / 9.8 / 43.1 dB at 0/64/127; tension 11.99 → 0.38 st |
+| 9.2 SWEEP | PASS | onset/tail −22.22 → −8.31 dB; 35.3 st at 127 |
 | 9.2 HEAT | PASS | RMS −0.8…+2.3 dB; crest 20.4 → 19.2 dB; crush 4/6 |
 | 9.2 DECAY | PASS | −40 dB 18 → 553 ms; holds 71/283/449 ms, fades 1.3 ms |
 | 9.2 PUNCH | PASS | +3.22 dB >3 kHz in 20 ms |
@@ -158,10 +158,10 @@ measurements, printed by the test. Size: `crack.o` 13,784 bytes, text 9,048, BSS
 | 9.3 all 16 recipes | PASS | clean, RMS > −40; kick 50 Hz, clap 7 bursts, hat −0.87 dB, zap 35.3 st, bass 0.000 st / 48 Hz |
 | 9.4.1 emulator dispatch/sound/stock | PASS | `test_engines.py` both selections ALL OK |
 | 9.4.2 sample exact | PASS | 0 differing samples: hero, rim, ghost, retrigger, machine change; all 16 recipes in two focused runs |
-| 9.4.3 CPU | PASS on hard ceiling | worst 0.968× TONE (target 0.90× not met) |
+| 9.4.3 CPU | PASS | worst 0.713× TONE, steady 0.606× (target 0.90× met) |
 | 9.4.4 level | PASS | +0.72 dB |
-| 9.4.5 six voices | PASS | engine cost 32,285 vs six TONE 33,356 (0.968×) |
-| 9.4.6 size | PASS | 9,052 code+tables, 3,960 variables, 16,240 image |
+| 9.4.5 six voices | PASS | engine cost 23,789 vs six TONE 33,356 (0.713×) |
+| 9.4.6 size | PASS | 11,564 code+tables, 3,960 variables, 18,752 image |
 
 ### Final macro tables
 
@@ -184,9 +184,10 @@ the §9.1 hero checks (all pass), every §9.2 macro point (all pass), all 16 rec
 vs device code for the hero, rimshot, ghost note, retrigger, machine change and every recipe (0 differing
 samples; the 16 recipe comparisons were run in two focused batches because one Unicorn process is very slow),
 the six stock machines unchanged, the composed builds booting and every installed engine dispatching, the image
-budget, and the CPU instruction counts. The CPU hard ceiling is met (0.968× TONE worst, 0.851× steady);
-the 0.90 margin target is **not** met on the worst block. The first note after a machine change costs more once
-(the bridge resets the voice because the OS owns v+0x2c until the first trig); steady play is the 0.851× figure.
+budget, and the CPU instruction counts. The CPU hard ceiling and the 0.90 margin target are met (0.713× TONE
+worst, 0.606× steady). The first note after a machine change costs more once (the bridge resets the voice because
+the OS owns v+0x2c until the first trig); steady play is the 0.606× figure. Code+tables are 11,564 bytes: the
+6 KB code target is **not** met (the hard 344 KB image budget is).
 
 **What was not tested.** Hardware. Nothing in this report is hardware-tested. The owner checklist is in
 `HARDWARE-CHECKLIST.md`. The default macOS SDK link is broken in this environment (`tapi error`); the host tests

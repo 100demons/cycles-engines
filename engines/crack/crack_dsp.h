@@ -26,6 +26,12 @@ typedef uint8_t u8;
 
 #include "crack_tables.h"
 
+#if defined(__GNUC__)
+#define CR_AI static inline __attribute__((always_inline))
+#else
+#define CR_AI static inline
+#endif
+
 #define CR_BLOCK        16                  /* core samples per 32-frame block (24 kHz) */
 #define CR_COMB         128                 /* ring delay buffer, samples */
 #define CR_TRANSPOSE_OFF (5 << 16)          /* f0 = note + PITCH + FINE - 5 semitones (55 -> 196 Hz) */
@@ -136,18 +142,18 @@ typedef struct {
 /* ------------------------------------------------------------------------------------------------------------
  * Small integer helpers
  */
-static inline s32 cr_clamp(s32 x, s32 lo, s32 hi)
+CR_AI s32 cr_clamp(s32 x, s32 lo, s32 hi)
 {
 	return x < lo ? lo : (x > hi ? hi : x);
 }
 
-static inline s32 cr_abs(s32 x)
+CR_AI s32 cr_abs(s32 x)
 {
 	return x < 0 ? -x : x;
 }
 
 /* piecewise-linear over the five knob breakpoints (x is 0 .. 32766, 8.8) */
-static inline s32 cr_lut5(const s16 *t, s32 x)
+CR_AI s32 cr_lut5(const s16 *t, s32 x)
 {
 	u32 s;
 	s32 f;
@@ -176,7 +182,7 @@ static inline s32 cr_decay_lut(const s16 *t, s32 x)
 }
 
 /* 2^l, where l is log2 in Q8; result Q15 (32768 = 1.0) */
-static inline s32 cr_exp2_q8(s32 l)
+CR_AI s32 cr_exp2_q8(s32 l)
 {
 	s32 i, f, v;
 
@@ -236,7 +242,7 @@ static inline u32 cr_phase_inc(s32 note)
 }
 
 /* parabolic sine, Q15 (same shape as refmachine.c) */
-static inline s32 cr_sine(u32 ph)
+CR_AI s32 cr_sine(u32 ph)
 {
 	u32 p = ph >> 16;
 	s32 x = (s32)(p & 0x7fff);
@@ -246,7 +252,7 @@ static inline s32 cr_sine(u32 ph)
 }
 
 /* triangle fold around +-32768, period 4 * 32768 (mask, no division) */
-static inline s32 cr_out_slew(cr_voice *v, s32 x)
+CR_AI s32 cr_out_slew(cr_voice *v, s32 x)
 {
 	if (x - (s32)v->last_out > 32767)
 		x = (s32)v->last_out + 32767;
@@ -256,7 +262,7 @@ static inline s32 cr_out_slew(cr_voice *v, s32 x)
 	return x;
 }
 
-static inline s32 cr_fold(s32 x)
+CR_AI s32 cr_fold(s32 x)
 {
 	u32 a = (u32)cr_abs(x) & 0x1ffffu;
 
@@ -325,7 +331,7 @@ static inline void cr_env_block(cr_env *e, s32 mul, u8 holdable, u8 gate)
 		e->step = -1;
 }
 
-static inline void cr_env_advance(cr_env *e, s32 n)
+CR_AI void cr_env_advance(cr_env *e, s32 n)
 {
 	s32 l;
 
@@ -341,7 +347,7 @@ static inline void cr_env_advance(cr_env *e, s32 n)
 	e->level = (s16)l;
 }
 
-static inline s32 cr_env_sample(cr_env *e)
+CR_AI s32 cr_env_sample(cr_env *e)
 {
 	s32 l = (s32)e->level + e->step;
 

@@ -173,13 +173,16 @@ broken (`tapi error`); the tests retry with the newest working SDK and print whi
 
 - DSP voice: **640 bytes** exactly, comb buffer included; the bridge input adds 20 bytes (660 per track).
 - Tables: **566 bytes** (`CR_SEMI`, `CR_POW2`, `CR_TAN_G`, `CR_HP_A`, `CR_MACRO`, the two DECAY tables).
-- `crack.o`: 13,784 bytes; `text` 9,048, `bss` 3,960. Packed image contribution: **16,240 bytes**.
-- CPU (emulator, six voices, same run): TONE 5,559 instructions/voice steady. CRACK engine cost **4,733/voice
-  steady = 0.851 × TONE**, **5,381/voice worst (trig with all four knobs changing) = 0.968 × TONE**. The hard
-  ceiling (≤1.00 × TONE) is met; the 0.90 margin target is not met on the worst block. The raw six-voice block is
-  larger (78,295 worst vs 33,356 TONE) because the OS's six-voice loop takes a more expensive idle path for an
-  engine that bypasses the stock amp chain; the engine-code comparison is the 0.968 above. Silent engine work:
-  192 instructions.
+- `crack.o`: 16,228 bytes; `text` 11,560, `bss` 3,960. Code+tables **11,564 bytes**, packed image
+  contribution **18,752 bytes**. The 6 KB code+tables target is **not met** (the engine is feature-rich and the
+  hard image budget is 344 KB); this is the one size target miss.
+- CPU (emulator, six voices, same run): TONE 5,559 instructions/voice steady. CRACK engine cost **3,368/voice
+  steady = 0.606 × TONE**, **3,965/voice worst (trig with all four knobs changing) = 0.713 × TONE**. Both the
+  0.90 margin target and the hard ceiling (≤1.00 × TONE) are met. The raw six-voice block is larger (69,799 worst
+  vs 33,356 TONE) because the OS's six-voice loop takes a more expensive idle path for an engine that bypasses the
+  stock amp chain; the engine-code comparison is the 0.713 above. Silent engine work: 192 instructions. The hot
+  helpers are force-inlined (`always_inline`); without that the compiler left the 40 macro lookups and the sine
+  calls out of line and the worst block was over TONE.
 
 ## Credits
 
