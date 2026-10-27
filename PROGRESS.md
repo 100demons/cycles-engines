@@ -3,6 +3,26 @@
 How a long run resumes after an interruption. Read ARCHITECTURE.md first, then this file. Keep it up to date after
 every step: phase, step, what passed, what failed, what's next.
 
+## CRACK — hybrid-rate drum engine (branch `engine-crack`)
+
+- **Milestone**: M0 (setup) — done. Next: M1 (hero on the host).
+- **Branch**: `engine-crack`, created from the current `rhythmicon-v5-cloud` HEAD with the working tree's uncommitted
+  state left in place. Never merged to `main`.
+- **M0 measurements** (emulator, real OS voice loop, note 60, TONE defaults color 40 / shape 38 / sweep 52 /
+  contour 42 / decay 42, track soloed):
+  - TONE trig block **8,978** instructions; steady blocks **7,403** then **6,901** and **6,901**; silent block
+    **8,978** (an engine that is never triggered still runs its full voice path in this OS build).
+  - Ceiling used for CRACK: **TONE steady 6,901** instructions/block (target ≤ 0.90 × = **6,211**).
+  - Stock SNARE (default color 0 / shape 127 / sweep 8 / contour 0 / decay 40), note 60, velocity default:
+    onset at sample 66, RMS over the first 150 ms **−31.86 dBFS** (Q31 full scale), peak **−10.10 dBFS**.
+  - These are the reference numbers for §9.1 #1 and §9.4 #4.
+- **M0 decisions logged**: host renders are compared to the emulator *after* the OS's arithmetic `>>1`; in that
+  halved output domain 0 dBFS is `1 << 30` (the `Q31` value before the OS halves it). Tests state this explicitly.
+- **M0 environment**: `m68k-elf-gcc 16.2.0` at `~/m68k-elf-16.2/bin` (not on PATH by default; `M68K_CROSS` and
+  `PATH` set for builds), `m68k-elf-objdump` needed by the emulator, python 3.12.8, numpy 2.5.4, unicorn 2.1.4,
+  node v24.22.1, official OS SHA-256 `44fe5862…640c`.
+- **M0 checks**: spec moved to `engines/crack/SPEC.md`. Not hardware-tested (nothing is, at any point).
+
 ## Status
 
 - **Current phase**: 5 (Port PUNCH, BLAST and SAM) — done, in review. The descriptor.state fix (all four knobs) and
@@ -21,6 +41,59 @@ every step: phase, step, what passed, what failed, what's next.
 - Old repo (read-only reference): `~/Desktop/cycles-work/cycles-rename`.
 - Official OS: `~/Desktop/cycles-work/cycles-engines/firmware/model-cycles_OS1.13.syx`
   (stock_syx_sha256 `44fe5862…640c`).
+
+## 2026-10-26 — FERAL DRUM (development package)
+
+- Added `engines/feraldrum`: the nine Feral models twisted into drum voices, same formulas with a new job.
+  CLK bytebeat click/hat, TOM Gendy tom, MET Benjolin metal, MOD Rhythmicon modal drum, BON Fourses spring,
+  SNR HAVOC snare, KIK pulsar kick, DRM scanned drum head, HAT logistic noise hat. Slot 13; Ultra Feral keeps 12.
+- Shared drum layer: a DECAY-driven body envelope (`T_DRUM_MUL`, 25 ms .. 3.2 s per block) and a reliable body
+  time for scanned damping. Every model is excited on the trig; CONTOUR left is the shared pitch drop (up to 48
+  semitones), CONTOUR right lengthens rings / brightens the body. New tables: `T_DRUM_MUL`, `T_RATI_R`,
+  `T_RATI_MEMB`, `T_RATI_HARM`, `T_KOS_RATE`; new membrane/harmonic mode blend; new pulsar carrier/window map;
+  revised Gendy point/step tables; rebalanced `T_GAIN`.
+- Emulator proof `tests/emu/test_feraldrum.py` (24-block smoke run): **ALL OK** — boot, depack, all nine models
+  sound through the stock amp chain, ten parameter extremes, stock SNARE/KICK sample-identical, no unmapped.
+  `tests/emu/test_feraldrum_names.py`: **ALL OK** (SHAPE shows CLK..HAT). CPU 4,811..7,162 vs TONE 6,061
+  (worst MOD at COLOR 127 = 1.18 x TONE; default kit 0.79..1.09 x TONE). Image 64,156 bytes (code+tables 56,328,
+  variables 3,924). **Not hardware-tested.**
+- Host render and demos: `build/feraldrum/feral-drum-kit.wav`, `feral-drum-groove.wav`.
+- Gate fix: `tests/test_equivalence.py` now composes the offered engines (those with `card.json`) in part 2;
+  part 1 still relocates every package. A selection of all 31 development packages no longer fits the code
+  region (it did not with Ultra Feral either), while the six carded engines fit (216,656 / 351,936 bytes).
+
+## 2026-10-26 — RINGS CLOUDS (development package)
+
+- Added `engines/rings_clouds`: RINGS 0.3's six-mode modal bank (Material / Bright / Decay) into HALO New's 6 kHz
+  granular cloud (the HALO_new12 quality setting: 3 grains, 2 diffusers, 5.46 s buffer). SWEEP = Time,
+  CONTOUR = Cloud, PUNCH = Freeze. DECAY still sets the ring time and now also drives the stock amp envelope, so a
+  long ring is audible without GATE (RINGS itself locks the amp at 90).
+- The dry DSP (`rings_dsp.h`, `rings_core.S`, `rings_tables.h`) and the cloud (`r5_cloud.h`, `r5_common.h`) are
+  copied unchanged from RINGS 0.3 and Rhythmicon V5; `r5_cloud_tables.h` is generated from the HALO_new12 add-on by
+  `tools/gen_rings_clouds_tables.py`. The dry output uses RINGS' soft-knee stage at full Q31; the stock PUNCH stage
+  is skipped because PUNCH is Freeze.
+- Emulator proof `tests/emu/test_rings_clouds.py`: **ALL OK** (boot, stock SNARE/KICK unchanged, pitch, material
+  sets, DECAY on the ring and the amp, cloud tail, SWEEP, CONTOUR, Freeze, machine change). CPU 6,085 = **1.045 x
+  TONE** at the worst steady setting (above TONE, the ARCHITECTURE 2.2 warning), 4,826 = 0.828 dry, largest block
+  6,274 = 1.048 x TONE's largest. Image 47,448 bytes (code 41,552, BSS 396,792). **Not hardware-tested.**
+- Host proof: the 6 kHz cloud copy is bit-identical to HALO_new12's `halo_dsp.h` (`tests/host/cloud_compare.c`,
+  min / default / max / Freeze / loud input, 7 cases, ALL OK). `rings_core.S` and `rings_tables.h` are byte-identical
+  to RINGS 0.3; `rings_dsp.h` differs only in its header comment.
+- No `card.json` and no slot in `engines/slots.json` (a development package, like `halo_ry`, `fifth`,
+  `rhythmicon5`); the test places it at slot 7 / machine 6.
+
+## 2026-10-25 — FIFTH (standalone side build)
+
+- Added dev package `engines/fifth`: Feral's RYT restricted to fifths and octaves (octaves 1,2,4,8,16; fifths
+  3,6,12 above or 1/3,1/6,1/12 below). One machine, COLOR = Octaves, SHAPE = Fifths (below/centre/above),
+  SWEEP = Rate, CONTOUR = Length (20–800 ms, direct), PUNCH = Free. It is not on the flasher page (no card,
+  no permanent slot).
+- Source, tables, committed `fifth.o`; host render (`tests/host/fifth_demo.c`, `build/fifth/analyse.py`),
+  standalone build and proof (`build/fifth/build_and_prove.py`). Standalone `.syx` at slot 7 in `build/fifth/`.
+- Proof: emulator ALL OK (boot, dispatch, sound, extremes, stock SNARE/KICK unchanged, no unmapped);
+  CPU 1,691 light / 3,272 default / 3,894 worst vs TONE 5,291. Hardware not tested.
+- Release copy archived in `HALO_versions/FIFTH/` (`FIFTH_standalone.syx`, demo WAV, source, build/proof
+  snapshots); the live package and build scripts stay here so the composer keeps working.
 
 ## Phase 5 — Port PUNCH, BLAST and SAM (in progress)
 
@@ -135,3 +208,129 @@ every step: phase, step, what passed, what failed, what's next.
 - Fix: load the pointer (`move.l (%a0), %a0`); feral9.o and engines.js regenerated.
 - New test `tests/emu/test_feral_names.py` runs the OS's state lookup and the formatter and checks NYB..KOS (alone and
   with PUNCH + BLAST). Equivalence test and `test_engines.py` (no failures in its first run) pass. Not yet checked on hardware.
+
+## HALO Ry — new engine (2026-10-25)
+
+- `engines/halo_ry` (development package, no slot in `slots.json`): Feral's RYT (Rhythmicon resonators) into
+  HALO_new's granular cloud. Sources `halo_ry.c`, `halo_ry_dsp.h`, generated `hry_tables.h`; committed
+  `halo_ry.o` (M68K_CROSS check passes).
+- Test `tests/emu/test_halo_ry.py --cycles … --demos build/halo_ry_demos`: PASS — bootstrap, boot hook, stock
+  SNARE/KICK unchanged, dispatch/sound/no clipping, cloud tail, Freeze, machine change, composes with Feral.
+- CPU (one voice, real voice loop, TONE = 8200): default 0.864, cloud high 0.951, partials high 0.904,
+  partials low 0.889, dry 0.684, worst knobs 0.962; largest block 0.976 × TONE's largest. All below TONE.
+- Quality: RYT capped at 6 partials; cloud 3 grains / 12 kHz / shimmer on, diffuser 1; `-O3`.
+- Deliverable copied to `../HALO/HALO_Ry/` with `HALO_Ry.syx` (MAIN OS `54217821…`, file `a266c878…`), demos,
+  report and build/generator tools. Not added to the flasher catalogue; **not hardware-tested**.
+
+## RINGS — new engine (2026-10-25)
+
+- `engines/rings` (slot 11, machine 10; appended to `engines/slots.json`): the MODL engine of Model-TG's
+  PLAITS machine (after Mutable Instruments Rings/Plaits) as a machine of its own. Material / Bright / Decay, the
+  fourth knob spare. Sources `rings.c` + `rings_dsp.h`; committed `rings.o` (`build_engine.py --check` passes).
+- Source: Model-TG commit `b49cd51`, `src/plaits.inc` `mi_md_e` / `md_e` / `md_rat` (MIT). The C port keeps every
+  coefficient, shift and clamp; only the plumbing (arguments, 48 kHz output, note increment) changed. See
+  `engines/rings/PROVENANCE.md`.
+- Porting proof: `tests/host/rings_against_model_tg.py --model-tg …` runs Model-TG's m68k `mi_fill` in its Unicorn
+  harness against the host C `rg_block`: 87 cases (materials, bright, decay, notes 24–120, single and repeated
+  trigs), **0 mismatches** — the 32 sums and all eight modes' x/y are bit-exact every block.
+- Emulator: `tests/emu/test_rings.py --cycles …` PASS — bootstrap, boot hook, stock SNARE/KICK unchanged,
+  dispatch/sound/no clipping, pitch, string/bar ratio sets, decay, brightness, retrigger, spare CONTOUR, machine
+  change.
+- CPU (one voice, real voice loop, TONE = 7465): 8635 instructions a block = **1.157 × TONE** at low notes (8 modes
+  at 48 kHz, above TONE: the ARCHITECTURE §2.2 warning), 0.924 × TONE at note 96, 0.536 with all modes muted;
+  largest block 1.151 × TONE's largest. Image 10,736 o with the four slot placeholders (code 3,540, BSS 672).
+- On the page: `card.json`, generated into `docs/flasher/engines.js`; `make_catalog.py --check` passes. Demo WAVs
+  are in `build/rings_demos` (not committed); **not hardware-tested**.
+
+## RINGS 0.2 — Decay knob (2026-10-25)
+
+- The native Model:Cycles DECAY parameter is locked at encoder value 90: the voice-loop glue writes
+  `LUT_DECAY[90]` every block, so the amp envelope no longer follows the knob. GATE and PUNCH are unchanged.
+- RINGS' ring time moved from SWEEP to the DECAY knob (50 ms .. 8 s); SWEEP is now spare, like CONTOUR.
+- `engines/_common/lxz_glue.h` gained two opt-in macros, `LX_SWEEP_IS_DECAY` and `LX_AMP_DECAY`, both defaulting
+  to the old routing. The other LX engines rebuild byte-identically (`build_engine.py --check` passes for chaos,
+  clang, flang, fmsub, sfold, vowel).
+- `engines/rings`: version 0.2; manifest knobs are Material, Bright, Sweep, Contour; card/README/CHANGELOG
+  updated; `rings.o` rebuilt (check passes). `rings_dsp.h` is untouched.
+- Emulator: `tests/emu/test_rings.py` PASS. It now also asserts `LUT_DECAY[90]` for DECAY 0/64/127, that DECAY
+  drives the ring time, and that SWEEP is spare. CPU 1.156 x TONE at low notes, 0.924 at note 96; image 10,728 o
+  (code 3,528, BSS 672).
+- Equivalence: the full `tests/test_equivalence.py` cannot compose every development package in this working tree
+  (pre-existing: vxclu ends at 0x43034676, past 0x43033000). A scoped run over the four page engines
+  (`build/equiv_card_engines.py`) passes: rings alone and in every combination, 16/16 fill.
+- The host port proof was not rerun: the Model-TG repository is not present in this workspace. `rings_dsp.h` is
+  unchanged, so the 87-case bit-exact proof of 0.1 still applies.
+- `docs/flasher/engines.js` regenerated; `make_catalog.py --check` passes. **Not hardware-tested.**
+- Re-verified 2026-10-25 (`tests/emu/test_rings.py`, full run): ALL OK; `build_engine.py --check rings` up to date;
+  scoped equivalence passes; size/CPU report OK. CPU vs stock TONE: 8,630 / 7,465 = **1.156 x** (default, bright,
+  free bar, low note), 6,895 = **0.924 x** at note 96, 3,996 = **0.535 x** with the modes muted; largest block
+  8,789 vs TONE 7,643 = **1.150 x**. Against 0.1 (8,635 instructions, 1.157 x) the version is 5 instructions
+  cheaper per block and 8 bytes smaller.
+
+## RINGS 0.3 — a 0.50 x TONE build (2026-10-25)
+
+- Goal: turn RINGS 0.2 (the DECAY-knob version, 1.156 x TONE) into a synth that uses at most 50% of a stock
+  TONE voice's CPU, with sample rate and design changes allowed.
+- Result: **0.487 x TONE** at the worst steady block; the largest single block is 3,799 = **0.497 x TONE's
+  largest** (7,643). The CPU checks in `tests/emu/test_rings.py` now require both to be at most 0.50.
+- What changed: modes run at 24 kHz (16 samples a block, held for two 48 kHz frames); six modes instead of eight;
+  a 32-bit phase into a 4096-entry sine table (Q15) instead of the coupled form; coefficients and strike shares
+  cached; decay applied every two blocks by `r^2`; a mode with amplitude 0 skipped; PUNCH at 0 folded into the
+  output (the stock stage is a fixed 1/4 gain; final samples differ by at most 24,576, about -79 dBFS, from the
+  VCA's integer rounding). PUNCH above 0 still calls the stock stage. The output stage uses a soft knee above
+  30,000 (slope 1/4) instead of a hard clamp, so a fast retrigger compresses instead of flat-topping; single
+  strikes stay below it.
+- Rejected on the way: a second-order recurrence (2 cos w) at 24 kHz. It is cheaper but 2 cos w loses too much
+  resolution near 2.0: note 24 came out 3.4 x sharp and note 60 35 cents sharp.
+- Sound: pitch is exact across the range (261.66 Hz at note 60, 32.7 Hz at note 24); below 12 kHz the partial
+  levels track 0.2 within about 1 dB; the 24 kHz hold leaves images above 18 kHz. Level matches 0.2 within about
+  1 dB at default/low/long; bright and free bar are about 1.7 dB lower because the two capped modes carried some
+  top-end energy. The 24 kHz hold is the same choice the LX engines make.
+- Proof: `tests/emu/test_rings.py` PASS (ALL OK), including boot, pitch, material sets, DECAY ring time, amp
+  decay locked at 90, brightness, retrigger, spare knobs, machine change, stock SNARE/KICK unchanged, no clipping.
+  `build_engine.py --check rings` up to date. The host Model-TG proof now compiles `rings_dsp_0_2.h` (the 0.2
+  arithmetic); it was not rerun because the Model-TG repo is not in this workspace, and it does not claim the new
+  oscillator.
+- Shared glue: `lix_in_t` gained `punch`, and `lxz_glue.h` gained the opt-in `LX_PUNCH_AT_ZERO` (the engine folds
+  the 1/4 gain). The six LX engines that share it (chaos, clang, flang, fmsub, sfold, vowel) were rebuilt and
+  their audio is **identical sample for sample** (`build/lx_glue_proof.py`, three cases each).
+- Package: version 0.3; `rings_core.S` and `rings_tables.h` added; `rings_dsp_0_2.h` kept for the host proof;
+  manifest/card/README/CHANGELOG/PROVENANCE/HARDWARE-CHECKLIST updated. Packed image 31,544 o (code 24,344, BSS
+  1,416). `make_catalog.py --check` passes.
+- Flashable build: `build/model-cycles_OS1.13-rings-0.3.syx` (MAIN OS SHA-256 `21d2ed3b…`, ends
+  `0x401b1c78`), demos in `build/rings_demos_03`. `build/` is gitignored; the .syx contains Elektron's OS and
+  must not be committed.
+- Scratch packages from the experiments were removed. **Not hardware-tested.**
+
+## 2026-10-26 — ULTRA FERAL 1.0 (new package, slot 12)
+
+- New package `engines/ultraferal` (id `ultraferal`, machine `ULTRA`, slot 12): sixteen models. Nine Feral 9.0
+  models unchanged; CEL/WGL/CRK recovered from the preserved 12-model build; four new: VOX (formant vowels),
+  FLD (phase distortion + sine folding + feedback), NEB (four-grain cloud), MUT (a random engine per era).
+- Engine changes: FREE now drifts COLOR and SWEEP on every model; GATE + FREE writes a shared pack field that
+  every Ultra Feral track reads; MUT switches engine every era with a fade and random knob offsets; SHAPE 0..15
+  with sixteen names in the value window.
+- Build: `-Os` for the package, with `eng_e` (BENJ/HAVC) kept at `-O2` because RNG/HAVC's `-Os` cost passes
+  TONE. VOX is unrolled and cut from 1.25 x TONE to about 0.85 x TONE. Code+tables 58,024 bytes, BSS 4,096;
+  all six carded engines together fit the image budget and the code window.
+- Proof: `build/ultraferal/build_and_prove.py` (emulator, all models, extremes, FREE, MUT, stock machines) and
+  `build/ultraferal/cpu.py` (CPU per model); `tests/emu/test_ultraferal_names.py` checks the sixteen names;
+  `tests/host/ultraferal_demo.c` renders all models without the OS and checks the 16 CA rules. The first full run
+  failed only its own NEB density check (18 blocks was shorter than one grain interval at COLOR 0 and both sides
+  looked identical); the check now uses 64 blocks. The quick re-run on the final object passes: **ALL OK** (sixteen
+  models, extremes, FREE drift, MUT eras, stock SNARE/KICK identical; no unmapped access).
+- CPU (worst block, emulator, TONE = 5,291): GND 1,759 (0.33 x) to VOX 4,506 (0.85 x); MUT 3,902 (0.74 x).
+  All sixteen are below TONE. `test_size_cpu.py` passes with all six carded engines (216,380 bytes of image).
+- Catalog: `docs/flasher/engines.js` regenerated; `make_catalog.py --check` passes. Custom card/emblem art is in
+  the package; the device still shows TONE's picture (pictures are not ported to the package system yet).
+- Standard emulator test: `tests/emu/test_engines.py --cycles firmware/model-cycles_OS1.13.syx --machines ultraferal
+  --blocks 8` **ALL OK** (bootstrap depack, boot hook, voice loop, makes sound at the defaults, no hard clipping,
+  stock SNARE/KICK identical).
+- Not a valid check here: `tests/test_equivalence.py` composes **every** package in the workspace, including the
+  many untracked dev packages; that all-package build runs past the 0x43033000 code window (feraldrum is the
+  last code placed). Ultra Feral alone composed and built in that run, and the catalog/object checks pass. The
+  all-package equivalence comparison was not run to completion.
+- Flashable build: `build/ultraferal/model-cycles_OS1.13-ultraferal.syx` (959,264 bytes; `.syx` SHA-256
+  `a5597b99…`; MAIN OS SHA-256 `10bea271…`, ends `0x401ba13c`). `build/` is gitignored; it contains
+  Elektron's OS.
+- Hardware: **not tested**. Checklist appended to `HARDWARE-CHECKLIST.md`.
