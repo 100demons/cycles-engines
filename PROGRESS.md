@@ -193,8 +193,8 @@ The shared working tree has uncommitted rings / ultraferal / feraldrum packages 
 merged onto that tree CRACK must be renumbered to **14** (the permanent entries 7–13 keep their numbers).
 
 **Branch**: `engine-crack` (worktree `/Users/ooo/Desktop/cycles-work/cycles-engines-crack`), not merged to `main`.
-The worktree was created because a second agent was using `engine-sheen` in the shared checkout; the branch
-history includes that agent's M0 SHEEN commit (not CRACK work).
+The worktree was created because a second agent was using `engine-sheen` in the shared checkout. The branch is
+CRACK-only: the parallel SHEEN M0 commit was dropped by rebasing onto `515148a` (CRACK M0) before the push.
 - **Branch**: `engine-crack`, created from the current `rhythmicon-v5-cloud` HEAD with the working tree's uncommitted
   state left in place. Never merged to `main`.
 - **M0 measurements** (emulator, real OS voice loop, note 60, TONE defaults color 40 / shape 38 / sweep 52 /
