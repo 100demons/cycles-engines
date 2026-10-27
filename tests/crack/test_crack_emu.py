@@ -146,6 +146,46 @@ def main():
     check(np.array_equal(x[22 * 32:], y[22 * 32:]),
           f"machine change mid-note: {np.count_nonzero(x[22 * 32:] != y[22 * 32:])} differing samples")
 
+    # every recipe, host vs emulator
+    print("\nrecipes sample exact")
+    recipes = [
+        ("hero", dict()),
+        ("rimshot", dict(punch=1)),
+        ("ghost", dict(vel=35)),
+        ("trap_clap_snare", dict(pitch=70, color=100, shape=60, sweep=70, contour=90, decay=45)),
+        ("808_snare", dict(color=40, shape=32, sweep=30, contour=20, decay=50)),
+        ("909_snare", dict(color=50, shape=36, sweep=64, contour=40, decay=44)),
+        ("brush", dict(color=56, shape=64, sweep=0, contour=10, decay=30, vel=60)),
+        ("gated_80s", dict(pitch=60, color=70, shape=48, sweep=64, contour=70, decay=115)),
+        ("kick", dict(pitch=40, color=0, shape=0, sweep=64, contour=80, decay=60)),
+        ("tom", dict(pitch=52, color=8, shape=40, sweep=40, contour=40, decay=70)),
+        ("clap", dict(color=127, shape=64, sweep=50, contour=60, decay=50)),
+        ("metal_hat", dict(pitch=100, color=80, shape=120, sweep=80, contour=50, decay=8)),
+        ("metal_hit", dict(color=30, shape=127, sweep=64, contour=96, decay=60)),
+        ("zap", dict(color=0, shape=64, sweep=127, contour=64, decay=30)),
+        ("crushed", dict(color=64, shape=64, sweep=64, contour=127, decay=40)),
+    ]
+    for name, kw in recipes:
+        blocks = 500 if name == "gated_80s" else 300
+        x = host_render("rec_" + name, blocks, (32,), **kw)
+        e = emu_new(img, runtime, tweak, machine, **kw)
+        if kw.get("vel", 100) != 100:
+            e.uc.mem_write(0x40fe4cdc, struct.pack(">H", int(kw["vel"]) << 8))
+        y = e.render(blocks, trig_at=(1,), track=0)
+        check(np.array_equal(x, y), f"recipe {name}: {np.count_nonzero(x != y)} differing samples")
+    # sustained bass: one note held for four steps (480 ms)
+    blocks = 900
+    end_at = 32 + int(0.48 * 48000)
+    x = host_render("rec_bass", blocks, (32,), ends=(end_at,), pitch=40, color=0, shape=10, sweep=20,
+                    contour=40, decay=64, gate=1)
+    e = emu_new(img, runtime, tweak, machine, pitch=40, color=0, shape=10, sweep=20, contour=40, decay=64, gate=1)
+    end_block = end_at // 32
+    ys = []
+    for b in range(blocks):
+        ys.append(e.block(1 if b == 1 else 0, 1 if b == end_block else 0)[0])
+    y = np.concatenate(ys)
+    check(np.array_equal(x, y), f"recipe sustained bass: {np.count_nonzero(x != y)} differing samples")
+
     # ---- level ----------------------------------------------------------------------------------------------
     print("\nlevel")
     hero = emu_new(img, runtime, tweak, machine).render(600, trig_at=(1,), track=0)

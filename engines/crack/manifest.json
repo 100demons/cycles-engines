@@ -100,7 +100,9 @@
     "worst": 5381,
     "steady": 4733,
     "idle": 7668,
-    "first_note": 17473
+    "first_note": 17473,
+    "max": 5381,
+    "min": 4733
    },
    "reference": {
     "TONE": 5559
@@ -133,9 +135,9 @@
  },
  "tests": {
   "emulation": {
-   "tool": "tests/crack/test_crack_emu.py (voice loop, Unicorn)",
-   "date": null,
-   "build": null
+   "tool": "tests/crack/test_crack_emu.py (Unicorn OS 1.13 voice loop)",
+   "date": "2026-10-27",
+   "build": "crack_OS1.13.syx (slot 11 / machine 10)"
   },
   "hardware": {
    "date": null,

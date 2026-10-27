@@ -1,6 +1,6 @@
 {
   "label": "💥 Crack (0.1 beta)",
-  "description": "A hybrid-rate drum voice: a record-ready modern snare at the home settings, then a whole percussion kit under the macros. Wires = head only / vintage / modern / snare+clap / clap only. Body = thump / analog / membrane / piccolo / metal. Snap = brush / stick / modern snap / hard / zap. Heat = raw / warm / smack / clipped / destroyed. PUNCH = rimshot, GATE sustains, velocity opens the crack.",
+  "description": "A hybrid-rate drum voice: a record-ready modern snare at the home settings, then a whole percussion kit under the macros. Three sine modes with two pitch envelopes, head-coupled wires and clap, a tuned ring and a 24 kHz heat chain, with a full-rate click and air layer.\n\nWIRES: 0 head only, 64 modern wires, 96 snare+clap, 127 clap only. BODY: 0 thump, 64 membrane, 127 metal. SNAP: 0 brush, 64 modern snap, 127 zap. HEAT: 0 raw, 64 smack, 127 destroyed. PUNCH = rimshot, GATE sustains, velocity opens the crack.\n\nRecipes: hero snare, rimshot, ghost note, trap clap-snare, 808, 909, brush, gated 80s, kick, tom, clap, metallic hat, metal hit, zap, crushed lo-fi, sustained bass. Default trig is 196 Hz / G3.",
   "status": "experimental",
   "credit": {"kind": "own", "who": "100demons"},
   "license": "LICENSE"

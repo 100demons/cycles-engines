@@ -5,12 +5,15 @@
   "Entries are appended, never reordered, never reused: a removed engine keeps its slot as a placeholder forever,",
   "so a saved sound or pattern finds the same engine in any later build that includes it (ARCHITECTURE.md §4).",
   "LiXR and SAM were dropped before launch, so they never took a shipped slot: the three offered engines sit at",
-  "7..9 with no gap. SAM keeps slot 10 reserved for when it is ready. The reference machine never gets a slot on the page."
+  "7..9 with no gap. SAM keeps slot 10 reserved for when it is ready. The reference machine never gets a slot on the page.",
+  "CRACK is appended at slot 11 on its engine-crack branch; if it is merged onto a tree that already has rings /",
+  "ultraferal / feraldrum at 11..13, CRACK must take 14 (the entries above keep their numbers)."
  ],
  "slots": {
   "feral9": 7,
   "punch": 8,
   "blast": 9,
-  "sam": 10
+  "sam": 10,
+  "crack": 11
  }
 }

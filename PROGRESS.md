@@ -78,10 +78,123 @@ every step: phase, step, what passed, what failed, what's next.
   >3 kHz check; SHAPE 0 and the home T60 values were tuned inside the allowed ±30 %; the HEAT makeup table now
   lifts HEAT 0 and trims HEAT 96 so the 150 ms RMS stays within ±3 dB of the hero.
 - **M3 host tail**: `159 checks, 0 failed / ALL OK`.
-- **Next**: M4 — README/card/CHANGELOG/LICENSE, 16 recipe demos and macro sweeps, slot 11 in `engines/slots.json`,
-  catalog, the four repository tests, the two final builds and the hardware checklist. Note for the owner: this
-  branch's `slots.json` ends at slot 10, so CRACK takes **11**. The shared working tree has uncommitted rings /
-  ultraferal / feraldrum packages at 11–13; when merging onto that tree CRACK must take **14** instead.
+- **Milestone**: M4 (package and deliver) — done. Branch `engine-crack`, never merged to `main`.
+- **M4 final files**: `engines/crack/` has SPEC, README, CHANGELOG, LICENSE, manifest, card, crack.c, crack_dsp.h,
+  crack_tables.h, gen_crack_tables.py, crack.o. `tests/crack/` has crack_host.c, test_crack_sound.py,
+  test_crack_emu.py, render_demos.py. `engines/slots.json` has `crack: 11` (the branch's next unused; see the note
+  at the end). `docs/flasher/engines.js` regenerated; `tools/make_catalog.py --check` passes.
+- **M4 demos**: `build/crack-demos/` has **41 WAVs** (32-bit PCM, 48 kHz): the 16 recipes
+  (`01-hero-snare` … `16-sustained-bass`) and the macro sweeps `macro-{wires,body,snap,heat}-{000,032,064,096,127}`
+  plus `macro-decay-{000,040,064,100,115}`. Not committed (build/ is gitignored).
+- **M4 builds** (both contain Elektron's OS; never committed):
+  - `build/crack_OS1.13.syx` — 906,528 bytes, `.syx` SHA-256 `0942bdaa…c704e7`, MAIN OS SHA-256 `7179537e…f1239`,
+    payload packed 16,240 bytes. CRACK alone at slot 11 / machine 10 (slots 7–10 are the silent placeholders).
+  - `build/crack-all_OS1.13.syx` — 974,240 bytes, `.syx` SHA-256 `0ba2865a…3863d`, MAIN OS SHA-256
+    `b5d96989…f1dd`, payload packed 86,360 bytes. Feral 7, PUNCH 8, BLAST 9, CRACK 11 (slot 10 is `----`).
+  - `build/crack-core_OS1.13.syx` — the M2 fallback, byte-identical to `crack_OS1.13.syx`
+    (`0942bdaa…c704e7`).
+- **M4 repository tests** (all run, real output in the logs):
+  - `tests/test_equivalence.py firmware/model-cycles_OS1.13.syx`: **PASS** (every package placed, every selection
+    including CRACK byte-identical, fill 16/16).
+  - `tests/test_size_cpu.py firmware/model-cycles_OS1.13.syx`: **PASS**. CRACK code+tables **9,052**, variables
+    **3,960**, image added **16,240**; all four carded engines together 86,360 / 351,936 (24.5%).
+  - `tests/emu/test_engines.py --machines crack --blocks 8`: **ALL OK**.
+  - `tests/emu/test_engines.py --machines feral9,punch,blast,crack --blocks 8`: **ALL OK** (all four dispatch and
+    sound; stock SNARE/KICK sample-identical).
+  - `tests/crack/test_crack_sound.py`: **159 checks, 0 failed, ALL OK**.
+  - `tests/crack/test_crack_emu.py`: **ALL OK** — hero/rim/ghost/retrigger/machine-change **0 differing samples**;
+    every recipe sample-exact (the focused run before the final full run: hero, rimshot, ghost, trap clap-snare,
+    808, 909, brush, gated 80s, kick, tom, clap, metal hat, metal hit, zap, crushed, sustained bass — all 0
+    differing); level +0.72 dB; CPU below.
+- **Cut ladder**: **none applied.** The hard ceiling (≤1.00× TONE) is met on the defined worst block (0.968×), so
+  the ladder's trigger (over 1.00×) was not reached. The 0.90 margin target is **not met** on the worst block;
+  the steady block is 0.851×. This is the one target miss in the engine.
+- **M4 hardware checklist**: appended to `HARDWARE-CHECKLIST.md` (flash, hero at home, PUNCH p-locked, velocity
+  from the pads, GATE long note, six CRACK tracks, 16 recipes by ear, save/reload, stock machines). **Not
+  hardware-tested.**
+
+### Final CPU table (emulator, same run, six voices)
+
+| block | instructions/block | per voice | engine cost | vs TONE |
+|---|---|---|---|---|
+| TONE steady (reference) | 33,356 | 5,559 | — | — |
+| TONE idle | 45,818 | 7,636 | — | — |
+| CRACK steady | 74,409 | 12,402 | 4,733 | **0.851×** |
+| CRACK worst (trig + all four knobs changing) | 78,295 | 13,049 | 5,381 | **0.968×** |
+| CRACK first note after a machine change | 104,836 | 17,473 | 10,380 | 1.867× (one-time reset) |
+| CRACK silent | 46,010 | 7,668 | 0 (192 above TONE idle) | — |
+| six CRACK voices, engine cost | — | — | 32,285 | 0.968× (six TONE 33,356) |
+
+The raw six-voice total is larger than TONE because the OS voice loop takes the more expensive idle path for an
+engine that bypasses the stock amp chain; the engine-code comparison is the "engine cost" column. Both are real
+measurements, printed by the test. Size: `crack.o` 13,784 bytes, text 9,048, BSS 3,960 (660 bytes per track:
+640 DSP voice + 20 bridge input); tables 566 bytes; `sizeof(cr_voice)` = 640.
+
+### §9 final checklist (real measured value)
+
+| check | result | value |
+|---|---|---|
+| 9.1.1 peak / emulator RMS vs SNARE | PASS | −5.19 dBFS host; −31.14 vs −31.86 dBFS (+0.72 dB) |
+| 9.1.2 pitch 180–215 Hz | PASS | 200.0 Hz |
+| 9.1.3 crack trace | PASS | +6.14 st at trig, 0.00 st by 30 ms |
+| 9.1.4 body/wire ±6 dB | PASS | +3.17 dB |
+| 9.1.4 air ≤24 dB below wire | PASS | 8.71 dB |
+| 9.1.4 20–90 Hz ≥15 dB below body | PASS | 33.23 dB |
+| 9.1.5 first 3 ms ≥0.7× peak | PASS | 1.00 |
+| 9.1.6 −40 dB at 170–380 ms | PASS | 179.8 ms |
+| 9.1.7 80–150 ms ≤22 dB below 0–30 | PASS | −17.62 dB |
+| 9.1.8 clean (step/mean/zero) | PASS | 1.0000 FS, −72.5 dBFS, zero tail |
+| 9.1.9 retrigger step ≤1.2× | PASS | 0.566× |
+| 9.1.10 deterministic | PASS | identical |
+| 9.2 COLOR | PASS | ratios −44.5 → 6.4 dB; 6 clap bursts |
+| 9.2 SHAPE | PASS | 6.0 / 9.5 / 45.8 dB at 0/64/127; tension 11.99 → 0.41 st |
+| 9.2 SWEEP | PASS | onset/tail −22.27 → −8.29 dB; 34.6 st at 127 |
+| 9.2 HEAT | PASS | RMS −0.8…+2.3 dB; crest 20.4 → 19.2 dB; crush 4/6 |
+| 9.2 DECAY | PASS | −40 dB 18 → 553 ms; holds 71/283/449 ms, fades 1.3 ms |
+| 9.2 PUNCH | PASS | +3.22 dB >3 kHz in 20 ms |
+| 9.2 velocity | PASS | 12.67 dB RMS; centroid 6,879 → 7,233 Hz |
+| 9.2 GATE | PASS | +574.2 dB at 250 ms |
+| 9.3 all 16 recipes | PASS | clean, RMS > −40; kick 50 Hz, clap 7 bursts, hat −0.87 dB, zap 35.3 st, bass 0.000 st / 48 Hz |
+| 9.4.1 emulator dispatch/sound/stock | PASS | `test_engines.py` both selections ALL OK |
+| 9.4.2 sample exact | PASS | 0 differing samples: hero, rim, ghost, retrigger, machine change, all 16 recipes |
+| 9.4.3 CPU | PASS on hard ceiling | worst 0.968× TONE (target 0.90× not met) |
+| 9.4.4 level | PASS | +0.72 dB |
+| 9.4.5 six voices | PASS | engine cost 32,285 vs six TONE 33,356 (0.968×) |
+| 9.4.6 size | PASS | 9,052 code+tables, 3,960 variables, 16,240 image |
+
+### Final macro tables
+
+The final values are the tables in `engines/crack/README.md`; the tuned columns are SHAPE 0 (body 0.70, mode 1
+0.70, mode 2 0.056, body decay 1.12, tension 13.3 st), the home T60 210/310 ms, and the HEAT makeup column
+1.585 / 1.450 / 1.000 / 0.680 / 1.000. All are inside the ±30 % tuning window. The internal layer trims are
+body 0.397, wires 0.561, air 0.244, click 3.662, heat input 0.700 and master 0.708 (Q12/Q15 constants in
+`crack_dsp.h`); the click noise is band-limited by a 2-pole 10.6 kHz low-pass and the final output has a
+±full-scale slew guard.
+
+### Final report (plain language)
+
+**What works.** CRACK is a complete drum engine package: one machine, the four macro knobs, PUNCH rim, GATE,
+velocity and DECAY. The hero snare at the home settings is loud, bright and about 180 ms to −40 dB, and every
+macro direction produces the intended family (thump/analog/membrane/piccolo/metal, head-only/vintage/modern/
+clap, brush/stick/snap/hard/zap, raw/warm/smack/clipped/destroyed). All 16 recipes render cleanly.
+
+**What was tested.** Everything below was tested **in the emulator and on host renders**, not on hardware:
+the §9.1 hero checks (all pass), every §9.2 macro point (all pass), all 16 recipes (all pass), sample-exact host
+vs device code for the hero, rimshot, ghost note, retrigger, machine change and every recipe (0 differing
+samples), the six stock machines unchanged, the composed builds booting and every installed engine dispatching,
+the image budget, and the CPU instruction counts. The CPU hard ceiling is met (0.968× TONE worst, 0.851× steady);
+the 0.90 margin target is **not** met on the worst block. The first note after a machine change costs more once
+(the bridge resets the voice because the OS owns v+0x2c until the first trig); steady play is the 0.851× figure.
+
+**What was not tested.** Hardware. Nothing in this report is hardware-tested. The owner checklist is in
+`HARDWARE-CHECKLIST.md`. The default macOS SDK link is broken in this environment (`tapi error`); the host tests
+use the newest working SDK and print it. The branch's `slots.json` ends at SAM 10, so CRACK is **slot 11** here.
+The shared working tree has uncommitted rings / ultraferal / feraldrum packages at 11–13; when this branch is
+merged onto that tree CRACK must be renumbered to **14** (the permanent entries 7–13 keep their numbers).
+
+**Branch**: `engine-crack` (worktree `/Users/ooo/Desktop/cycles-work/cycles-engines-crack`), not merged to `main`.
+The worktree was created because a second agent was using `engine-sheen` in the shared checkout; the branch
+history includes that agent's M0 SHEEN commit (not CRACK work).
 - **Branch**: `engine-crack`, created from the current `rhythmicon-v5-cloud` HEAD with the working tree's uncommitted
   state left in place. Never merged to `main`.
 - **M0 measurements** (emulator, real OS voice loop, note 60, TONE defaults color 40 / shape 38 / sweep 52 /

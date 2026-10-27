@@ -57,3 +57,33 @@ sit at slots 7..10 with no gap. This phase fixes the value-window displays and t
       (1:4..15X), stepping one detent at a time.
 - [ ] SAM: COLOR shows the rate, SHAPE the word, SWEEP the scrub and CONTOUR the character (DEEP/DARK/SAM/BRIT/THIN).
 - [ ] The six stock machines still work as before.
+
+---
+
+## CRACK 0.1 beta (`build/crack_OS1.13.syx`, `build/crack-all_OS1.13.syx`)
+
+Built from `core/compose.py --machines crack` and `--machines feral9,punch,blast,crack`. On the `engine-crack`
+branch CRACK is slot 11 (machine 10); slots 7–10 are the silent `----` placeholders unless Feral/PUNCH/BLAST are
+also in the build. **Not hardware-tested.** The emulator checks are listed in `PROGRESS.md`.
+
+- [ ] Flash `build/crack_OS1.13.syx`; the device boots and the MACHINES page shows CRACK after the stock six
+      (and `----` placeholders at the unused slots).
+- [ ] Put CRACK on a track; the default trig at the home settings plays the hero snare (PITCH 64, all four knobs
+      64, DECAY 40). It is loud and bright, with a tight ~196 Hz body, a fast crack, wires, air and a short tail.
+- [ ] P-lock PUNCH on alternate steps: the odd steps are a rimshot (more ring, a 12.5 ms click, a brighter
+      attack), the even steps stay the hero. No click or dropout at the p-lock.
+- [ ] Play the pads at low and high velocity: soft hits are quieter and darker, accents crack. The ghost note
+      (velocity ~35) is clearly below the accent.
+- [ ] Hold a long note with GATE on (DECAY 20): the body and wires hold instead of dying, then release when the
+      note ends. Try DECAY 115 for the 80s gated shape.
+- [ ] Six tracks of CRACK together at the worst settings (COLOR 96, SHAPE 127, SWEEP 127, CONTOUR 127, PUNCH on,
+      GATE on, velocity 127, DECAY 115): no glitches, dropouts or stuck voices. This is the CPU stress case.
+- [ ] Play each of the 16 recipes by ear (hero, rimshot, ghost, trap clap-snare, 808, 909, brush, gated 80s,
+      kick, tom, clap, metallic hat, metal hit, zap, crushed lo-fi, sustained bass). The WAVs are in
+      `build/crack-demos/` after `python3 tests/crack/render_demos.py`.
+- [ ] Save a sound/pattern that uses CRACK, rebuild with other engines, and confirm it still finds CRACK at the
+      same slot.
+- [ ] The six stock machines still work as before, sample for sample.
+- [ ] Report the CPU feel: if six tracks of CRACK strain the device more than six TONE tracks, say so. The
+      emulator engine-cost ratio is 0.851× TONE steady and 0.968× TONE on the worst trig block; the margin target
+      0.90× is not met on the worst block.
