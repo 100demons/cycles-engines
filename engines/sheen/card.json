@@ -1,0 +1,7 @@
+{
+  "label": "✨ Sheen (0.1 beta)",
+  "description": "A modern hi-hat engine built hat-first: a crisp 48 kHz tick and air layer over six 808 metal oscillators, a resonant chick and a short metallic shimmer, finished by a Heat chain. COLOR = Metal (pure noise → hero blend → 808 squares → cowbell), SHAPE = Size (tight hat → hero → crash → gong), SWEEP = Tick (shaker grains → crisp stick → hard click → laser chirp), CONTOUR = Heat (raw → polished → saturated → crushed). PUNCH = Open, GATE = Choke, velocity plays softer, darker and shorter. P-lock PUNCH on the off-beats and the next closed step chokes the open hat. Recipes: hero closed/open, 808 and 909 hats, pedal chick, shaker, tambourine, ride, crash, 808 cowbell, reverse cymbal, crushed lo-fi hat, laser chirp and metal gong.",
+  "status": "experimental",
+  "credit": {"kind": "own", "who": "100demons"},
+  "license": "LICENSE"
+}

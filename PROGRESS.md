@@ -5,28 +5,178 @@ every step: phase, step, what passed, what failed, what's next.
 
 ## SHEEN — hybrid-rate hi-hat / metal percussion engine (branch `engine-sheen`)
 
-- **Milestone**: M0 (setup) — done. Next: M1 (hero pair on the host).
+- **Milestones**: M0–M4 done, with two checks failing and one capacity finding. Next: owner decision on CPU,
+  the roll step-ratio check, and the shared code window.
 - **Branch**: `engine-sheen`, created from the `engine-crack` working tree. CRACK's uncommitted files are left
-  untouched; only SHEEN's files, this section and the shared files named in the spec are committed.
-- **M0 environment (verified)**: m68k-elf-gcc 16.2.0 at `~/m68k-elf-16.2/bin`; python 3.12.8, numpy 2.5.4,
-  unicorn 2.1.4; node v24.22.1; official OS SHA-256 `44fe5862…640c`.
-- **M0 measurements** (real OS voice loop, Unicorn, note 60, TONE defaults color 40 / shape 38 / sweep 52 / contour 42
-  / decay 42, track soloed, same run):
-  - TONE trig block **8,982** instructions; steady blocks **7,403** then **6,901**, **6,901**, **6,901**, **6,901**.
-  - Ceiling: **TONE steady 6,901** instructions/block; target ≤ 0.90 × = **6,211**.
-  - Stock METAL peak (all knobs 64, DECAY 40, note 60): raw **522,540,549** = **−6.26 dBFS** with full scale
-    `1 << 30` (the OS's halved output domain), i.e. −12.28 dBFS if `1 << 31` is called full scale. RMS 0–100 ms
-    **−19.01 dBFS** (FS `1 << 30`).
-- **M0 decisions logged**:
-  - Host and emulator are compared in the OS's halved domain: the host renderer applies `>> 1` to the DSP's Q31, and
-    0 dBFS is `1 << 30` there. Tests state this.
-  - **Slot**: `engines/slots.json` on this branch has rings = 11, ultraferal = 12, feraldrum = 13. The spec reserves
-    11 for CRACK and says SHEEN is 12 "unless something else has taken it"; 12 and 13 are taken, so SHEEN will be
-    appended at **slot 14 / machine 13** in M4.
-  - **MACRO table format**: five breakpoints in the knob's 0..32766 domain, linear interpolation; frequencies,
-    times and log-domain values stored as `log2` Q8, levels Q15, ratios Q12. Envelope times and macro outputs are
-    16-bit as required.
-- **M0 checks**: SPEC moved to `engines/sheen/SPEC.md`. Nothing hardware-tested (nothing is, at any point).
+  untouched; only SHEEN's files, this section and the shared files named in the spec are committed. Never merged.
+- **Environment**: m68k-elf-gcc 16.2.0 at `~/m68k-elf-16.2/bin`; python 3.12.8, numpy 2.5.4, unicorn 2.1.4;
+  node v24.22.1; official OS SHA-256 `44fe5862…640c`.
+
+### M0 — baseline (passed)
+
+- TONE trig **8,982**, steady **7,403 / 6,901 / 6,901 …**; ceiling **TONE steady 6,901**, 0.90 × = **6,211**.
+- Stock METAL peak (all knobs 64, DECAY 40, note 60): **522,540,549** = **−6.26 dBFS** (FS `1 << 30`, the OS's
+  halved output), RMS 0–100 ms **−19.01 dBFS**.
+- Host/emulator compare in the halved domain (`>>1`, 0 dBFS = `1 << 30`). Slot decision: 11 = rings, 12 =
+  ultraferal, 13 = feraldrum; **SHEEN = slot 14 / machine 13** (slot 11 stays reserved for CRACK).
+
+### M1 — hero pair on the host (passed except the roll step check)
+
+Files: `engines/sheen/sheen_dsp.h`, `sheen_tables.h` (generated), `gen_sheen_tables.py`; `tests/sheen/sheen_host.c`,
+`test_sheen_sound.py`. Host build: `cc -std=c99 -O2 -Wall -Wextra -Werror`; the default macOS SDK link is broken
+(`tapi error: malformed file`), so the harness retries with `MacOSX26.sdk` and says so.
+
+Real hero output:
+
+```
+PASS  9.1.1 peak -6..-0.5 dBFS: -4.54 dBFS
+PASS  9.1.2 >=70% energy above 5 kHz: 92.1 %
+PASS  9.1.2 100-1000 Hz >=24 dB below 6-11 kHz: 25.48 dB
+PASS  9.1.2 2-4.5 kHz >=4 dB below 6-11 kHz: 10.41 dB
+PASS  9.1.3 air 3..15 dB below 6-11 kHz: 5.08 dB
+PASS  9.1.4 peak within 2 ms: 0.02 ms
+PASS  9.1.5 -40 dB time 40..120 ms: 46.4 ms
+PASS  9.1.6 round-robin correlation <0.95: 0.888
+PASS  9.1.6 round-robin RMS within 1 dB: 0.01 dB
+PASS  9.1.7 open -40 dB time 400..1100 ms: 504.8 ms
+PASS  9.1.8 bloom 15-40 ms within 6 dB of 0-10 ms: -1.92 dB
+PASS  9.1.9 centroid falls >=5% by 300-400 ms: 10851 -> 10197 Hz
+PASS  9.1.10 open >=65% energy above 5 kHz: 81.6 %
+PASS  9.1.10 open 100-1000 Hz >=20 dB below 6-11 kHz: 20.69 dB
+PASS  9.1.11 choke >=25 dB: 28.57 dB
+PASS  9.1.12 roll peaks rise (one dip <=1.5 dB): 0 dips, max 0.00 dB
+FAIL  9.1.12 roll step <=1.2 x first onset: 10.278 x
+PASS  9.1.13/14 clean and deterministic
+```
+
+The roll's **step-ratio check is a real FAIL**, not hidden. The check compares the largest sample-to-sample step
+around a high-velocity retrig with the largest at the first onset, which is at velocity 40. A high-frequency hat's
+natural slope scales with amplitude, so the high-velocity hits are about 10× larger. A limiter that would pass it
+flattens the peaks and breaks the "each hit higher" part or the velocity/timbre checks; I did not fake it. This needs
+an owner decision (see §11-style note at the bottom of this section).
+
+### M2 — device proof (passed)
+
+`engines/sheen/sheen.c` is the bridge: PUNCH's trig (`v+0x38`), note end (`v+0x3c`), machine marker (`v+0x2c`),
+velocity word (`0x40fe4cdc + 2*track`), PITCH/FINE and the four knobs. `sheen_update`/`sheen_render`;
+`manifest.json`; `card.json`; committed `sheen.o` (`python3 core/build_engine.py sheen` passes).
+`build/sheen-core_OS1.13.syx` is the M2 fallback (also copied as `build/sheen_OS1.13.syx`).
+
+`tests/emu/test_engines.py --machines sheen` — **ALL OK** (boot, dispatch, sound, no hard clipping, stock
+machines sample-identical). The same test with `feral9,punch,blast,sheen` — **ALL OK** (payload 90,696 bytes,
+`0x401c0388 < 0x40200000`).
+
+### M3 — macros, one group at a time (passed)
+
+Every group was added and the host checks run after it: DECAY/reverse/GATE/velocity; SIZE/bloom/wash/darkening/
+shimmer; COLOR/metal share/RING/cowbell; TICK/attack/bursts/chirp/spike; HEAT/glue/drive/clip/tilt/crush/air/makeup.
+Real tail of the full macro run:
+
+```
+131 checks, 0 failed
+ALL OK
+```
+
+Notable measured values: COLOR flatness 0=0.499, 64=0.500→after the final table 127=0.070 (the check is
+127 < 64 < 0); SIZE centroid 0=12690 → 127=10929 Hz, length 0=23 ms → 127=192 ms; TICK onset/tail 0=−34.20 →
+96=−13.05 dB, 3 bursts at 0, 127 metal base 1609.5 Hz; HEAT RMS within ±3 dB at every point, crest 0=21.7 →
+96=20.7 dB, hold 3 / bits 7 at 127; DECAY closed 14 ms → 547 ms, open 117 ms → 341 ms, reverse peaks at 77/522/863
+ms and cuts in 0.2 ms; PUNCH 505/46 ms; velocity 30↔127 19.31 dB, centroid 9804→11379 Hz; GATE 571 dB.
+
+### M4 — recipes, package, checks
+
+**Recipes:** `47 checks, 0 failed, ALL OK` (all 17 render cleanly, RMS > −40 dBFS; note-length GATE 43.86 dB; trap
+22.0 ms; shaker 2 bursts; tambourine 8 bursts / 91.9 % >4 kHz; ride 1.2 s+; crash 1.5 s+ / 91.6 %; cowbell peaks
+795 and 540 Hz; reverse peak 990 ms; crushed hold 3/7; laser 1541–1609 Hz; gong 1.4–1.6 s −7.5 dB).
+
+**Emulator sample-exact:** host vs device after the OS's `>>1`:
+`hero_closed`, `hero_open`, `choke_pair`, `soft_hit`, `roll`, all 17 recipes and a machine change are identical.
+The full exact run is in `build/sheen_exact.log`; the earlier selected runs are quoted below. The test feeds the OS
+trig one block before the host script because the OS sets `v+0x38` in the following block, exactly as PUNCH reads it.
+
+```
+ok    hero_closed: 9600 samples identical
+ok    hero_open: 28800 samples identical
+ok    choke_pair: 22400 samples identical
+ok    roll: 16000 samples identical
+ok    recipe04_trap_closed: 19200 samples identical
+ok    recipe17_gong: 32000 samples identical
+```
+
+**CPU (real voice loop, same run): FAIL**
+
+```
+TONE trig 8982, steady 6901 instructions/block
+SHEEN worst 24804 = 3.594 x TONE steady
+hero trig 9547, steady 17008, silent 9571 (TONE silent 9006, marginal 565)
+six SHEEN 137385, six TONE 45818 (2.998 x)
+```
+
+The engine is over the 0.90 × TONE target by a wide margin. The first ladder cuts (crush, tilt, shimmer 128→64,
+RING two pairs, shimmer removed, metal at 24 kHz) cannot bridge a 3.6× gap and would remove protected features or
+the 48 kHz identity; I stopped and report it rather than cut the sound. **No cut-ladder step was applied.**
+
+**Size:** `--dump-size` = **640 bytes per voice** (including the 128-sample shimmer buffer) — at the limit. The
+composed package is **12,436 bytes of code and tables**, **3,960 bytes of variables for six tracks**, and **20,576
+bytes added to the image**. The all-carded-engine `test_size_cpu.py` run fails on the **shared code window**:
+`!! sheen: code and tables end at 0x43036004, past 0x43033000`. The six carded engines already used 208,728 of the
+208,896-byte region; SHEEN cannot be added without a shared capacity decision. The required four-engine build fits.
+
+**Equivalence:** `tests/test_equivalence.py` places every package and composes each offered engine alone; it fails
+only on the **all-seven-carded** composition at the same code-window limit:
+`!! sheen: code and tables end at 0x43036004, past 0x43033000`. The required selections and `sheen` alone pass the
+per-engine placement and the composer's own build. This is the same repository capacity issue, reported.
+
+**Page/catalog:** SHEEN appended at slot 14; `tools/make_catalog.py` regenerated `docs/flasher/engines.js`
+(`--check` passes).
+
+**Builds (gitignored, contain Elektron's OS):**
+`build/sheen_OS1.13.syx`, `build/sheen-core_OS1.13.syx`, `build/sheen-all_OS1.13.syx` (feral9, punch, blast,
+sheen; 977,568 bytes). Demos in `build/sheen-demos/`: `00-groove.wav` plus all 17 recipes and the four macro
+sweeps (54 files). Hardware checklist appended to `HARDWARE-CHECKLIST.md`.
+
+**Decisions / deviations logged**
+
+- The five-point macro interpolation uses the real 0/32/64/96/127 breakpoints (the last segment is 96..127, not
+  96..128), so the 127 column is reached exactly.
+- Envelope times use a Q16 log2 exponent and a split multiply for ms × Q12; without it, long T60s silently
+  overflowed or rounded to zero (ride/crash/gong lost their tails).
+- Round robin: the start phases are random **per voice** (fixed across its trigs) and the core noise is reseeded at
+  each trig, so a roll's peak follows velocity; hits vary by detune (±3 cents), cutoff (±0.5 %), decay (±1 %), tick
+  decay (±3 %) and level (±0.1 dB). The round-robin correlation is 0.888 < 0.95. This is a deliberate change from
+  "random phases on every trig"; with per-trig phases the roll's peak varied by up to 8 dB.
+- Velocity carve: level `0.08 + 0.92·v²`, tick `×v³`, air `×v²` (the starting text said tick ×v² and air
+  0.4+0.6v; the harder tick/air carve is what makes the loud hit's centroid higher).
+- The trim values after tuning are in `engines/sheen/README.md`; the final macro tables are there too.
+
+**Still not passed / owner decisions**
+
+1. **CPU**: 3.59× TONE worst, 3.00× six voices. This is a stop-and-report item. A real fix needs a different
+   implementation (fewer instructions per sample), not a ladder cut.
+2. **Roll step ratio**: 10.28× vs the 1.2× check, a consequence of comparing a velocity-40 first onset with
+   velocity-120 natural slopes. A limiter would flatten the peaks/velocity; I did not fake it.
+3. **Shared code window**: all seven carded engines no longer fit `0x43033000`. The owner must drop an engine,
+   raise the window, or keep SHEEN off the all-engines page selection.
+
+### §10 report at a glance
+
+- **What works:** the hero closed/open pair, the choke, all four macros, all 17 recipes, the 1/32 roll (peaks) and
+  every sample-exact device case. The closed-after-open and GATE chokes work. The page/catalog and four-engine build
+  work. Nothing is hardware-tested.
+- **CPU (instructions/block, same emulator run):** SHEEN worst **24,804** (3.594 × TONE steady 6,901), hero steady
+  **17,008**, silent marginal **565** over TONE silent; six active SHEEN **137,385** vs six TONE **45,818**
+  (2.998 ×). **FAIL**; no ladder cut applied.
+- **Size:** code + tables **12,436 bytes**; variables **640 bytes/voice** (3,960 for six tracks); image added
+  **20,576 bytes**. The all-seven-carded build exceeds the shared code window by 12,292 bytes; the required
+  four-engine build fits.
+- **Checks:** the combined host run is **196 checks, 1 failed**: §9.1 17/18 (roll step ratio FAIL 10.278×,
+  everything else PASS), §9.2 **131/131 PASS**, §9.3 **47/47 PASS**. §9.4 exact **all selected cases PASS**; level
+  +1.71 dB PASS; CPU/six voices FAIL; size/code window FAIL; `test_engines.py` alone and with
+  `feral9,punch,blast,sheen` PASS.
+- **Where:** branch `engine-sheen`, slot **14** (machine 13). `build/sheen_OS1.13.syx`,
+  `build/sheen-core_OS1.13.syx`, `build/sheen-all_OS1.13.syx`; `build/sheen-demos/00-groove.wav` then the 17
+  recipes and macro sweeps. Hardware checklist appended.
+- Nothing is hardware-tested. Nothing is merged to `main`.
 
 ## CRACK — hybrid-rate drum engine (branch `engine-crack`)
 
@@ -402,3 +552,47 @@ every step: phase, step, what passed, what failed, what's next.
   `a5597b99…`; MAIN OS SHA-256 `10bea271…`, ends `0x401ba13c`). `build/` is gitignored; it contains
   Elektron's OS.
 - Hardware: **not tested**. Checklist appended to `HARDWARE-CHECKLIST.md`.
+
+## 2026-10-27 — FMSUB 0.2: SUB fixed at 127, INDEX on CONTOUR (test build)
+
+- Requested change: the sub-oscillator is fixed at 127 (full level, no longer a knob), INDEX moves from the
+  SHAPE encoder to CONTOUR, and SHAPE is left unused.
+- `engines/fmsub` is version `0.2-test`: `fmsub.c` hardcodes the sub gain at knob 127 (`SUB_127`) and reads the
+  FM index from `in->contour`; the manifest knobs are Ratio (COLOR), Shape (spare), Sweep, Index (CONTOUR);
+  `fmsub.o` rebuilt (4,284 bytes of code and tables, 480 BSS).
+- Standalone machine 6 build and proof: `build/newdrums/build_and_prove.py` **ALL OK** — bootstrap depack, boot
+  hook, sound/no clipping/no unmapped access, SHAPE 0 == SHAPE 127 sample for sample, CONTOUR 0/64/127 differ,
+  CONTOUR 0 still sounds, stock SNARE/KICK identical, and the new build is sample-identical to the old 0.1
+  object at the equivalent settings (old SHAPE = new CONTOUR, old CONTOUR = 127) for INDEX 0, 64 and 127.
+- Deliverable: `/Users/ooo/Desktop/NEWDRUMS/01-FMSUB-sub127-index-contour.syx` (901,792 bytes; SHA-256
+  `a33c301d94a0b81241a908d7aa81b1526db3974259663c0b4bb77ea59e9053dc`; MAIN OS ends `0x401ac904`). The model27
+  `tools/flash.py --verify` container check passes. `build/` is gitignored; it contains Elektron's OS.
+- **Not hardware-tested.**
+
+## 2026-10-27 — MET extracted from Feral Drum (NEWDRUMS)
+
+- New development package `engines/met` (id `met`, machine `MET`): the Benjolin metal drum voice of Feral Drum,
+  one model only. The SHAPE encoder is not read, so it has no effect and is free.
+- `met_tables.h` is the subset of `feraldrum_tables.h` that MET uses, copied verbatim. `met_dsp.h` is the
+  Benjolin engine plus Feral Drum's shared drum envelope, DC blocker and soft clipper, with the model dispatch
+  removed. `met.c` is the voice-loop glue with the SHAPE read and descriptor-name rewriting removed.
+- Object: `core/build_engine.py met --check` up to date (13,976 o; code+tables 11,356, BSS 1,776).
+- CPU: 5,993 instructions per 32-sample block = **0.989 x TONE** (6,061), emulator, 2026-10-27.
+- Proof: `build/newdrums/build_and_prove_met.py` **ALL OK** — boot, depack, sound, no clipping, no unmapped;
+  SHAPE 0/64/127 render identically; MET and Feral Drum's MET are sample-for-sample identical at two settings;
+  COLOR and CONTOUR change the sound. `relocate.place` equivalence includes met (23/23 placements).
+- Standalone build: `build/newdrums/model-cycles_OS1.13-MET.syx` (909,984 bytes; SHA-256 `057c9576…`, MAIN OS
+  ends `0x401ae4a0`), MET at machine 6 / slot 7. `tools/flash.py --verify` passes (Elektron, product 0x11,
+  checksums OK). The package is also copied to `build/newdrums/met/` (the NEWDRUMS folder).
+- Not on the flasher page (no card.json, not in slots.json). **Not hardware-tested.**
+
+## 2026-10-27 — MET 1.1: COLOR spans 80..127
+
+- MET's COLOR knob is remapped at the input: knob 0 = internal COLOR 80, knob 127 = internal 127, linear in
+  8.8. The DSP and tables are untouched; `met.c` has the mapping (`met_color`).
+- CPU: 5,876 instructions/block at COLOR 64 (0.969 x TONE); worst 6,871 at COLOR 127 (1.134 x TONE, above
+  TONE: the §2.2 warning). Code+tables 11,476 bytes.
+- Proof rerun **ALL OK**: SHAPE 0/64/127 identical; new COLOR 0/64/127 sample-for-sample identical to Feral
+  Drum MET at internal COLOR 80/103.684/127; COLOR and CONTOUR still change the sound.
+- Standalone build rebuilt: `build/newdrums/model-cycles_OS1.13-MET.syx` (909,984 bytes; SHA-256 `f34facd5…`,
+  MAIN OS ends `0x401ae518`). `build/newdrums/met/` resynced. Not hardware-tested.

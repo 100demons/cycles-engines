@@ -3,14 +3,19 @@
  "description": [
   "One permanent slot per engine, from 7 upward (slot 7 is the first added engine; the OS numbers it machine 6).",
   "Entries are appended, never reordered, never reused: a removed engine keeps its slot as a placeholder forever,",
-  "so a saved sound or pattern finds the same engine in any later build that includes it (ARCHITECTURE.md §4).",
+  "so a saved sound or pattern finds the same engine in any later build that includes it (ARCHITECTURE.md \u00a74).",
   "LiXR and SAM were dropped before launch, so they never took a shipped slot: the three offered engines sit at",
-  "7..9 with no gap. SAM keeps slot 10 reserved for when it is ready. The reference machine never gets a slot on the page."
+  "7..9 with no gap. SAM keeps slot 10 reserved for when it is ready. The reference machine never gets a slot on the page.",
+  "Ultra Feral keeps slot 12 and Feral Drum is appended at slot 13; SHEEN is appended at slot 14. A build that does not tick an engine shows the shared silent ---- placeholder in its slot."
  ],
  "slots": {
   "feral9": 7,
   "punch": 8,
   "blast": 9,
-  "sam": 10
+  "sam": 10,
+  "rings": 11,
+  "ultraferal": 12,
+  "feraldrum": 13,
+  "sheen": 14
  }
 }

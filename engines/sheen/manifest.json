@@ -1,0 +1,146 @@
+{
+ "schema": "cycles-mod/0.1",
+ "id": "sheen",
+ "version": "0.1",
+ "name": "SHEEN machine: a hybrid-rate hi-hat and metal percussion voice",
+ "description": "A modern hi-hat engine: six 808 metal oscillators, noise, a 48 kHz tick and air layer, a TPT voice filter with split body/sizzle envelopes, a chik resonator, a shimmer comb and a Heat chain. COLOR = Metal, SHAPE = Size, SWEEP = Tick, CONTOUR = Heat; PUNCH opens the hat, GATE chokes it at the note end.",
+ "license": "MIT",
+ "credit": {
+  "kind": "own",
+  "who": "100demons"
+ },
+ "source": "engines/sheen",
+ "device": "Model:Cycles",
+ "os": "1.13",
+ "order": 28,
+ "build": {
+  "sources": [
+   "sheen.c"
+  ],
+  "include": [
+   "."
+  ],
+  "cflags": [
+   "-mcpu=54418",
+   "-Os",
+   "-malign-int",
+   "-U_FORTIFY_SOURCE",
+   "-ffreestanding",
+   "-fno-builtin",
+   "-fno-tree-loop-distribute-patterns",
+   "-nostdlib",
+   "-fno-pic",
+   "-fno-common",
+   "-ffunction-sections",
+   "-fdata-sections",
+   "-fomit-frame-pointer",
+   "-fno-asynchronous-unwind-tables",
+   "-fno-unwind-tables",
+   "-fmerge-all-constants",
+   "-fno-inline-functions-called-once",
+   "-Wall",
+   "-Wextra",
+   "-Werror"
+  ],
+  "defines": {},
+  "objects": [
+   "sheen.o"
+  ],
+  "patch_points": [],
+  "symbols": {
+   "update": "sheen_update",
+   "render": "sheen_render"
+  },
+  "keep": []
+ },
+ "uses": [
+  {
+   "point": "machine",
+   "name": "SHEEN",
+   "image": 2,
+   "decay_default": 40,
+   "knobs": [
+    {
+     "long": "Metal",
+     "short": "METL",
+     "default": 64
+    },
+    {
+     "long": "Size",
+     "short": "SIZE",
+     "default": 64
+    },
+    {
+     "long": "Tick",
+     "short": "TICK",
+     "default": 64
+    },
+    {
+     "long": "Heat",
+     "short": "HEAT",
+     "default": 64
+    }
+   ]
+  }
+ ],
+ "claims": {
+  "sound_slots": [],
+  "record_slots": [],
+  "ram": [],
+  "formatters": [],
+  "gestures": [],
+  "views": []
+ },
+ "cost": {
+  "emulation": {
+   "tool": "tests/sheen/test_sheen_emu.py, real voice loop, instructions per 32-frame block",
+   "status": "measured",
+   "per_voice": {
+    "max": 24804,
+    "steady": 17008,
+    "silent": 565
+   },
+   "reference": {
+    "TONE": 6901,
+    "worst_vs_tone": 3.594
+   },
+   "six_voices": {
+    "sheen": 137385,
+    "tone": 45818,
+    "ratio": 2.998
+   },
+   "note": "FAIL: over budget. The worst block is 3.59 x TONE steady and six active voices are 3.00 x six TONE; the silent path is 565 instructions over TONE silent. Reported honestly; no cut-ladder step can close this gap without removing protected features."
+  },
+  "device": {
+   "status": "not measured"
+  }
+ },
+ "stock_behaviour": {
+  "changes": [],
+  "fixes": [],
+  "unchanged": [
+   "the six stock machines",
+   "every track that does not use SHEEN"
+  ]
+ },
+ "compat": {
+  "built_against": [
+   "modded-cycles"
+  ],
+  "requires": [],
+  "conflicts_declared": []
+ },
+ "tests": {
+  "emulation": {
+   "tool": "tests/emu (voice loop, Unicorn)",
+   "date": null,
+   "build": null
+  },
+  "hardware": {
+   "date": null,
+   "by": null,
+   "build": null
+  },
+  "status": "experimental"
+ }
+}
