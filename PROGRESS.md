@@ -102,10 +102,11 @@ every step: phase, step, what passed, what failed, what's next.
   - `tests/emu/test_engines.py --machines feral9,punch,blast,crack --blocks 8`: **ALL OK** (all four dispatch and
     sound; stock SNARE/KICK sample-identical).
   - `tests/crack/test_crack_sound.py`: **159 checks, 0 failed, ALL OK**.
-  - `tests/crack/test_crack_emu.py`: **ALL OK** — hero/rim/ghost/retrigger/machine-change **0 differing samples**;
-    every recipe sample-exact (the focused run before the final full run: hero, rimshot, ghost, trap clap-snare,
-    808, 909, brush, gated 80s, kick, tom, clap, metal hat, metal hit, zap, crushed, sustained bass — all 0
-    differing); level +0.72 dB; CPU below.
+  - `tests/crack/test_crack_emu.py` (main §9.4 run): **ALL OK** — hero/rim/ghost/retrigger/machine-change **0
+    differing samples**; level +0.72 dB; CPU below. The recipe sample-exact loop is long in Unicorn (a single
+    process was stopped after 4 cases), so it was run in two focused batches: the first 10 recipes (hero, rimshot,
+    ghost, trap clap-snare, 808, 909, brush, gated 80s, kick, tom) and then the remaining 5 (clap, metal hat,
+    metal hit, zap, crushed) plus the sustained bass. **All 16 recipes: 0 differing samples.**
 - **Cut ladder**: **none applied.** The hard ceiling (≤1.00× TONE) is met on the defined worst block (0.968×), so
   the ladder's trigger (over 1.00×) was not reached. The 0.90 margin target is **not met** on the worst block;
   the steady block is 0.851×. This is the one target miss in the engine.
@@ -156,7 +157,7 @@ measurements, printed by the test. Size: `crack.o` 13,784 bytes, text 9,048, BSS
 | 9.2 GATE | PASS | +574.2 dB at 250 ms |
 | 9.3 all 16 recipes | PASS | clean, RMS > −40; kick 50 Hz, clap 7 bursts, hat −0.87 dB, zap 35.3 st, bass 0.000 st / 48 Hz |
 | 9.4.1 emulator dispatch/sound/stock | PASS | `test_engines.py` both selections ALL OK |
-| 9.4.2 sample exact | PASS | 0 differing samples: hero, rim, ghost, retrigger, machine change, all 16 recipes |
+| 9.4.2 sample exact | PASS | 0 differing samples: hero, rim, ghost, retrigger, machine change; all 16 recipes in two focused runs |
 | 9.4.3 CPU | PASS on hard ceiling | worst 0.968× TONE (target 0.90× not met) |
 | 9.4.4 level | PASS | +0.72 dB |
 | 9.4.5 six voices | PASS | engine cost 32,285 vs six TONE 33,356 (0.968×) |
@@ -181,8 +182,9 @@ clap, brush/stick/snap/hard/zap, raw/warm/smack/clipped/destroyed). All 16 recip
 **What was tested.** Everything below was tested **in the emulator and on host renders**, not on hardware:
 the §9.1 hero checks (all pass), every §9.2 macro point (all pass), all 16 recipes (all pass), sample-exact host
 vs device code for the hero, rimshot, ghost note, retrigger, machine change and every recipe (0 differing
-samples), the six stock machines unchanged, the composed builds booting and every installed engine dispatching,
-the image budget, and the CPU instruction counts. The CPU hard ceiling is met (0.968× TONE worst, 0.851× steady);
+samples; the 16 recipe comparisons were run in two focused batches because one Unicorn process is very slow),
+the six stock machines unchanged, the composed builds booting and every installed engine dispatching, the image
+budget, and the CPU instruction counts. The CPU hard ceiling is met (0.968× TONE worst, 0.851× steady);
 the 0.90 margin target is **not** met on the worst block. The first note after a machine change costs more once
 (the bridge resets the voice because the OS owns v+0x2c until the first trig); steady play is the 0.851× figure.
 
