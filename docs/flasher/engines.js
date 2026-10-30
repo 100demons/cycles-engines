@@ -4871,7 +4871,7 @@ window.MC_ENGINES = {
   {
    "id": "punch",
    "card": {
-    "label": "👊 Punch (0.5 beta)",
+    "label": "👊 PUNCH (1.0)",
     "description": "Twelve percussion FM engines on one machine. Raw, heavy and digital. Built on the Yamaha OPL2 with extended fixed FM ratios for modern sounds and alien harmonics.\n\n[[video]]\n\nKIK - Kick: the classic FM kick, three octaves of pitch drop into a sine body\nTOM - Tom: tuned membrane, one octave of pitch drop\nBNG - Bongo: high, short and tight\nCNG - Conga: lower and rounder, with a short bend\nDJB - Djembe: hand drum, pitch drop and FM body\nTAI - Taiko: big low drum, deep pitch drop, FM body\nTIM - Timpani: felt thud and a long membrane\nMAR - Marimba: fundamental plus tuned overtone, mallet click\nBLK - Woodblock: short, hard pitched click\nGNG - Gong: low inharmonic metal, long FM decay\nBUB - Bubble: pitch rises into the note\nZAP - Laser: four-octave pitch fall\n\nSHAPE picks the engine\nCOLOR is the FM depth\nSWEEP is the ratio, 1:4 to 15X\nCONTOUR shapes the model's movement\n\n[GATE] = on\nholds the note for its length\n\n[PUNCH] = on\nMAR: vibrato\nGNG: tremolo\nOthers: nothing",
     "status": "experimental",
     "credit": {
@@ -4881,7 +4881,7 @@ window.MC_ENGINES = {
     "license": "LICENSE",
     "video": "MH_buA0-jHs"
    },
-   "version": "0.5",
+   "version": "1.0",
    "name": "PUNCH machine: 12 OPL2-style FM percussion engines",
    "cost": {
     "emulation": {
@@ -4895,7 +4895,7 @@ window.MC_ENGINES = {
   {
    "id": "blast",
    "card": {
-    "label": "💥 Blast (0.8 beta)",
+    "label": "💥 BLAST (3.0)",
     "description": "Fourteen melodic FM models on one machine. A '90s PC Soundblaster engine, built on the Yamaha OPL2.\n\n[[video]]\n\nSIN - Sine: clean two-operator FM, modulator depth on COLOR\nHLF - Half-sine: hollow, reedy carrier\nABS - Absolute sine: folded wave, octave-rich and bright\nPLS - Pulse: nasal, square-edged carrier\nBAS - Bass: short FM slap over a round body\nPIA - Piano: bright bark settling into a round tone\nMAR - Marimba: fundamental plus tuned overtone, mallet click\nGLK - Glockenspiel: bright strike with a quiet high partial\nBRS - Brass: slow swell into a sustained brass\nACC - Accordion: two detuned half-sine reeds\nSTR - Strings: feedback saw modulator with a bowed attack\nSTL - Steel drum: hollow ring with a semitone blip\nTMP - Timpani: felt thud and a long low membrane\nZAP - Laser: four-octave pitch fall\n\nSHAPE picks the model\nCOLOR is the FM depth\nSWEEP is the fixed modulator:carrier ratio, 1:2 to 15X\nCONTOUR shapes the model\n\n[GATE] = on\nBRS, ACC, and STR: sustain\nPIA, MAR, GLK and STL: delays the damper so long notes ring.\n\n[PUNCH] = on\nSIN, HLF, ABS, PLS, MAR, BRS and STR: vibrato\nBAS, PIA, GLK and STL: tremolo\nACC: vibrato and tremolo\nTMP and ZAP: nothing",
     "status": "experimental",
     "credit": {
@@ -4905,7 +4905,7 @@ window.MC_ENGINES = {
     "license": "LICENSE",
     "video": "cPBxAeiMe9A"
    },
-   "version": "0.8",
+   "version": "3.0",
    "name": "BLAST machine: 14 melodic OPL2-style FM models",
    "cost": {
     "emulation": {
@@ -4917,9 +4917,9 @@ window.MC_ENGINES = {
    }
   },
   {
-   "id": "feral9",
+   "id": "feral",
    "card": {
-    "label": "🐀 Feral (0.7 beta)",
+    "label": "🐀 FERAL (9.0)",
     "description": "Nine noisy, unpredictable synthesis models on one machine, light on the processor.\n\n[[video]]\n\nNYB - Nyblcore: bytebeat formulas over an 8 kHz counter\nGND - Gendy: per-period waveform from random-walk points\nBNJ - Benjolin: two triangles plus an 8-bit rungler clocked by OSC2\nRYT - Rhythmicon: ten partials as 2-pole ping resonators\nFRS - Fourses: four points reflecting between neighbors, averaged\nRNG - Rungler: 8-bit register quantized to fifths/octaves\nPLS - Pulsar: windowed sine pulses at COLOR × pitch\nSCN - Scanned synthesis: 32-mass ring scanned at note pitch\nKOS - Chaotic map: x → r·x(1−x), 16 iterations per period\n\n[GATE] = on (with extended note lengths) is recommended for all synthesis types\n\n[PUNCH] is an on/off \"FREE\" switch.\nOff: each trig restarts the engine from scratch, so every hit sounds the same.\nOn: the engine keeps running between trigs, so patterns drift and change on their own.\nOn BNJ: it locks the random loop into a repeating cycle instead of letting it wander.",
     "status": "tested",
     "credit": {
@@ -4929,11 +4929,11 @@ window.MC_ENGINES = {
     "license": "LICENSE",
     "video": "r4Z3FvKYv5k"
    },
-   "version": "9",
-   "name": "Feral machine: nine noisy, unpredictable synthesis models",
+   "version": "9.0",
+   "name": "FERAL machine: nine noisy, unpredictable synthesis models",
    "cost": {
     "emulation": {
-     "tool": "source tree measurement (feral9 changes)",
+     "tool": "source tree measurement (Feral changes)",
      "per_voice": {
       "min": 2257,
       "max": 4801
@@ -4953,7 +4953,7 @@ window.MC_ENGINES = {
    "id": "punch",
    "name": "PUNCH machine: 12 OPL2-style FM percussion engines",
    "order": 27,
-   "version": "0.5",
+   "version": "1.0",
    "symbols": {
     "update": "punch_update",
     "render": "punch_render"
@@ -5388,7 +5388,7 @@ window.MC_ENGINES = {
    "id": "blast",
    "name": "BLAST machine: 14 melodic OPL2-style FM models",
    "order": 27,
-   "version": "0.8",
+   "version": "3.0",
    "symbols": {
     "update": "blast_update",
     "render": "blast_render"
@@ -6209,11 +6209,11 @@ window.MC_ENGINES = {
     "bss": 1172
    }
   },
-  "feral9": {
-   "id": "feral9",
-   "name": "Feral machine: nine noisy, unpredictable synthesis models",
+  "feral": {
+   "id": "feral",
+   "name": "FERAL machine: nine noisy, unpredictable synthesis models",
    "order": 64,
-   "version": "9",
+   "version": "9.0",
    "symbols": {
     "update": "tiny2_update",
     "render": "tiny2_render"
@@ -6230,7 +6230,7 @@ window.MC_ENGINES = {
    "uses": [
     {
      "point": "machine",
-     "name": "Feral",
+     "name": "FERAL",
      "image": 4,
      "decay_default": 50,
      "knobs": [
@@ -7796,7 +7796,7 @@ window.MC_ENGINES = {
   }
  },
  "slots": {
-  "feral9": 7,
+  "feral": 7,
   "punch": 8,
   "blast": 9,
   "sam": 10

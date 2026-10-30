@@ -65,12 +65,12 @@ def main():
     check("----" in names, f"lixr alone: the MACHINES page name table holds ---- (got {names})")
 
     # Feral + LiXR: Feral at slot 7 (machine 6), LiXR at slot 8 (machine 7)
-    tweak2, info2, img2, runtime2 = built(stock, ["feral9", "lixr"])
-    print("\nferal9+lixr: " + ", ".join(f"{p['id']} = machine {p['index']}" for p in info2["packages"]))
-    check(bootstrap_depack_ok(args.cycles, stock, tweak2), "feral9+lixr: bootstrap depack")
-    check(boot_hook_ok(img2, runtime2), "feral9+lixr: boot hook")
+    tweak2, info2, img2, runtime2 = built(stock, ["feral", "lixr"])
+    print("\nferal+lixr: " + ", ".join(f"{p['id']} = machine {p['index']}" for p in info2["packages"]))
+    check(bootstrap_depack_ok(args.cycles, stock, tweak2), "feral+lixr: bootstrap depack")
+    check(boot_hook_ok(img2, runtime2), "feral+lixr: boot hook")
     e2 = engine(img2, runtime2, tweak2)
-    check(not e2.unmapped, "feral9+lixr: voice loop starts, no unmapped access")
+    check(not e2.unmapped, "feral+lixr: voice loop starts, no unmapped access")
     for p in info2["packages"]:
         if p["id"] == "placeholder":
             continue
@@ -78,7 +78,7 @@ def main():
                punch=0, gate=0, decay=50)
         x = e2.render(args.blocks, trig_at=(1,), track=0)
         check(int(np.abs(x).max()) > 1_000_000 and not e2.unmapped,
-              f"feral9+lixr: {p['id']} (machine {p['index']}) makes sound (peak {int(np.abs(x).max())})")
+              f"feral+lixr: {p['id']} (machine {p['index']}) makes sound (peak {int(np.abs(x).max())})")
     # the stable-slot property: LiXR is machine 7 in both builds
     lixr_alone = next(p for p in info["packages"] if p["id"] == "lixr")
     lixr_pair = next(p for p in info2["packages"] if p["id"] == "lixr")

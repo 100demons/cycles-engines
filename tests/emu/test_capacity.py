@@ -58,8 +58,8 @@ def main():
             check(mono, f"{n} copies: each slot a semitone higher than the last "
                   f"({', '.join(f'{p:.0f}' for p in pitches)} Hz)")
 
-    # the real engines next to refmachine copies (slots: feral9 = 7, lixr = 8, refmachine = 12+)
-    for combo in (["feral9", "refmachine"], ["lixr", "refmachine"], ["feral9", "lixr", "refmachine"]):
+    # the real engines next to refmachine copies (slots: feral = 7, lixr = 8, refmachine = 12+)
+    for combo in (["feral", "refmachine"], ["lixr", "refmachine"], ["feral", "lixr", "refmachine"]):
         tweak, info, img, runtime = built(stock, combo)
         print(f"\n{'+'.join(combo)}: payload {len(runtime)} bytes")
         check(bootstrap_depack_ok(args.cycles, stock, tweak), f"{'+'.join(combo)}: bootstrap depack")

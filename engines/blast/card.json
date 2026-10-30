@@ -1,5 +1,5 @@
 {
-  "label": "💥 Blast (0.8 beta)",
+  "label": "💥 BLAST (3.0)",
   "description": "Fourteen melodic FM models on one machine. A '90s PC Soundblaster engine, built on the Yamaha OPL2.\n\n[[video]]\n\nSIN - Sine: clean two-operator FM, modulator depth on COLOR\nHLF - Half-sine: hollow, reedy carrier\nABS - Absolute sine: folded wave, octave-rich and bright\nPLS - Pulse: nasal, square-edged carrier\nBAS - Bass: short FM slap over a round body\nPIA - Piano: bright bark settling into a round tone\nMAR - Marimba: fundamental plus tuned overtone, mallet click\nGLK - Glockenspiel: bright strike with a quiet high partial\nBRS - Brass: slow swell into a sustained brass\nACC - Accordion: two detuned half-sine reeds\nSTR - Strings: feedback saw modulator with a bowed attack\nSTL - Steel drum: hollow ring with a semitone blip\nTMP - Timpani: felt thud and a long low membrane\nZAP - Laser: four-octave pitch fall\n\nSHAPE picks the model\nCOLOR is the FM depth\nSWEEP is the fixed modulator:carrier ratio, 1:2 to 15X\nCONTOUR shapes the model\n\n[GATE] = on\nBRS, ACC, and STR: sustain\nPIA, MAR, GLK and STL: delays the damper so long notes ring.\n\n[PUNCH] = on\nSIN, HLF, ABS, PLS, MAR, BRS and STR: vibrato\nBAS, PIA, GLK and STL: tremolo\nACC: vibrato and tremolo\nTMP and ZAP: nothing",
   "status": "experimental",
   "credit": {"kind": "own", "who": "100demons"},

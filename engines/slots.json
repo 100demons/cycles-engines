@@ -8,7 +8,7 @@
   "7..9 with no gap. SAM keeps slot 10 reserved for when it is ready. The reference machine never gets a slot on the page."
  ],
  "slots": {
-  "feral9": 7,
+  "feral": 7,
   "punch": 8,
   "blast": 9,
   "sam": 10

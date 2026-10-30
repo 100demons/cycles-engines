@@ -18,7 +18,7 @@ BUF = 0x80000400
 
 def main():
     stock = main_os_from_syx(sys.argv[1])
-    for ids in (["feral9"], ["feral9", "punch", "blast"]):
+    for ids in (["feral"], ["feral", "punch", "blast"]):
         tweak, info, img, runtime = built(stock, ids)
         e = engine(img, runtime, tweak)
         obj = e.call(STATE_AT, 77)                       # descriptor 77 = Feral's SHAPE (slot 7)

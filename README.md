@@ -8,7 +8,7 @@ An *engine* is a package (one folder, one manifest, one relocatable object). The
 in the firmware, registering them together after the six stock machines, in the order you tick them.
 
 - **The page**: `docs/flasher/` — published on GitHub Pages. Drop `model-cycles_OS1.13.syx`, tick engines, flash.
-- **The command line**: `python3 core/compose.py --cycles model-cycles_OS1.13.syx --machines feral9,lixr`
+- **The command line**: `python3 core/compose.py --cycles model-cycles_OS1.13.syx --machines feral,lixr`
   builds a `.syx` with `python3` alone (no toolchain).
 - **The reference**: `ARCHITECTURE.md` is the source of truth. `PROGRESS.md` tracks a long run.
 

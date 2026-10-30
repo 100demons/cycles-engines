@@ -1,7 +1,7 @@
 {
  "schema": "cycles-mod/0.1",
  "id": "blast",
- "version": "0.8",
+ "version": "3.0",
  "name": "BLAST machine: 14 melodic OPL2-style FM models",
  "description": "One added machine with 14 FM models in the manner of the OPL2 (SIN, HLF, ABS, PLS, BAS, PIA, MAR, GLK, BRS, ACC, STR, STL, TMP, ZAP): a melodic '90s PC Soundblaster engine, higher fidelity Sega Genesis or Doom 2. SHAPE picks the model; COLOR, SWEEP, CONTOUR and DECAY as each model reads them.",
  "license": "MIT",

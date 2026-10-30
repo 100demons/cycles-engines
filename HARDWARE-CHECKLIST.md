@@ -8,7 +8,7 @@ its checkpoint `.syx`; flash the checkpoints in order if the final build misbeha
 
 ## phase-1.syx (Feral + LiXR)
 
-Built from the beta page, or from `core/compose.py --machines feral9,lixr`. Flash Feral + LiXR (two added engines,
+Built from the beta page, or from `core/compose.py --machines feral,lixr`. Flash Feral + LiXR (two added engines,
 slots 7 and 8 after the stock six).
 
 - [ ] Both Feral and LiXR appear on the MACHINES page, after the six stock machines.
@@ -20,7 +20,7 @@ slots 7 and 8 after the stock six).
 
 ## phase-2.syx (Feral + LiXR + 8 refmachine copies — 10 engines, the capacity build)
 
-Built from `core/compose.py --machines feral9,lixr,refmachine x8`. This is a capacity test build: the eight
+Built from `core/compose.py --machines feral,lixr,refmachine x8`. This is a capacity test build: the eight
 refmachine copies are not offered on the page, they just prove the 16-engine room.
 
 - [ ] The device boots and the MACHINES page shows the engines after the stock six.
@@ -32,7 +32,7 @@ refmachine copies are not offered on the page, they just prove the 16-engine roo
 
 ## phase-3.syx (Feral + LiXR at their stable slots)
 
-Built from `core/compose.py --machines feral9,lixr`. Feral is slot 7 (machine 6), LiXR is slot 8 (machine 7). The
+Built from `core/compose.py --machines feral,lixr`. Feral is slot 7 (machine 6), LiXR is slot 8 (machine 7). The
 point of this phase is that LiXR is always slot 8 — a sound saved with it finds it again in any later build.
 
 - [ ] Flash LiXR alone (slot 8, slot 7 is a silent `----` placeholder). The MACHINES page shows `----` at 7 and
@@ -45,7 +45,7 @@ point of this phase is that LiXR is always slot 8 — a sound saved with it find
 
 ## phase-5.syx (Feral + BLAST + PUNCH + SAM — the four engines, with knob displays)
 
-Built from `core/compose.py --machines feral9,blast,punch,sam` (the page no longer offers SAM). The four engines
+Built from `core/compose.py --machines feral,blast,punch,sam` (the page no longer offers SAM). The four engines
 sit at slots 7..10 with no gap. This phase fixes the value-window displays and the stepped SWEEP.
 
 - [ ] The MACHINES page shows the four engines after the six stock ones, with no blank `----` gap.

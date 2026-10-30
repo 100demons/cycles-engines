@@ -26,7 +26,7 @@ typedef uint32_t u32;
 typedef int16_t s16;
 
 /* The machine index (slot - 1), filled by the composer: the symbol's ADDRESS is the value (as cm_descriptor_base
- * in feral9), so the same source placed at different slots plays a different pitch, which is how the emulator
+ * in feral), so the same source placed at different slots plays a different pitch, which is how the emulator
  * test proves every copy dispatches to its own update/render. */
 extern char cm_machine_index[];
 #define MACHINE_INDEX ((int)(long)cm_machine_index)

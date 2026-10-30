@@ -1,8 +1,8 @@
 {
  "schema": "cycles-mod/0.1",
- "id": "feral9",
- "version": "9",
- "name": "Feral machine: nine noisy, unpredictable synthesis models",
+ "id": "feral",
+ "version": "9.0",
+ "name": "FERAL machine: nine noisy, unpredictable synthesis models",
  "description": "One extra machine after Chord with nine models on SHAPE: NYB (bytebeat), GND (Gendy), BNJ (Benjolin), RYT (Rhythmicon resonators), FRS (Fourses), RNG (a HAVOC rungler), PLS (pulsar), SCN (scanned synthesis) and KOS (logistic map). COLOR and SWEEP are the model's two macros, CONTOUR the tone envelope (a third control on BNJ and RNG), PUNCH is FREE, DECAY and GATE as on Tone.",
  "license": "MIT",
  "credit": {
@@ -44,7 +44,7 @@
    "CM_SYMBOLS": "1"
   },
   "objects": [
-   "feral9.o"
+   "feral.o"
   ],
   "symbols": {
    "update": "tiny2_update",
@@ -63,7 +63,7 @@
  "uses": [
   {
    "point": "machine",
-   "name": "Feral",
+   "name": "FERAL",
    "image": 4,
    "decay_default": 50,
    "knobs": [
@@ -113,7 +113,7 @@
  },
  "cost": {
   "emulation": {
-   "tool": "source tree measurement (feral9 changes)",
+   "tool": "source tree measurement (Feral changes)",
    "per_voice": {
     "min": 2257,
     "max": 4801

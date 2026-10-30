@@ -11,7 +11,7 @@ For each selection (each engine alone, then all of them), on the official OS 1.1
 The emulator (mcengine.py, emac.py) is carried over from the old repo (tools/emu/), generalised so it checks any
 slot. Needs Unicorn and numpy, and m68k-elf-objdump on the PATH (see AGENTS.md).
 
-    python3 tests/emu/test_engines.py --cycles model-cycles_OS1.13.syx [--machines lixr,feral9,refmachine] \
+    python3 tests/emu/test_engines.py --cycles model-cycles_OS1.13.syx [--machines lixr,feral,refmachine] \
         [--blocks 100]
 """
 import argparse
@@ -142,7 +142,7 @@ def play(e, track, machine, knobs, decay, blocks, note=60):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--cycles", required=True, help="official model-cycles_OS1.13.syx")
-    ap.add_argument("--machines", default="lixr,feral9,refmachine", help="engine ids, comma-separated")
+    ap.add_argument("--machines", default="lixr,feral,refmachine", help="engine ids, comma-separated")
     ap.add_argument("--blocks", type=int, default=100, help="blocks of 32 frames per sound")
     args = ap.parse_args()
     ids = [i.strip() for i in args.machines.split(",") if i.strip()]

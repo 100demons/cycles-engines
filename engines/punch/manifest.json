@@ -1,7 +1,7 @@
 {
  "schema": "cycles-mod/0.1",
  "id": "punch",
- "version": "0.5",
+ "version": "1.0",
  "name": "PUNCH machine: 12 OPL2-style FM percussion engines",
  "description": "One added machine built from PUNCH's OPL2-style 2-operator FM voice: 12 curated percussion engines (KIK, TOM, BNG, CNG, TAI, TIM, MAR, DJB, BLK, GNG, BUB, ZAP); SHAPE picks the engine, SWEEP steps through the ratio list. COLOR, SWEEP, CONTOUR and DECAY as each engine reads them; PUNCH turns the chip's LFO on the FM engines.",
  "license": "MIT",

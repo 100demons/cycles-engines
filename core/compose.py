@@ -21,7 +21,7 @@ composer takes the packages the user names, in that order, and:
 This is the reference implementation. docs/flasher/composer.js must give the same bytes; a test compares them
 on every change. They are always changed in the same commit.
 
-    python3 core/compose.py --cycles model-cycles_OS1.13.syx --machines lixr [--machines feral9,lixr] \
+    python3 core/compose.py --cycles model-cycles_OS1.13.syx --machines lixr [--machines feral,lixr] \
         [--out build/] [--emit path.json]
 
 Runs with python3 alone (the committed objects, runtime and stub; no toolchain). Carried over from
