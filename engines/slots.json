@@ -5,12 +5,14 @@
   "Entries are appended, never reordered, never reused: a removed engine keeps its slot as a placeholder forever,",
   "so a saved sound or pattern finds the same engine in any later build that includes it (ARCHITECTURE.md §4).",
   "LiXR and SAM were dropped before launch, so they never took a shipped slot: the three offered engines sit at",
-  "7..9 with no gap. SAM keeps slot 10 reserved for when it is ready. The reference machine never gets a slot on the page."
+  "7..9 with no gap. SAM keeps slot 10 reserved for when it is ready; BIAS took 11. The reference machine never",
+  "gets a slot on the page."
  ],
  "slots": {
   "feral": 7,
   "punch": 8,
   "blast": 9,
-  "sam": 10
+  "sam": 10,
+  "bias": 11
  }
 }

@@ -1,0 +1,156 @@
+{
+ "schema": "cycles-mod/0.1",
+ "id": "bias",
+ "version": "2.0",
+ "name": "BIAS machine: six oscillators, one wavefolder, on a pitch-locked clock",
+ "description": "BIAS is a clean-room percussion and drone voice modelled on the documented Basimilus Iteritas Alia architecture: six oscillators, each with its own exponential envelope, summed and normalised, run through a threshold-reflection wavefolder with unlimited stages and given back their envelope after the folder. The oscillators and the folder run on a pitch-locked internal clock (a power-of-two multiple of the fundamental, 18 to 36 kHz), so folding and square edges alias onto harmonics; the internal samples are interpolated to the 48 kHz output. Harm (COLOR) brings in a second tone over the first quarter, then four upper modes with short decays that stretch, then raises their levels; Morph (SHAPE) blends every oscillator through sine, triangle, saw and square; Spread (SWEEP) moves the five upper ratios from the harmonic series to 1, 2, 3, 5, 7, 11; Fold (CONTOUR) sets the folder's threshold over its first three quarters and mixes decaying pulses at the folded peaks over the top quarter. DECAY runs from 10 ms to 4 s to -60 dB, and 127 drones. PUNCH on adds Liquid, a pitch envelope on the clock so all six oscillators drop together; PUNCH off is Skin. Both can be parameter-locked per trig. GATE holds the envelopes at half level while the note is held. The module's Attack control, its noise oscillator, its Metal mode and its range switch are left out: every trig starts at once with the analog-style pop. No Noise Engineering code, table or sample is used: the architecture follows their public manuals. Provisional order 53: the maintainer assigns the final one (CONTRIBUTING.md).",
+ "license": "MIT",
+ "credit": {
+  "kind": "own",
+  "who": "100demons",
+  "repo": "100demons/bias"
+ },
+ "source": "https://github.com/100demons/bias",
+ "device": "Model:Cycles",
+ "os": "1.13",
+ "order": 53,
+ "build": {
+  "sources": [
+   "bias.c"
+  ],
+  "include": [
+   "."
+  ],
+  "cflags": [
+   "-mcpu=54418",
+   "-O3",
+   "-malign-int",
+   "-U_FORTIFY_SOURCE",
+   "-ffreestanding",
+   "-fno-builtin",
+   "-fno-tree-loop-distribute-patterns",
+   "-nostdlib",
+   "-fno-pic",
+   "-fno-common",
+   "-ffunction-sections",
+   "-fdata-sections",
+   "-fomit-frame-pointer",
+   "-fwrapv",
+   "-Wall",
+   "-Wextra",
+   "-Werror"
+  ],
+  "defines": {},
+  "objects": [
+   "bias.o"
+  ],
+  "symbols": {
+   "update": "bias_update",
+   "render": "bias_render"
+  },
+  "keep": [],
+  "patch_points": []
+ },
+ "uses": [
+  {
+   "point": "machine",
+   "name": "BIAS",
+   "image": 4,
+   "decay_default": 60,
+   "knobs": [
+    {
+     "long": "Harm",
+     "short": "HARM",
+     "default": 40,
+     "min": 0,
+     "max": 127
+    },
+    {
+     "long": "Morph",
+     "short": "MRPH",
+     "default": 32,
+     "min": 0,
+     "max": 127
+    },
+    {
+     "long": "Spread",
+     "short": "SPRD",
+     "default": 16,
+     "min": 0,
+     "max": 127
+    },
+    {
+     "long": "Fold",
+     "short": "FOLD",
+     "default": 24,
+     "min": 0,
+     "max": 127
+    }
+   ]
+  }
+ ],
+ "claims": {
+  "sound_slots": [],
+  "record_slots": [],
+  "ram": [],
+  "formatters": [],
+  "gestures": [],
+  "views": []
+ },
+ "cost": {
+  "emulation": {
+   "tool": "tools/emu/test_bias.py in 100demons/bias: Unicorn, the OS's own voice loop, one track trigged",
+   "pattern": "Harm 127, Morph 127, Spread 64, Fold 127, note 121 (the dearest pitch of a sweep over notes 36-127), DECAY 60: the first block, then the mean and maximum over the next 20, by mcengine's count in tools/emu/test_bias.py §8; TONE counted the same way is 6 926 mean, 7 403 max, so BIAS's worst block is 96 % of TONE's. With all four knobs moving every block (as under LFOs) the worst block is 7 141 (96.5 %). The default sound is 4 859 mean, 6 544 max; a kick (Harm 0) 3 949 mean, 4 931 max. The internal clock's window is 18-36 kHz (BIAS_CFG_WINDOW_KHZ); at the spec's 24-48 kHz the worst block was about 120 % of TONE.",
+   "per_voice": {
+    "mean": 6064,
+    "max": 7072,
+    "first_block": 1610
+   },
+   "reference": {
+    "TONE": 7403
+   },
+   "six_voices": {
+    "mean": 23064,
+    "max": 28750
+   },
+   "knobs_moving": {
+    "max": 7141
+   }
+  },
+  "device": {
+   "status": "not measured"
+  }
+ },
+ "stock_behaviour": {
+  "changes": [
+   "the voice has its own envelopes and folder and does not run the stock amp chain: DECAY sets the six oscillator envelopes (127 drones), PUNCH is the Skin/Liquid switch (on = Liquid; the stock PUNCH stage is not used), and GATE holds the six envelopes at half level while the note is held",
+   "the range is fixed two octaves below the Alto reference, as on the earlier BIAS builds; PITCH covers the range"
+  ],
+  "fixes": [],
+  "unchanged": [
+   "the six stock machines",
+   "every track that does not use BIAS",
+   "PITCH, FINE, the trig's note and velocity as the OS applies them"
+  ]
+ },
+ "compat": {
+  "built_against": [
+   "model27 3b4e9721d056057052aa8c102aea1c9fe495919b"
+  ],
+  "requires": [],
+  "conflicts_declared": []
+ },
+ "tests": {
+  "emulation": {
+   "tool": "tools/emu/test_bias.py (Unicorn, the OS's own code) and tools/emu/bias_ref.c (host build, bit for bit)",
+   "date": "2026-11-03",
+   "build": "alone in model27: the voice bit-exact with the host build over 15 settings, the clock pitch-locked, Harm/Spread/DECAY/drone/Fold checked, PUNCH on = Liquid, GATE holds, six voices, the cost above. Not re-run in cycles-engines: it needs the m68k-elf toolchain"
+  },
+  "hardware": {
+   "date": null,
+   "by": null,
+   "build": "not run: no unit"
+  },
+  "status": "experimental"
+ }
+}

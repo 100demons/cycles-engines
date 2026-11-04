@@ -57,3 +57,30 @@ sit at slots 7..10 with no gap. This phase fixes the value-window displays and t
       (1:4..15X), stepping one detent at a time.
 - [ ] SAM: COLOR shows the rate, SHAPE the word, SWEEP the scrub and CONTOUR the character (DEEP/DARK/SAM/BRIT/THIN).
 - [ ] The six stock machines still work as before.
+
+---
+
+## phase-6.syx (FERAL + BLAST + PUNCH + BIAS)
+
+Built from `core/compose.py --machines feral,blast,punch,bias`, or tick the four on the page. BIAS is slot 11
+(machine 10), so an unticked slot below it reads `----` and is silent. **BIAS has never been played on a machine**:
+its emulation proof was run in its own repository (https://github.com/100demons/bias), not here, and it was not
+re-run for this build. It is also the heaviest engine on the page.
+
+- [ ] The MACHINES page shows BIAS after the other engines, at slot 11; a `----` placeholder where a slot is
+      unticked, and it is silent.
+- [ ] BIAS makes sound on one track at the default sound, and the note sets the pitch (PITCH, FINE and the trig's
+      note all move it).
+- [ ] COLOR (Harm): one tone at the left; a second arrives over the first quarter; by the right the upper modes are
+      full and the sound is dense.
+- [ ] SHAPE (Morph): sine, triangle, saw and square, two neighbours blended, no click while turning.
+- [ ] SWEEP (Spread): the harmonic series at the left, 1-2-3-5-7-11 at the right, and nothing lands between.
+- [ ] CONTOUR (Fold): the first three quarters fold; from 96 the folded peaks strike as separate pulses.
+- [ ] DECAY: a very short hit at 0, a long tail near 126, and 127 drones with no decay at all.
+- [ ] PUNCH on drops the pitch on every trig (Liquid); off gives the plain hit (Skin). P-lock PUNCH on one trig and
+      check that only that trig drops.
+- [ ] GATE on holds the hit at half level while the note is held; GATE off lets it die at once.
+- [ ] Six tracks of BIAS at the worst setting (Harm 127, Morph 127, Spread 64, Fold 127): no dropouts, no clicks,
+      no stutter. This is the CPU risk of the page, at 96 % of a TONE voice per voice.
+- [ ] Change a track's machine away from BIAS and back: the sound comes back and still plays.
+- [ ] The six stock machines still work as before.
