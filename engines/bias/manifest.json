@@ -147,10 +147,10 @@
    "build": "alone in model27: the voice bit-exact with the host build over 15 settings, the clock pitch-locked, Harm/Spread/DECAY/drone/Fold checked, PUNCH on = Liquid, GATE holds, six voices, the cost above. Not re-run in cycles-engines: it needs the m68k-elf toolchain"
   },
   "hardware": {
-   "date": null,
-   "by": null,
-   "build": "not run: no unit"
+   "date": "2026-11-03",
+   "by": "owner (100demons)",
+   "build": "the packaged engine from this page, slot 11 on a real Model:Cycles"
   },
-  "status": "experimental"
+  "status": "tested"
  }
 }

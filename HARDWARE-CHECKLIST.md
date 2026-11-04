@@ -63,9 +63,12 @@ sit at slots 7..10 with no gap. This phase fixes the value-window displays and t
 ## phase-6.syx (FERAL + BLAST + PUNCH + BIAS)
 
 Built from `core/compose.py --machines feral,blast,punch,bias`, or tick the four on the page. BIAS is slot 11
-(machine 10), so an unticked slot below it reads `----` and is silent. **BIAS has never been played on a machine**:
-its emulation proof was run in its own repository (https://github.com/100demons/bias), not here, and it was not
-re-run for this build. It is also the heaviest engine on the page.
+(machine 10), so an unticked slot below it reads `----` and is silent. It is the heaviest engine on the page.
+
+**Result, 2026-11-03: played on a real Model:Cycles by the owner (100demons), slot 11.** BIAS is *Tested* since
+then, on the card and in its manifest. Its emulation proof lives in its own repository
+(https://github.com/100demons/bias) and was not re-run here. The list below stays as the record of what a later
+build of it should be checked against.
 
 - [ ] The MACHINES page shows BIAS after the other engines, at slot 11; a `----` placeholder where a slot is
       unticked, and it is silent.
