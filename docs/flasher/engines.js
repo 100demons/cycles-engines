@@ -4878,7 +4878,8 @@ window.MC_ENGINES = {
      "kind": "own",
      "who": "100demons"
     },
-    "license": "LICENSE"
+    "license": "LICENSE",
+    "video": "V31cc8pZzJ8"
    },
    "version": "2.0",
    "name": "BIAS machine: six oscillators, one wavefolder, on a pitch-locked clock",
